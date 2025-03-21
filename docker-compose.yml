@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  # Backend server with PyTorch model
+  card-recognition-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./model.py:/app/model.py
+      - ./server.py:/app/server.py
+    restart: unless-stopped
+    # Optional: If you have a GPU and want to use it
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # Frontend static hosting (using nginx for simplicity)
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html
+    depends_on:
+      - card-recognition-server
+    restart: unless-stopped 

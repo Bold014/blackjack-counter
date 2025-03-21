@@ -1,0 +1,19 @@
+{
+  "name": "hitorstand",
+  "version": "1.0.0",
+  "description": "Blackjack card counting application",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve"
+  },
+  "keywords": [
+    "blackjack",
+    "card-counting",
+    "strategy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+} 
