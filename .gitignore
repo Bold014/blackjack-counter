@@ -22,21 +22,43 @@ var/
 venv/
 .env
 
-# Node
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Node.js
 node_modules/
 npm-debug.log
-yarn-debug.log
 yarn-error.log
+yarn-debug.log
+
+# macOS
+.DS_Store
+
+# Large files and model artifacts
+*.pth
+*.h5
+*.onnx
+*.pb
+*.tflite
+*.pt
+
+# But keep the model directory structure for git
+!models/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# Heroku
+.env
 
 # IDEs and editors
-.idea/
-.vscode/
 *.swp
 *.swo
 
 # OS specific
-.DS_Store
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes

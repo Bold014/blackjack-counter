@@ -20,12 +20,31 @@ CARD_CLASSES = {
 }
 
 # Load the model
-MODEL_PATH = 'card_classifier_model.pth'  # You'll need to download or train this
+MODEL_PATHS = [
+    'card_classifier_model.pth',  # Original path
+    os.path.join('models', 'card_classifier_model.pth'),  # models directory
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'card_classifier_model.pth'),  # Absolute path
+]
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def load_model():
     model = CardClassifierCNN(num_classes=53)  # Assuming 53 classes as mentioned in the GitHub
-    model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+    
+    # Try different paths for the model
+    model_loaded = False
+    for model_path in MODEL_PATHS:
+        try:
+            if os.path.exists(model_path):
+                model.load_state_dict(torch.load(model_path, map_location=device))
+                print(f"Model loaded successfully from {model_path}")
+                model_loaded = True
+                break
+        except Exception as e:
+            print(f"Failed to load model from {model_path}: {e}")
+    
+    if not model_loaded:
+        raise Exception("Could not find or load model file")
+        
     model.eval()
     return model
 

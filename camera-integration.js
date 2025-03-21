@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Use Heroku URL in production, localhost for development
     let serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:5000'
-        : 'https://your-heroku-app-name.herokuapp.com'; // IMPORTANT: Replace with your actual Heroku app name!
+        : 'https://blackjack-counter.herokuapp.com';
     
     // Functions
     function checkServerStatus() {
