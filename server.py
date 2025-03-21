@@ -4,13 +4,22 @@ import base64
 import torch
 import numpy as np
 from PIL import Image
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, request, jsonify, after_this_request
+from flask_cors import CORS, cross_origin
 import torchvision.transforms as transforms
 from model import CardClassifierCNN  # We'll implement this next
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+# Update CORS configuration to explicitly allow Vercel domain
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://blackjack-counter-six.vercel.app", "*"]}}, supports_credentials=True)
+
+# CORS headers helper
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
 
 # Class mapping
 CARD_CLASSES = {
