@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HitOrStand - Master Blackjack Strategy</title>
+    <link rel="stylesheet" href="../styles/pages/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg" style="background-image: url('../assets/images/hero-bg.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat;"></div>
+        <div class="hero-overlay"></div>
+        
+        <!-- Circle navigation buttons in top right -->
+        <div class="circle-nav">
+            <a href="#features" class="circle-btn" data-tooltip="Features"><i class="fas fa-layer-group"></i></a>
+            <a href="#about" class="circle-btn" data-tooltip="About"><i class="fas fa-info"></i></a>
+            <a href="trainer.html" class="circle-btn" data-tooltip="Open Trainer"><i class="fas fa-play"></i></a>
+        </div>
+        
+        <!-- Centered logo -->
+        <div class="centered-logo" style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 3rem 0;">
+            <a href="index.html" class="logo-link">
+                <img src="../assets/images/hitorstandlogo.png" alt="HitOrStand" class="logo-image" style="height: 180px; max-width: 600px;">
+            </a>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-text">
+                <h1>Beat the House and Master Blackjack</h1>
+                <p class="hero-subtitle">Train with AI-powered strategies and real-time feedback to maximize your winning potential.</p>
+                
+                <div class="hero-explanation">
+                    <p>🎯 Our advanced Blackjack trainer provides personaliznpm ed guidance based on proven mathematical strategies.</p>
+                    <ul>
+                        <li>🧠 Optimal decision-making in any scenario</li>
+                        <li>🃏 Advanced card counting techniques</li>
+                        <li>💰 How to adjust strategy based on game conditions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="signup-box">
+                <h2>Start Your Free Training</h2>
+                <p class="form-value-prop">Learn in minutes with AI feedback – no credit card needed.</p>
+                
+                <!-- Clerk Auth Components -->
+                <div id="clerk-auth-container">
+                    <!-- This will be populated by Clerk -->
+                </div>
+                
+                <!-- Loading state -->
+                <div id="auth-loading" style="text-align: center; padding: 20px;">
+                    <p>Loading authentication...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll down indicator -->
+        <div class="scroll-indicator">
+            <a href="#features">
+                <i class="fas fa-chevron-down"></i>
+            </a>
+        </div>
+    </section>
+    
+    <!-- Wave Separator -->
+    <div class="wave-separator">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none" class="wave">
+            <path fill="#0c1429" d="M0,160L48,165.3C96,171,192,181,288,181.3C384,181,480,171,576,165.3C672,160,768,160,864,165.3C960,171,1056,181,1152,176C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2>Why Choose Our Trainer?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-sync-alt"></i>
+                <h3>Real-Time Feedback</h3>
+                <p>Get instant advice on optimal moves and learn from your mistakes as you play.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-sliders-h"></i>
+                <h3>Customizable Rules</h3>
+                <p>Adjust deck count, dealer rules, and other settings to match your preferred casino conditions.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Progress Tracking</h3>
+                <p>Monitor your improvement over time with detailed statistics and performance metrics.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-brain"></i>
+                <h3>Focus on Strategy</h3>
+                <p>Clean interface eliminates distractions, helping you concentrate on perfecting your gameplay.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="faq-container">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How does the trainer improve my blackjack skills?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our trainer uses mathematically optimal blackjack strategy to provide instant feedback on every decision you make. You'll learn when to hit, stand, double down, or split based on your cards and the dealer's up-card.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Is this suitable for beginners?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely! The trainer is designed for all skill levels, from complete beginners to advanced players. You'll start with the basics and gradually learn more complex strategies at your own pace.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Can I practice card counting with this trainer?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely! Our trainer includes dedicated card counting modules that teach you various systems like Hi-Lo, KO (Knock-Out), and Omega II. You can practice counting in realistic scenarios with multiple decks and varying game speeds to build your skills gradually.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Does the trainer help with bankroll management?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! Our trainer includes a bankroll management module that teaches you how to properly size your bets, manage your playing budget, and implement betting strategies that maximize your edge. You'll learn about the Kelly criterion, risk of ruin, and other essential concepts for long-term success.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Will this work for any casino?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! You can customize the trainer to match the specific rules of any casino you plan to visit. This includes adjusting the number of decks, dealer rules (hit or stand on soft 17), and other game variations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Choose Your Settings</h3>
+                <p>Select the number of decks and dealer rules that match your target casino.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Start Playing</h3>
+                <p>Jump right into hands with our intuitive interface and realistic gameplay.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Get Instant Feedback</h3>
+                <p>Receive real-time advice on the optimal play for every situation.</p>
+            </div>
+        </div>
+        <a href="trainer.html" class="cta-primary">Begin Training</a>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="about-content">
+            <h2>About HitOrStand</h2>
+            <p>HitOrStand is designed by blackjack enthusiasts for players who want to master basic strategy and card counting. Our trainer provides a risk-free environment to practice and perfect your skills before hitting the casino floor.</p>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta">
+        <h2>Ready to Improve Your Game?</h2>
+        <p>Start training now and take your blackjack skills to the next level.</p>
+        <a href="trainer.html" class="cta-primary">Launch Trainer</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html" class="logo-link">
+                    <img src="../assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="trainer.html">Trainer</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://x.com/joethebrojoe" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: 24px; height: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 1200 1227" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 HitOrStand. For educational purposes only.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // FAQ Toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    // Toggle active class
+                    this.parentElement.classList.toggle('faq-active');
+                    
+                    // Toggle icon rotation
+                    if (icon.classList.contains('fa-chevron-down')) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                    
+                    // Toggle answer visibility
+                    if (answer.style.maxHeight) {
+                        answer.style.maxHeight = null;
+                    } else {
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                    }
+                });
+            });
+            
+            // Initially hide all answers
+            document.querySelectorAll('.faq-answer').forEach(answer => {
+                answer.style.maxHeight = null;
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // Offset for fixed header
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- Clerk Integration Script -->
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_cHJvdWQtZHJ1bS02NC5jbGVyay5hY2NvdW50cy5kZXYk"
+        src="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript">
+    </script>
+    <script src="../components/auth/main.js"></script>
+</body>
+</html>

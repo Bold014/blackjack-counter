@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HitOrStand - Blackjack Trainer</title>
+    <link rel="stylesheet" href="../styles/pages/styles.css">
+    <link rel="stylesheet" href="../styles/pages/trainer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="home-button">
+        <a href="index.html" class="home-link">
+            <img src="../assets/images/logosmall.png" alt="HitOrStand" class="home-logo-image" style="height: 60px; width: auto; max-width: none;">
+        </a>
+    </div>
+    
+    <!-- User button for signed-in users -->
+    <div class="user-button" id="user-button" style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: none;">
+        <button id="user-menu-btn" class="user-menu-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 15px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user"></i>
+            <span id="user-name"></span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="user-dropdown" class="user-dropdown" style="position: absolute; top: 100%; right: 0; background: #0c1429; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; min-width: 150px; display: none;">
+            <button id="sign-out-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Mode Selection Screen -->
+        <div id="mode-selection" class="mode-selection-container active">
+            <header class="trainer-header">
+                <h1>Blackjack Trainer</h1>
+                <p class="subtitle">Choose your training mode to improve your blackjack skills</p>
+            </header>
+            
+            <div class="training-modes">
+                <div class="mode-card primary-mode" id="test-run-mode">
+                    <div class="mode-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Performance Test</h3>
+                    <p>Play through a complete shoe and get detailed performance analytics on your decisions</p>
+                    <div class="mode-features">
+                        <span class="feature"><i class="fas fa-check"></i> Strategy Analysis</span>
+                        <span class="feature"><i class="fas fa-check"></i> Betting Accuracy</span>
+                        <span class="feature"><i class="fas fa-check"></i> Performance Score</span>
+                    </div>
+                    <button class="mode-btn primary-btn" onclick="window.location.href='performance-test.html'">Start Test Run</button>
+                </div>
+                
+                <div class="mode-card coming-soon">
+                    <div class="mode-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Strategy Drills</h3>
+                    <p>Practice specific scenarios and master basic strategy decisions</p>
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <button class="mode-btn disabled-btn" disabled>Coming Soon</button>
+                </div>
+                
+                <div class="mode-card coming-soon">
+                    <div class="mode-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Challenge Mode</h3>
+                    <p>Take on progressively difficult challenges and earn achievements</p>
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <button class="mode-btn disabled-btn" disabled>Coming Soon</button>
+                </div>
+                
+                <div class="mode-card coming-soon">
+                    <div class="mode-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>Card Counting Trainer</h3>
+                    <p>Master card counting techniques with specialized training exercises</p>
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <button class="mode-btn disabled-btn" disabled>Coming Soon</button>
+                </div>
+                
+                <div class="mode-card coming-soon">
+                    <div class="mode-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Multiplayer Training</h3>
+                    <p>Practice with other players and compare your performance</p>
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <button class="mode-btn disabled-btn" disabled>Coming Soon</button>
+                </div>
+                
+                <div class="mode-card coming-soon">
+                    <div class="mode-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Speed Training</h3>
+                    <p>Improve your decision-making speed under time pressure</p>
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <button class="mode-btn disabled-btn" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html" class="logo-link">
+                    <img src="../assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="trainer.html">Trainer</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://x.com/joethebrojoe" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: 24px; height: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 1200 1227" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 HitOrStand. For educational purposes only.</p>
+        </div>
+    </footer>
+    
+    <!-- Clerk Integration for Trainer -->
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_test_cHJvdWQtZHJ1bS02NC5jbGVyay5hY2NvdW50cy5kZXYk"
+        src="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript">
+    </script>
+    <script>
+        // Clerk Integration for Trainer Page
+        let clerk;
+
+        window.addEventListener('load', async function () {
+            try {
+                if (typeof window.Clerk === 'undefined') {
+                    console.error('Clerk is not loaded');
+                    window.location.href = '/index.html';
+                    return;
+                }
+                
+                clerk = window.Clerk;
+                await clerk.load();
+
+                if (clerk.user) {
+                    showUserButton();
+                } else {
+                    // Redirect to home page if not signed in
+                    window.location.href = '/index.html';
+                }
+                
+            } catch (error) {
+                console.error('Error initializing Clerk:', error);
+                // Redirect to home page on error
+                window.location.href = '/index.html';
+            }
+        });
+
+        function showUserButton() {
+            const userButton = document.getElementById('user-button');
+            const userName = document.getElementById('user-name');
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            
+            if (clerk.user && userButton && userName) {
+                const firstName = clerk.user.firstName || clerk.user.emailAddresses[0].emailAddress.split('@')[0];
+                userName.textContent = firstName;
+                userButton.style.display = 'block';
+                
+                // Toggle dropdown
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!userButton.contains(e.target)) {
+                        userDropdown.style.display = 'none';
+                    }
+                });
+                
+                // Sign out functionality
+                signOutBtn.addEventListener('click', async () => {
+                    await clerk.signOut();
+                    window.location.href = '/index.html';
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

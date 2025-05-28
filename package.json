@@ -1,19 +1,28 @@
 {
   "name": "hitorstand",
   "version": "1.0.0",
-  "description": "Blackjack card counting application",
-  "main": "index.html",
+  "main": "trainer.js",
   "scripts": {
-    "dev": "npx serve"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "blackjack",
-    "card-counting",
-    "strategy"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bold014/blackjack-counter.git"
+  },
+  "keywords": [],
   "author": "",
-  "license": "MIT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bold014/blackjack-counter/issues"
+  },
+  "homepage": "https://github.com/Bold014/blackjack-counter#readme",
+  "description": "",
   "devDependencies": {
-    "serve": "^14.2.0"
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.17"
+  },
+  "dependencies": {
+    "@clerk/clerk-js": "^5.67.4"
   }
-} 
+}
