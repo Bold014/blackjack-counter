@@ -491,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBalanceDisplay();
             bindEvents();
             updateControls();
+            updateHelpPanel();
             
             // Initialize test progress if in test mode
             if (state.isTestMode) {
@@ -550,6 +551,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (betInput) betInput.value = state.currentBet;
                         updateBetDisplay();
                     }
+                }
+            });
+            
+            // Help panel toggle
+            if (helpToggle) helpToggle.addEventListener('click', () => {
+                helpPanel.classList.toggle('open');
+                
+                // When help panel is opened, ensure betting recommendation section is created and updated
+                if (helpPanel.classList.contains('open')) {
+                    updateHelpPanel();
+                    // Explicitly ensure the betting recommendation is shown and updated
+                    updateBettingRecommendation();
                 }
             });
             
@@ -645,6 +658,8 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let value of values) {
                 state.cardCounts[value] = 4 * state.decks;
             }
+            
+            updateHelpPanel();
         }
         
         // Get the image path for a card
@@ -799,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     updateControls();
+                    updateHelpPanel();
                     break;
             }
         }
@@ -837,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateGameDisplay();
             updateControls();
-
+            updateHelpPanel();
         }
         
         // Player stands (ends turn)
@@ -862,6 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateGameDisplay();
             updateControls();
+            updateHelpPanel();
         }
         
         // Player doubles down
@@ -912,7 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGameDisplay();
             updateControls();
             updateBalanceDisplay();
-
+            updateHelpPanel();
         }
         
         // Player splits hand
@@ -991,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateGameDisplay();
                     updateControls();
                     updateBalanceDisplay();
-
+                    updateHelpPanel();
                     
                 }, 500); // Delay for second hand card
             }, 500); // Delay for first hand card
@@ -1043,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateGameDisplay();
                     
                     // Update the help panel to show the new card in history
-
+                    updateHelpPanel();
                     
                     // Log the dealer hit for debugging
                     console.log(`Dealer hit: ${newCard.value}${newCard.suit}, current total: ${getHandValue(state.dealerHand)}`);
@@ -1114,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Update the display to show the flipped card
             updateGameDisplay();
-
+            updateHelpPanel();
         }
         
         // Evaluate all hands and determine winners
@@ -1517,7 +1534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateGameDisplay();
             updateControls();
-
+            updateHelpPanel();
         }
         
         // Get the value of a single card
@@ -2232,11 +2249,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update help panel
         function updateHelpPanel() {
-            // Skip UI updates for performance test
-            // All calculations are still performed in other functions
-            // This function is now a no-op but kept for compatibility
-            return;
-            
             if (!helpPanel) return;
             
             if (runningCountDisplay) {
@@ -2382,10 +2394,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Get the recommended bet multiplier and amount
             const trueCount = parseFloat(calculateTrueCount());
             const { betMultiplier, recommendedBet } = calculateRecommendedBet();
-            
-            // Skip UI updates for performance test
-            // The calculation is still performed and can be used for performance tracking
-            return;
             
             // Get or create the betting recommendation element
             let recommendationEl = document.getElementById('betting-recommendation');

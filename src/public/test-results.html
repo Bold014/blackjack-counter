@@ -79,9 +79,13 @@
                         <h3>Betting Performance</h3>
                         <div class="result-stat">
                             <span id="betting-accuracy">0%</span>
-                            <span class="stat-description">Optimal Bet Sizing</span>
+                            <span class="stat-description">Betting Strategy Adherence</span>
                         </div>
                         <div class="result-details">
+                            <div class="detail-item">
+                                <span>Correct Bet Sizing:</span>
+                                <span id="correct-betting">0/0</span>
+                            </div>
                             <div class="detail-item">
                                 <span>Starting Balance:</span>
                                 <span id="starting-balance">$0</span>
@@ -95,22 +99,25 @@
                                 <span id="net-result">$0</span>
                             </div>
                         </div>
+                        <div class="result-note">
+                            <small>Based on Hi-Lo count system: TC ≤ 0: $10 | TC +1: $10 | TC +2: $20 | TC +3: $40 | TC +4: $80 | TC +5: $120 | TC ≥+6: $150</small>
+                        </div>
                     </div>
                     
                     <div class="result-card">
-                        <h3>Card Counting</h3>
+                        <h3>Session Summary</h3>
                         <div class="result-stat">
-                            <span id="counting-accuracy">0%</span>
-                            <span class="stat-description">Count Accuracy</span>
+                            <span id="total-hands">0</span>
+                            <span class="stat-description">Hands Played</span>
                         </div>
                         <div class="result-details">
                             <div class="detail-item">
-                                <span>Hands Played:</span>
-                                <span id="total-hands">0</span>
+                                <span>Test Duration:</span>
+                                <span id="test-duration">0:00</span>
                             </div>
                             <div class="detail-item">
-                                <span>Average True Count:</span>
-                                <span id="avg-true-count">0.0</span>
+                                <span>Avg. Decision Time:</span>
+                                <span id="avg-decision-time">0.0s</span>
                             </div>
                         </div>
                     </div>
@@ -169,15 +176,16 @@
                 overallScore: 0,
                 strategyAccuracy: 0,
                 bettingAccuracy: 0,
-                countingAccuracy: 0,
                 correctHits: { correct: 0, total: 0 },
                 correctStands: { correct: 0, total: 0 },
                 correctDoubles: { correct: 0, total: 0 },
                 correctSplits: { correct: 0, total: 0 },
+                bettingDecisions: { correct: 0, total: 0 },
                 startingBalance: 1000,
                 finalBalance: 1000,
                 totalHands: 0,
-                avgTrueCount: 0
+                testDuration: 0,
+                avgDecisionTime: 0
             };
 
             const finalResults = { ...defaultResults, ...results };
@@ -209,6 +217,12 @@
                 bettingAccuracyEl.textContent = `${Math.round(results.bettingAccuracy)}%`;
             }
             
+            // Update betting decisions
+            const correctBettingEl = document.getElementById('correct-betting');
+            if (correctBettingEl && results.bettingDecisions) {
+                correctBettingEl.textContent = `${results.bettingDecisions.correct}/${results.bettingDecisions.total}`;
+            }
+            
             document.getElementById('starting-balance').textContent = `$${results.startingBalance}`;
             document.getElementById('final-balance').textContent = `$${results.finalBalance}`;
             
@@ -219,14 +233,22 @@
                 netResultEl.style.color = netResult >= 0 ? 'var(--success-color)' : 'var(--warning-color)';
             }
             
-            // Update counting performance
-            const countingAccuracyEl = document.getElementById('counting-accuracy');
-            if (countingAccuracyEl) {
-                countingAccuracyEl.textContent = `${Math.round(results.countingAccuracy)}%`;
+            // Update session summary
+            document.getElementById('total-hands').textContent = results.totalHands.toString();
+            
+            // Format test duration
+            const testDurationEl = document.getElementById('test-duration');
+            if (testDurationEl) {
+                const minutes = Math.floor(results.testDuration / 60);
+                const seconds = Math.floor(results.testDuration % 60);
+                testDurationEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             }
             
-            document.getElementById('total-hands').textContent = results.totalHands.toString();
-            document.getElementById('avg-true-count').textContent = results.avgTrueCount.toFixed(1);
+            // Format average decision time
+            const avgDecisionTimeEl = document.getElementById('avg-decision-time');
+            if (avgDecisionTimeEl) {
+                avgDecisionTimeEl.textContent = `${results.avgDecisionTime.toFixed(1)}s`;
+            }
         }
     </script>
     

@@ -1,190 +1,16 @@
-// Performance Test Page Component
+// Card Counter Trainer - Reusing performance test game logic
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the performance test page
-    initPerformanceTest();
+    // Initialize the card counter trainer using the same game logic as performance test
+    initCardCounterTrainer();
     
-    // Main initialization function
-    function initPerformanceTest() {
-        // Initialize navigation system
-        initNavigation();
-        
-        // Show settings by default
-        showTestRunSettings();
+    function initCardCounterTrainer() {
+        // Initialize the trainer with card counting help always visible
+        initTrainer();
     }
     
-    // Navigation system for different screens
-    function initNavigation() {
-        // Settings screen handlers
-        const startTestBtn = document.getElementById('start-test-run');
-        
-        if (startTestBtn) {
-            startTestBtn.addEventListener('click', startTestRun);
-        }
-        
-        // Game screen handlers
-        const endTestBtn = document.getElementById('end-test-early');
-        if (endTestBtn) {
-            endTestBtn.addEventListener('click', endTestRun);
-        }
-    }
-    
-    // Show test run settings screen
-    function showTestRunSettings() {
-        hideAllScreens();
-        document.getElementById('test-run-settings').classList.add('active');
-    }
-    
-    // Show test run game screen
-    function showTestRunGame() {
-        hideAllScreens();
-        document.getElementById('test-run-game').classList.add('active');
-    }
-    
-    // Hide all screens
-    function hideAllScreens() {
-        const screens = ['test-run-settings', 'test-run-game'];
-        screens.forEach(screenId => {
-            const screen = document.getElementById(screenId);
-            if (screen) {
-                screen.classList.remove('active');
-            }
-        });
-    }
-    
-    // Start a test run
-    function startTestRun() {
-        // Get settings
-        const settings = getTestSettings();
-        
-        // Initialize test run
-        initTestRun(settings);
-        
-        // Show game screen
-        showTestRunGame();
-    }
-    
-    // Get test settings from the form
-    function getTestSettings() {
-        return {
-            decks: parseInt(document.getElementById('test-decks')?.value || 6),
-            hitSoft17: document.getElementById('test-hit-soft-17')?.value === 'yes',
-            doubleAfterSplit: document.getElementById('test-double-after-split')?.value === 'yes',
-            resplitAces: document.getElementById('test-resplit-aces')?.value === 'yes',
-            bettingEnabled: document.getElementById('test-enable-betting')?.value === 'yes',
-            startingBalance: parseInt(document.getElementById('test-starting-balance')?.value || 1000)
-        };
-    }
-    
-    // Initialize test run with performance tracking
-    function initTestRun(settings) {
-        // Initialize the actual trainer with performance tracking
-        initTrainer(settings, true);
-    }
-    
-    // End test run early
-    function endTestRun() {
-        // Calculate final results and redirect to results page
-        calculateAndShowResults();
-    }
-    
-    // Calculate and display test results
-    function calculateAndShowResults() {
-        // Finalize performance data calculation
-        if (window.trainerState && window.trainerState.isTestMode) {
-            // Call the finalization function from the trainer
-            if (typeof finalizePerformanceData === 'function') {
-                finalizePerformanceData();
-            }
-        }
-        
-        // Get performance data from the trainer
-        const results = getPerformanceResults();
-        
-        // Store results in localStorage for the results page
-        localStorage.setItem('testResults', JSON.stringify(results));
-        
-        // Redirect to results page
-        window.location.href = 'test-results.html';
-    }
-    
-    // Get performance results from the trainer
-    function getPerformanceResults() {
-        // This will be populated by the trainer
-        return window.trainerPerformance || {
-            overallScore: 0,
-            strategyAccuracy: 0,
-            bettingAccuracy: 0,
-            correctHits: { correct: 0, total: 0 },
-            correctStands: { correct: 0, total: 0 },
-            correctDoubles: { correct: 0, total: 0 },
-            correctSplits: { correct: 0, total: 0 },
-            bettingDecisions: { correct: 0, total: 0 },
-            startingBalance: 1000,
-            finalBalance: 1000,
-            totalHands: 0,
-            testDuration: 0,
-            avgDecisionTime: 0
-        };
-    }
-    
-
-
-    
-    // Display results on the results screen
-    function displayResults(results) {
-        // Update overall score
-        const finalScoreEl = document.getElementById('final-score');
-        if (finalScoreEl) {
-            finalScoreEl.textContent = `${Math.round(results.overallScore)}%`;
-        }
-        
-        // Update strategy accuracy
-        const strategyAccuracyEl = document.getElementById('strategy-accuracy');
-        if (strategyAccuracyEl) {
-            strategyAccuracyEl.textContent = `${Math.round(results.strategyAccuracy)}%`;
-        }
-        
-        // Update individual strategy stats
-        document.getElementById('correct-hits').textContent = `${results.correctHits.correct}/${results.correctHits.total}`;
-        document.getElementById('correct-stands').textContent = `${results.correctStands.correct}/${results.correctStands.total}`;
-        document.getElementById('correct-doubles').textContent = `${results.correctDoubles.correct}/${results.correctDoubles.total}`;
-        document.getElementById('correct-splits').textContent = `${results.correctSplits.correct}/${results.correctSplits.total}`;
-        
-        // Update betting performance
-        const bettingAccuracyEl = document.getElementById('betting-accuracy');
-        if (bettingAccuracyEl) {
-            bettingAccuracyEl.textContent = `${Math.round(results.bettingAccuracy)}%`;
-        }
-        
-        document.getElementById('starting-balance').textContent = `$${results.startingBalance}`;
-        document.getElementById('final-balance').textContent = `$${results.finalBalance}`;
-        
-        const netResult = results.finalBalance - results.startingBalance;
-        const netResultEl = document.getElementById('net-result');
-        if (netResultEl) {
-            netResultEl.textContent = `${netResult >= 0 ? '+' : ''}$${netResult}`;
-            netResultEl.style.color = netResult >= 0 ? 'var(--success-color)' : 'var(--warning-color)';
-        }
-        
-        // Update counting performance
-        const countingAccuracyEl = document.getElementById('counting-accuracy');
-        if (countingAccuracyEl) {
-            countingAccuracyEl.textContent = `${Math.round(results.countingAccuracy)}%`;
-        }
-        
-        document.getElementById('total-hands').textContent = results.totalHands.toString();
-        document.getElementById('avg-true-count').textContent = results.avgTrueCount.toFixed(1);
-    }
-    
-    // Separate function to initialize the actual trainer
-    function initTrainer(settings = null, isTestMode = false) {
+    // Main trainer function adapted from performance-test.js
+    function initTrainer() {
         // DOM Elements
-        const trainerContainer = document.querySelector('.trainer-container');
-        const deckSelect = document.getElementById('test-decks');
-        const hitSoft17Select = document.getElementById('test-hit-soft-17');
-        const doubleAfterSplitSelect = document.getElementById('test-double-after-split');
-        const resplitAcesSelect = document.getElementById('test-resplit-aces');
-        const enableBettingSelect = document.getElementById('test-enable-betting');
         const dealButton = document.getElementById('deal-button');
         const hitButton = document.getElementById('hit-button');
         const standButton = document.getElementById('stand-button');
@@ -196,19 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const trueCountDisplay = document.getElementById('help-true-count');
         const helpAdviceDisplay = document.getElementById('help-advice');
         const historyList = document.getElementById('help-history-list');
+        const suggestedBetDisplay = document.getElementById('suggested-bet');
+        const cardsRemainingDisplay = document.getElementById('cards-remaining');
+        const deckCountDisplay = document.getElementById('deck-count');
         
-        // Game state
+        // Game state - same as performance test but without test mode
         const state = {
-            // Settings (use provided settings or defaults)
-            decks: settings?.decks || 6,
-            hitSoft17: settings?.hitSoft17 !== undefined ? settings.hitSoft17 : true,
-            doubleAfterSplit: settings?.doubleAfterSplit !== undefined ? settings.doubleAfterSplit : true,
-            resplitAces: settings?.resplitAces !== undefined ? settings.resplitAces : false,
-            bettingEnabled: settings?.bettingEnabled !== undefined ? settings.bettingEnabled : true,
-            
-            // Test mode settings
-            isTestMode: isTestMode,
-            testStartTime: isTestMode ? Date.now() : null,
+            // Settings - fixed for card counter trainer
+            decks: 6,
+            hitSoft17: true,
+            doubleAfterSplit: true,
+            resplitAces: false,
+            bettingEnabled: true,
             
             // Game state
             deck: [],
@@ -216,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dealerHand: [],
             currentHandIndex: 0,
             gamePhase: 'betting', // betting, playerTurn, dealerTurn, evaluating, gameOver
-            balance: settings?.startingBalance || 1000,
+            balance: 1000,
             currentBet: 0,
             doubledHands: new Set(),
             splitHands: [],
@@ -243,24 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 minBet: 10, // Minimum bet amount (1 unit)
                 currentRecommendation: 0 // Current recommended bet
-            },
-            
-            // Performance tracking (only for test mode)
-            performance: isTestMode ? {
-                startingBalance: settings?.startingBalance || 1000,
-                handsPlayed: 0,
-                decisions: {
-                    hits: { correct: 0, total: 0 },
-                    stands: { correct: 0, total: 0 },
-                    doubles: { correct: 0, total: 0 },
-                    splits: { correct: 0, total: 0 }
-                },
-                bettingDecisions: { correct: 0, total: 0 },
-                countingAccuracy: { correct: 0, total: 0 },
-                trueCountHistory: [],
-                handStartTimes: [],
-                totalTestTime: 0
-            } : null
+            }
         };
         
         // Card values for Hi-Lo counting system
@@ -361,198 +169,19 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.head.appendChild(styleSheet);
         
-        // Performance tracking functions
-        function trackDecision(action, isCorrect) {
-            if (!state.isTestMode || !state.performance) return;
-            
-            const decisions = state.performance.decisions;
-            if (decisions[action]) {
-                decisions[action].total++;
-                if (isCorrect) {
-                    decisions[action].correct++;
-                }
-            }
-            
-            updateTestProgress();
-        }
-        
-        function trackBettingDecision(isCorrect) {
-            if (!state.isTestMode || !state.performance) return;
-            
-            state.performance.bettingDecisions.total++;
-            if (isCorrect) {
-                state.performance.bettingDecisions.correct++;
-            }
-        }
-        
-        function updateTestProgress() {
-            if (!state.isTestMode) return;
-            
-            // Update hands played
-            const handsPlayedEl = document.getElementById('hands-played');
-            if (handsPlayedEl && state.performance) {
-                handsPlayedEl.textContent = state.performance.handsPlayed.toString();
-            }
-            
-            // Update cards remaining
-            const cardsRemainingEl = document.getElementById('test-cards-remaining');
-            if (cardsRemainingEl) {
-                cardsRemainingEl.textContent = state.deck.length.toString();
-            }
-            
-            // Update current score
-            const currentScoreEl = document.getElementById('current-score');
-            if (currentScoreEl && state.performance) {
-                const score = calculateCurrentScore();
-                currentScoreEl.textContent = `${Math.round(score)}%`;
-            }
-            
-                    // Check if shoe is complete (less than 20% of cards remaining)
-        const totalCards = state.decks * 52;
-        const cardsRemaining = state.deck.length;
-        if (cardsRemaining < totalCards * 0.2) {
-            // Shoe is nearly complete, end test
-            setTimeout(() => {
-                calculateAndShowResults();
-            }, 1000);
-        }
-        }
-        
-        function calculateCurrentScore() {
-            if (!state.performance) return 0;
-            
-            const decisions = state.performance.decisions;
-            let totalDecisions = 0;
-            let correctDecisions = 0;
-            
-            Object.values(decisions).forEach(decision => {
-                totalDecisions += decision.total;
-                correctDecisions += decision.correct;
-            });
-            
-            if (totalDecisions === 0) return 0;
-            return (correctDecisions / totalDecisions) * 100;
-        }
-        
-        function finalizePerformanceData() {
-            if (!state.isTestMode || !state.performance) return;
-            
-            // Calculate final metrics
-            const performance = state.performance;
-            const decisions = performance.decisions;
-            
-            // Strategy accuracy
-            let totalStrategyDecisions = 0;
-            let correctStrategyDecisions = 0;
-            
-            Object.values(decisions).forEach(decision => {
-                totalStrategyDecisions += decision.total;
-                correctStrategyDecisions += decision.correct;
-            });
-            
-            const strategyAccuracy = totalStrategyDecisions > 0 ? 
-                (correctStrategyDecisions / totalStrategyDecisions) * 100 : 0;
-            
-            // Betting accuracy (based on Hi-Lo count system recommendations)
-            const bettingAccuracy = performance.bettingDecisions.total > 0 ? 
-                (performance.bettingDecisions.correct / performance.bettingDecisions.total) * 100 : 0;
-            
-            // Overall score (weighted average: 70% strategy, 30% betting)
-            const overallScore = (strategyAccuracy * 0.7) + (bettingAccuracy * 0.3);
-            
-            // Calculate session metrics
-            const testDuration = state.testStartTime ? (Date.now() - state.testStartTime) / 1000 : 0;
-            const avgDecisionTime = performance.handStartTimes.length > 0 ? 
-                testDuration / totalStrategyDecisions : 0;
-            
-            // Store results globally for access
-            window.trainerPerformance = {
-                overallScore,
-                strategyAccuracy,
-                bettingAccuracy,
-                correctHits: decisions.hits,
-                correctStands: decisions.stands,
-                correctDoubles: decisions.doubles,
-                correctSplits: decisions.splits,
-                bettingDecisions: performance.bettingDecisions,
-                startingBalance: performance.startingBalance,
-                finalBalance: state.balance,
-                totalHands: performance.handsPlayed,
-                testDuration,
-                avgDecisionTime
-            };
-        }
-        
         // Initialize the game
         function init() {
-            loadSettings();
             createDeck();
             shuffleDeck();
             updateBalanceDisplay();
             bindEvents();
             updateControls();
-            
-            // Initialize test progress if in test mode
-            if (state.isTestMode) {
-                updateTestProgress();
-                
-                            // Expose state and functions globally for test mode
-            window.trainerState = state;
-            window.finalizePerformanceData = finalizePerformanceData;
-            }
-        }
-        
-        // Load settings from selects
-        function loadSettings() {
-            state.decks = parseInt(deckSelect?.value || 6);
-            state.hitSoft17 = hitSoft17Select?.value === 'yes';
-            state.doubleAfterSplit = doubleAfterSplitSelect?.value === 'yes';
-            state.resplitAces = resplitAcesSelect?.value === 'yes';
-            state.bettingEnabled = enableBettingSelect?.value === 'yes';
-            
-            // Update UI based on betting being enabled/disabled
-            if (betInput) {
-                betInput.disabled = !state.bettingEnabled;
-                if (!state.bettingEnabled) {
-                    state.currentBet = 10; // Default bet
-                    if (betInput) betInput.value = state.currentBet;
-                    updateBetDisplay();
-                }
-            }
+            updateHelpPanel();
+            updateCardsRemaining();
         }
         
         // Bind event listeners
         function bindEvents() {
-            // Settings change events
-            if (deckSelect) deckSelect.addEventListener('change', () => {
-                state.decks = parseInt(deckSelect.value);
-                resetGame();
-            });
-            
-            if (hitSoft17Select) hitSoft17Select.addEventListener('change', () => {
-                state.hitSoft17 = hitSoft17Select.value === 'yes';
-            });
-            
-            if (doubleAfterSplitSelect) doubleAfterSplitSelect.addEventListener('change', () => {
-                state.doubleAfterSplit = doubleAfterSplitSelect.value === 'yes';
-            });
-            
-            if (resplitAcesSelect) resplitAcesSelect.addEventListener('change', () => {
-                state.resplitAces = resplitAcesSelect.value === 'yes';
-            });
-            
-            if (enableBettingSelect) enableBettingSelect.addEventListener('change', () => {
-                state.bettingEnabled = enableBettingSelect.value === 'yes';
-                if (betInput) {
-                    betInput.disabled = !state.bettingEnabled;
-                    if (!state.bettingEnabled) {
-                        state.currentBet = 10; // Default bet
-                        if (betInput) betInput.value = state.currentBet;
-                        updateBetDisplay();
-                    }
-                }
-            });
-            
             // Game buttons
             if (dealButton) dealButton.addEventListener('click', startNewHand);
             if (hitButton) hitButton.addEventListener('click', playerHit);
@@ -645,6 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let value of values) {
                 state.cardCounts[value] = 4 * state.decks;
             }
+            
+            // Update help panel after shuffling
+            updateHelpPanel();
         }
         
         // Get the image path for a card
@@ -685,18 +317,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     timestamp: new Date().toLocaleTimeString(),
                     player: isDealer ? 'Dealer' : 'Player'
                 });
+                
+                // Update help panel after dealing a visible card
+                updateHelpPanel();
             }
+            
+            // Update cards remaining after dealing any card (visible or hidden)
+            updateCardsRemaining();
             
             return card;
         }
         
         // Start a new hand
         function startNewHand() {
-            // Track hand start time for performance analysis
-            if (state.isTestMode && state.performance) {
-                state.performance.handStartTimes.push(Date.now());
-            }
-            
             // Check if betting is enabled and valid bet is placed
             if (state.bettingEnabled) {
                 if (state.currentBet <= 0 || state.currentBet > state.balance) {
@@ -720,12 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update game phase
             state.gamePhase = 'dealing'; // New phase for dealing animation
             
+            // Update displays before dealing starts
+            updateBalanceDisplay();
+            updateCardsRemaining();
+            
             // Start the sequential dealing animation
             dealNextCard();
             
             // Update controls early to disable buttons during dealing
             updateControls();
-            updateBalanceDisplay();
         }
         
         // Helper function to deal cards sequentially with animation
@@ -799,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     updateControls();
+                    updateHelpPanel(); // Update help panel after dealing is complete
                     break;
             }
         }
@@ -806,13 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Player hits (takes a card)
         function playerHit() {
             if (state.gamePhase !== 'playerTurn') return;
-            
-            // Track decision for performance analysis
-            if (state.isTestMode) {
-                const correctAction = getBasicStrategyAdvice();
-                const isCorrect = correctAction.toLowerCase().includes('hit');
-                trackDecision('hits', isCorrect);
-            }
             
             const currentHand = state.playerHands[state.currentHandIndex];
             currentHand.push(dealCard(false, false)); // Player card
@@ -837,19 +467,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateGameDisplay();
             updateControls();
-
+            updateHelpPanel();
         }
         
         // Player stands (ends turn)
         function playerStand() {
             if (state.gamePhase !== 'playerTurn') return;
-            
-            // Track decision for performance analysis
-            if (state.isTestMode) {
-                const correctAction = getBasicStrategyAdvice();
-                const isCorrect = correctAction.toLowerCase().includes('stand');
-                trackDecision('stands', isCorrect);
-            }
             
             if (state.currentHandIndex < state.playerHands.length - 1) {
                 // Move to next hand if split
@@ -881,13 +504,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Track decision for performance analysis
-            if (state.isTestMode) {
-                const correctAction = getBasicStrategyAdvice();
-                const isCorrect = correctAction.toLowerCase().includes('double');
-                trackDecision('doubles', isCorrect);
-            }
-            
             // Double the bet
             if (state.bettingEnabled) {
                 state.balance -= state.currentBet;
@@ -912,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGameDisplay();
             updateControls();
             updateBalanceDisplay();
-
+            updateHelpPanel();
         }
         
         // Player splits hand
@@ -931,13 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.bettingEnabled && state.balance < state.currentBet) {
                 displayErrorMessage('Insufficient funds to split');
                 return;
-            }
-            
-            // Track decision for performance analysis
-            if (state.isTestMode) {
-                const correctAction = getBasicStrategyAdvice();
-                const isCorrect = correctAction.toLowerCase().includes('split');
-                trackDecision('splits', isCorrect);
             }
             
             // Special handling for Aces
@@ -991,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateGameDisplay();
                     updateControls();
                     updateBalanceDisplay();
-
+                    updateHelpPanel();
                     
                 }, 500); // Delay for second hand card
             }, 500); // Delay for first hand card
@@ -1043,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateGameDisplay();
                     
                     // Update the help panel to show the new card in history
-
+                    updateHelpPanel();
                     
                     // Log the dealer hit for debugging
                     console.log(`Dealer hit: ${newCard.value}${newCard.suit}, current total: ${getHandValue(state.dealerHand)}`);
@@ -1114,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Update the display to show the flipped card
             updateGameDisplay();
-
+            updateHelpPanel();
         }
         
         // Evaluate all hands and determine winners
@@ -1212,23 +821,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Change game phase
             state.gamePhase = 'gameOver';
             
-            // Track hand completion for test mode
-            if (state.isTestMode && state.performance) {
-                state.performance.handsPlayed++;
-                
-                // Track true count for this hand
-                const trueCount = parseFloat(calculateTrueCount());
-                state.performance.trueCountHistory.push(trueCount);
-                
-                // Track betting decision if betting is enabled
-                if (state.bettingEnabled) {
-                    const { recommendedBet } = calculateRecommendedBet();
-                    const actualBet = state.currentBet;
-                    // Require exact match with recommended bet amount (accounting for $10 minimum)
-                    const isCorrectBet = actualBet === recommendedBet;
-                    trackBettingDecision(isCorrectBet);
-                }
-            }
+            // Update help panel to reflect game over state
+            updateHelpPanel();
             
             // Perform the winning animation if there are winnings
             if (totalWinnings > 0) {
@@ -1284,6 +878,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         displayHandOutcomeIndicator(handResult.result, index);
                     }, 300 * (index + 1)); // Stagger the displays
                 });
+            }
+            
+            // Check if need to reshuffle
+            const totalCards = state.decks * 52;
+            const cardsRemaining = state.deck.length;
+            if (cardsRemaining < totalCards * 0.25) {
+                setTimeout(() => {
+                    displayOutcomeMessage('Shuffling deck...', 'info');
+                    createDeck();
+                    shuffleDeck();
+                    updateCardsRemaining();
+                }, 2000);
             }
         }
         
@@ -1517,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateGameDisplay();
             updateControls();
-
+            updateHelpPanel();
         }
         
         // Get the value of a single card
@@ -1846,6 +1452,16 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateBalanceDisplay() {
             if (balanceDisplay) {
                 balanceDisplay.textContent = state.balance.toFixed(0);
+            }
+        }
+        
+        // Update cards remaining display
+        function updateCardsRemaining() {
+            if (cardsRemainingDisplay) {
+                cardsRemainingDisplay.textContent = state.deck.length;
+            }
+            if (deckCountDisplay) {
+                deckCountDisplay.textContent = state.decks;
             }
         }
         
@@ -2230,25 +1846,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Update help panel
+        // Update help panel - in card counter trainer, this is always visible
         function updateHelpPanel() {
-            // Skip UI updates for performance test
-            // All calculations are still performed in other functions
-            // This function is now a no-op but kept for compatibility
-            return;
-            
-            if (!helpPanel) return;
-            
             if (runningCountDisplay) {
                 runningCountDisplay.textContent = state.runningCount;
                 
                 // Add color based on count
                 if (state.runningCount > 0) {
-                    runningCountDisplay.style.color = 'var(--success-color)';
+                    runningCountDisplay.style.color = '#4CAF50';
                 } else if (state.runningCount < 0) {
-                    runningCountDisplay.style.color = 'var(--warning-color)';
+                    runningCountDisplay.style.color = '#f44336';
                 } else {
-                    runningCountDisplay.style.color = 'var(--light-color)';
+                    runningCountDisplay.style.color = '#fff';
                 }
             }
             
@@ -2258,63 +1867,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Add color based on count
                 if (parseFloat(trueCount) > 0) {
-                    trueCountDisplay.style.color = 'var(--success-color)';
+                    trueCountDisplay.style.color = '#4CAF50';
                 } else if (parseFloat(trueCount) < 0) {
-                    trueCountDisplay.style.color = 'var(--warning-color)';
+                    trueCountDisplay.style.color = '#f44336';
                 } else {
-                    trueCountDisplay.style.color = 'var(--light-color)';
+                    trueCountDisplay.style.color = '#fff';
                 }
                 
                 // Update recommended bet based on true count
                 updateBettingRecommendation();
-            }
-            
-            // Update shoe progress information
-            const cardsRemainingEl = document.getElementById('cards-remaining');
-            const cardsCompositionEl = document.getElementById('cards-composition');
-            
-            if (cardsRemainingEl) {
-                cardsRemainingEl.textContent = state.deck.length;
-            }
-            
-            if (cardsCompositionEl) {
-                // Clear previous content
-                cardsCompositionEl.innerHTML = '';
-                
-                // Display card counts by rank
-                const ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
-                
-                ranks.forEach(rank => {
-                    const countItem = document.createElement('div');
-                    countItem.className = 'card-count-item';
-                    
-                    const rankSpan = document.createElement('span');
-                    rankSpan.className = 'card-rank';
-                    rankSpan.textContent = rank;
-                    
-                    const countSpan = document.createElement('span');
-                    countSpan.className = 'card-amount';
-                    countSpan.textContent = state.cardCounts[rank] || 0;
-                    
-                    // Color coding based on depletion
-                    const originalCount = 4 * state.decks; // 4 cards per rank per deck
-                    const depletion = 1 - (state.cardCounts[rank] / originalCount);
-                    
-                    if (depletion > 0.75) {
-                        // Highly depleted
-                        countSpan.style.color = 'var(--warning-color)';
-                    } else if (depletion > 0.5) {
-                        // Moderately depleted
-                        countSpan.style.color = 'orange';
-                    } else if (depletion > 0.25) {
-                        // Slightly depleted
-                        countSpan.style.color = 'yellow';
-                    }
-                    
-                    countItem.appendChild(rankSpan);
-                    countItem.appendChild(countSpan);
-                    cardsCompositionEl.appendChild(countItem);
-                });
             }
             
             // Update advice
@@ -2341,36 +1902,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (historyList) {
                 historyList.innerHTML = '';
                 
-                // Show only the last 20 cards
-                const recentHistory = state.cardHistory.slice(0, 20);
+                // Show only the last 10 cards
+                const recentHistory = state.cardHistory.slice(0, 10);
                 
                 recentHistory.forEach(item => {
                     const historyItem = document.createElement('div');
                     historyItem.classList.add('history-item');
+                    historyItem.style.padding = '8px';
+                    historyItem.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                    historyItem.style.fontSize = '0.9em';
                     
                     // Add dealer or player class for styling
-                    if (item.player) {
-                        historyItem.classList.add(item.player.toLowerCase());
+                    if (item.player === 'Dealer') {
+                        historyItem.style.background = 'rgba(244, 67, 54, 0.1)';
+                    } else {
+                        historyItem.style.background = 'rgba(76, 175, 80, 0.1)';
                     }
                     
-                    const playerSpan = document.createElement('span');
-                    playerSpan.textContent = item.player || 'Unknown';
-                    playerSpan.className = 'history-player';
-                    
-                    const cardSpan = document.createElement('span');
-                    cardSpan.textContent = `Card: ${item.card}`;
-                    
-                    const valueSpan = document.createElement('span');
-                    valueSpan.textContent = `Count: ${item.value > 0 ? '+' + item.value : item.value}`;
-                    
-                    const timeSpan = document.createElement('span');
-                    timeSpan.textContent = item.timestamp;
-                    timeSpan.className = 'history-time';
-                    
-                    historyItem.appendChild(playerSpan);
-                    historyItem.appendChild(cardSpan);
-                    historyItem.appendChild(valueSpan);
-                    historyItem.appendChild(timeSpan);
+                    historyItem.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">${item.player}</span>
+                            <span>${item.card}</span>
+                            <span style="color: ${item.value > 0 ? '#4CAF50' : item.value < 0 ? '#f44336' : '#fff'}">
+                                ${item.value > 0 ? '+' + item.value : item.value}
+                            </span>
+                        </div>
+                    `;
                     
                     historyList.appendChild(historyItem);
                 });
@@ -2383,163 +1940,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const trueCount = parseFloat(calculateTrueCount());
             const { betMultiplier, recommendedBet } = calculateRecommendedBet();
             
-            // Skip UI updates for performance test
-            // The calculation is still performed and can be used for performance tracking
-            return;
-            
-            // Get or create the betting recommendation element
-            let recommendationEl = document.getElementById('betting-recommendation');
-            
-            if (!recommendationEl) {
-                // Find the shoe progress section
-                const shoeProgressSection = document.querySelector('.help-section:nth-child(2)');
-                
-                if (!shoeProgressSection) return;
-                
-                // Create a new section for betting recommendation
-                const betSection = document.createElement('div');
-                betSection.className = 'help-section';
-                
-                // Create the header for the section
-                const betSectionHeader = document.createElement('h3');
-                betSectionHeader.textContent = 'Betting Strategy';
-                betSection.appendChild(betSectionHeader);
-                
-                // Create the container for the recommendation
-                const betRecommendationContainer = document.createElement('div');
-                betRecommendationContainer.className = 'bet-recommendation-container';
-                
-                // Create the recommendation display
-                recommendationEl = document.createElement('div');
-                recommendationEl.id = 'betting-recommendation';
-                recommendationEl.className = 'bet-recommendation';
-                
-                // Create label
-                const recommendationLabel = document.createElement('span');
-                recommendationLabel.className = 'bet-recommendation-label';
-                recommendationLabel.textContent = 'Recommended Bet:';
-                
-                // Create value
-                const recommendationValue = document.createElement('span');
-                recommendationValue.id = 'bet-recommendation-value';
-                recommendationValue.className = 'bet-recommendation-value';
-                
-                // Append elements
-                recommendationEl.appendChild(recommendationLabel);
-                recommendationEl.appendChild(recommendationValue);
-                betRecommendationContainer.appendChild(recommendationEl);
-                betSection.appendChild(betRecommendationContainer);
-                
-                // Add a note explaining the betting spread
-                const betSpreadNote = document.createElement('div');
-                betSpreadNote.className = 'bet-spread-note';
-                betSpreadNote.innerHTML = 'Based on Hi-Lo count system:<br>TC ≤ 0: 1x | TC +1: 1x | TC +2: 2x | TC +3: 4x | TC +4: 8x | TC +5: 12x | TC ≥+6: 15x';
-                betSection.appendChild(betSpreadNote);
-                
-                // Insert after the shoe progress section
-                shoeProgressSection.parentNode.insertBefore(betSection, shoeProgressSection.nextSibling);
-            }
-            
-            // Update the recommendation value with the multiplier
-            const recommendationValueEl = document.getElementById('bet-recommendation-value');
-            if (recommendationValueEl) {
-                // Check if the recommendation has changed
-                const previousValue = recommendationValueEl.textContent;
-                const currentValue = `${betMultiplier}x`;
-                const hasChanged = previousValue !== currentValue;
-                
-                // Update the value
-                recommendationValueEl.textContent = currentValue;
-                
-                // Add animation if the value has changed
-                if (hasChanged) {
-                    // Remove existing animation class
-                    recommendationValueEl.classList.remove('updated');
-                    
-                    // Force a reflow to restart the animation
-                    void recommendationValueEl.offsetWidth;
-                    
-                    // Add the animation class back
-                    recommendationValueEl.classList.add('updated');
-                }
+            if (suggestedBetDisplay) {
+                suggestedBetDisplay.textContent = `$${recommendedBet}`;
                 
                 // Add color based on bet size
                 if (betMultiplier > 4) {
-                    recommendationValueEl.style.color = 'var(--success-color)';
+                    suggestedBetDisplay.style.color = '#4CAF50';
                 } else if (betMultiplier > 1) {
-                    recommendationValueEl.style.color = 'var(--secondary-color)';
+                    suggestedBetDisplay.style.color = '#2196F3';
                 } else {
-                    recommendationValueEl.style.color = 'var(--light-color)';
-                }
-                
-                // Add a "Set Bet" button if in betting phase
-                let setBetBtn = document.getElementById('set-recommended-bet');
-                
-                if (!setBetBtn && (state.gamePhase === 'betting' || state.gamePhase === 'gameOver')) {
-                    setBetBtn = document.createElement('button');
-                    setBetBtn.id = 'set-recommended-bet';
-                    setBetBtn.className = 'set-bet-btn';
-                    setBetBtn.textContent = 'Use Recommended Bet';
-                    setBetBtn.addEventListener('click', () => {
-                        if (betInput && (state.gamePhase === 'betting' || state.gamePhase === 'gameOver')) {
-                            // Make sure recommended bet doesn't exceed balance
-                            const safeBet = Math.min(recommendedBet, state.balance);
-                            betInput.value = safeBet;
-                            updateBetDisplay();
-                            
-                            // Clear and recreate the bet chip stack
-                            clearBet();
-                            
-                            // Add chips to visually represent the bet
-                            // (simplified version, just adding the total amount)
-                            if (safeBet > 0) {
-                                let remainingAmount = safeBet;
-                                
-                                // Try to add larger denomination chips first
-                                if (remainingAmount >= 100) {
-                                    const blackChips = Math.floor(remainingAmount / 100);
-                                    for (let i = 0; i < blackChips; i++) {
-                                        addChipToBet(100, 'black');
-                                    }
-                                    remainingAmount -= blackChips * 100;
-                                }
-                                
-                                if (remainingAmount >= 25) {
-                                    const greenChips = Math.floor(remainingAmount / 25);
-                                    for (let i = 0; i < greenChips; i++) {
-                                        addChipToBet(25, 'green');
-                                    }
-                                    remainingAmount -= greenChips * 25;
-                                }
-                                
-                                if (remainingAmount >= 10) {
-                                    const blueChips = Math.floor(remainingAmount / 10);
-                                    for (let i = 0; i < blueChips; i++) {
-                                        addChipToBet(10, 'blue');
-                                    }
-                                    remainingAmount -= blueChips * 10;
-                                }
-                                
-                                if (remainingAmount >= 5) {
-                                    const redChips = Math.floor(remainingAmount / 5);
-                                    for (let i = 0; i < redChips; i++) {
-                                        addChipToBet(5, 'red');
-                                    }
-                                    remainingAmount -= redChips * 5;
-                                }
-                                
-                                // Add white chips for any remaining amount
-                                for (let i = 0; i < remainingAmount; i++) {
-                                    addChipToBet(1, 'white');
-                                }
-                            }
-                        }
-                    });
-                    
-                    recommendationEl.appendChild(setBetBtn);
-                } else if (setBetBtn && state.gamePhase !== 'betting' && state.gamePhase !== 'gameOver') {
-                    // Remove the button when not in betting phase
-                    setBetBtn.remove();
+                    suggestedBetDisplay.style.color = '#fff';
                 }
             }
         }
@@ -2653,4 +2063,4 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize the app
         init();
     }
-});
+}); 

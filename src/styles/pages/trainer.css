@@ -1339,13 +1339,13 @@ select, button, .game-btn {
     }
     
     .home-button {
-        width: 50px;
-        height: 50px;
+        top: 15px;
+        left: 15px;
+        padding: 6px;
     }
     
     .home-logo-image {
-        width: 30px;
-        height: 30px;
+        height: 45px;
     }
     
     .score-circle {
@@ -1356,4 +1356,48 @@ select, button, .game-btn {
     .score-circle span:first-child {
         font-size: 2.2rem;
     }
+}
+
+/* Home button - positioned in top left with buffer */
+.home-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(12, 20, 41, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(254, 183, 80, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.home-button:hover {
+    transform: translateY(-2px);
+    background: rgba(12, 20, 41, 0.9);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border-color: rgba(254, 183, 80, 0.6);
+}
+
+.home-link {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.home-link:hover {
+    transform: scale(1.05);
+}
+
+.home-logo-image {
+    display: block;
+    height: 60px;
+    width: auto;
+    max-width: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: filter 0.3s ease;
+}
+
+.home-logo-image:hover {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.1);
 } 

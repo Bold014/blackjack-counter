@@ -25,9 +25,11 @@ window.addEventListener('load', async function () {
         if (clerk.user) {
             console.log('User is signed in:', clerk.user);
             showSignedInState();
+            showTrainerNavButton();
         } else {
             console.log('User is not signed in');
             showAuthOptions();
+            hideTrainerNavButton();
         }
         
     } catch (error) {
@@ -316,6 +318,22 @@ function showSignedInState() {
 
     document.getElementById('sign-out-btn').addEventListener('click', async () => {
         await clerk.signOut();
+        hideTrainerNavButton();
         showAuthOptions();
     });
+}
+
+// Helper functions to control trainer navigation button visibility
+function showTrainerNavButton() {
+    const trainerNavBtn = document.getElementById('trainer-nav-btn');
+    if (trainerNavBtn) {
+        trainerNavBtn.style.display = 'flex';
+    }
+}
+
+function hideTrainerNavButton() {
+    const trainerNavBtn = document.getElementById('trainer-nav-btn');
+    if (trainerNavBtn) {
+        trainerNavBtn.style.display = 'none';
+    }
 } 
