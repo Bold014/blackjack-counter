@@ -684,18 +684,11 @@ select, button, .game-btn {
 }
 
 /* Show active container */
-.mode-selection-container.active {
-    display: block;
-    /* Override parent flex behavior to ensure proper grid layout */
-    flex-direction: initial;
-}
-
+.mode-selection-container.active,
 .settings-container.active,
 .game-container.active,
 .results-container.active {
     display: block;
-    /* Override parent flex behavior to ensure proper grid layout */
-    flex-direction: initial;
 }
 
 /* ===== MODE SELECTION STYLES ===== */
