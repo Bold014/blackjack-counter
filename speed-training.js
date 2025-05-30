@@ -15,16 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Navigation system for different screens
     function initNavigation() {
         // Settings screen handlers
-        const startTrainingBtn = document.getElementById('start-speed-training');
+        const startBtn = document.getElementById('start-speed-training');
         
-        if (startTrainingBtn) {
-            startTrainingBtn.addEventListener('click', startSpeedTraining);
+        if (startBtn) {
+            startBtn.addEventListener('click', startSpeedTraining);
         }
         
         // Game screen handlers
-        const endTrainingBtn = document.getElementById('end-speed-early');
-        if (endTrainingBtn) {
-            endTrainingBtn.addEventListener('click', endSpeedTraining);
+        const endBtn = document.getElementById('end-training-early');
+        if (endBtn) {
+            endBtn.addEventListener('click', endSpeedTraining);
         }
     }
     
@@ -63,21 +63,20 @@ document.addEventListener('DOMContentLoaded', () => {
         showSpeedTrainingGame();
     }
     
-    // Get speed settings from the form
+    // Get speed training settings from the form
     function getSpeedSettings() {
         return {
             decks: parseInt(document.getElementById('speed-decks')?.value || 6),
+            timeLimit: parseInt(document.getElementById('speed-time-limit')?.value || 5),
             hitSoft17: document.getElementById('speed-hit-soft-17')?.value === 'yes',
             doubleAfterSplit: document.getElementById('speed-double-after-split')?.value === 'yes',
-            resplitAces: false, // Always false for speed training
-            timeLimit: parseInt(document.getElementById('speed-time-limit')?.value || 5),
-            handsToPlay: parseInt(document.getElementById('speed-hands-to-play')?.value || 50)
+            resplitAces: document.getElementById('speed-resplit-aces')?.value === 'yes'
         };
     }
     
-    // Initialize speed run with time tracking
+    // Initialize speed training run
     function initSpeedRun(settings) {
-        // Initialize the actual trainer with speed mode
+        // Initialize the actual trainer with speed training mode
         initTrainer(settings, true);
     }
     
@@ -87,9 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateAndShowResults();
     }
     
-    // Calculate and display training results
+    // Calculate and display speed training results
     function calculateAndShowResults() {
-        // Finalize performance data calculation
+        // Finalize speed data calculation
         if (window.trainerState && window.trainerState.isSpeedMode) {
             // Call the finalization function from the trainer
             if (typeof finalizeSpeedData === 'function') {
@@ -97,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Get performance data from the trainer
+        // Get speed training results from the trainer
         const results = getSpeedResults();
         
         // Store results in localStorage for the results page
@@ -107,23 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'speed-results.html';
     }
     
-    // Get speed results from the trainer
+    // Get speed training results from the trainer
     function getSpeedResults() {
         // This will be populated by the trainer
-        return window.speedPerformance || {
-            finalScore: 100,
+        return window.trainerSpeedPerformance || {
+            finalAccuracy: 0,
             correctDecisions: 0,
             totalDecisions: 0,
-            wrongDecisions: 0,
-            timeouts: 0,
-            avgDecisionTime: 0,
-            fastestDecision: 0,
-            slowestDecision: 0,
             totalHands: 0,
-            penaltyPoints: 0
+            avgDecisionTime: 0,
+            trainingDuration: 0,
+            timeouts: 0
         };
     }
-    
+
     // Separate function to initialize the actual trainer
     function initTrainer(settings = null, isSpeedMode = false) {
         // DOM Elements
@@ -132,8 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const standButton = document.getElementById('stand-button');
         const doubleButton = document.getElementById('double-button');
         const splitButton = document.getElementById('split-button');
-        const speedTimer = document.getElementById('speed-timer');
-        const timerDisplay = document.getElementById('timer-display');
         
         // Game state
         const state = {
@@ -141,40 +135,44 @@ document.addEventListener('DOMContentLoaded', () => {
             decks: settings?.decks || 6,
             hitSoft17: settings?.hitSoft17 !== undefined ? settings.hitSoft17 : true,
             doubleAfterSplit: settings?.doubleAfterSplit !== undefined ? settings.doubleAfterSplit : true,
-            resplitAces: false,
+            resplitAces: settings?.resplitAces !== undefined ? settings.resplitAces : false,
+            timeLimit: settings?.timeLimit || 5,
             
             // Speed mode settings
             isSpeedMode: isSpeedMode,
             speedStartTime: isSpeedMode ? Date.now() : null,
-            timeLimit: settings?.timeLimit || 5,
-            handsToPlay: settings?.handsToPlay || 50,
             
             // Game state
             deck: [],
             playerHands: [[]],
             dealerHand: [],
             currentHandIndex: 0,
-            gamePhase: 'gameOver', // Start with gameOver so deal button is enabled
-            doubledHands: new Set(),
-            splitHands: [],
+            gamePhase: 'gameOver', // betting, playerTurn, dealerTurn, evaluating, gameOver
             
-            // Speed mode tracking
-            decisionStartTime: null,
+            // Timer state
             decisionTimer: null,
-            currentTimeRemaining: 0,
+            decisionStartTime: null,
+            timeRemaining: 0,
             
-            // Performance tracking (for speed mode)
+            // Performance tracking (only for speed mode)
             performance: isSpeedMode ? {
-                handsPlayed: 0,
                 correctDecisions: 0,
                 totalDecisions: 0,
-                wrongDecisions: 0,
+                handsPlayed: 0,
+                decisionTimes: [],
                 timeouts: 0,
-                decisionTimes: []
+                speedStartTime: Date.now()
             } : null
         };
         
-        // Card image paths map
+        // Card values for Hi-Lo counting system (for basic strategy)
+        const cardValues = {
+            '2': 1, '3': 1, '4': 1, '5': 1, '6': 1,
+            '7': 0, '8': 0, '9': 0,
+            '10': -1, 'J': -1, 'Q': -1, 'K': -1, 'A': -1
+        };
+        
+        // Map of internal card representation to SVG file paths
         const cardImagePaths = {
             // Hearts
             'A♥': '../assets/cards/ace_of_hearts.svg',
@@ -239,23 +237,28 @@ document.addEventListener('DOMContentLoaded', () => {
             // Back of card
             'back': '../assets/cards/BACKOFCARD.svg'
         };
-        
-        // Timer functions
+
+        // Timer functions for speed training
         function startDecisionTimer() {
             if (!state.isSpeedMode) return;
             
             state.decisionStartTime = Date.now();
-            state.currentTimeRemaining = state.timeLimit;
+            state.timeRemaining = state.timeLimit;
             
-            // Show timer
+            // Clear any existing timer
+            if (state.decisionTimer) {
+                clearInterval(state.decisionTimer);
+            }
+            
+            // Update timer display immediately
             updateTimerDisplay();
             
             // Start countdown
             state.decisionTimer = setInterval(() => {
-                state.currentTimeRemaining -= 0.1;
+                state.timeRemaining -= 0.1;
                 updateTimerDisplay();
                 
-                if (state.currentTimeRemaining <= 0) {
+                if (state.timeRemaining <= 0) {
                     handleTimeout();
                 }
             }, 100);
@@ -267,66 +270,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.decisionTimer = null;
             }
             
-            // Hide speed timer
-            if (speedTimer) {
-                speedTimer.textContent = state.timeLimit.toString();
-                speedTimer.className = 'speed-timer';
+            // Record decision time if we have a start time
+            if (state.decisionStartTime && state.performance) {
+                const decisionTime = (Date.now() - state.decisionStartTime) / 1000;
+                state.performance.decisionTimes.push(decisionTime);
             }
+            
+            state.decisionStartTime = null;
         }
         
         function updateTimerDisplay() {
-            if (!speedTimer) return;
+            const timerEl = document.getElementById('decision-timer');
+            if (!timerEl || !state.isSpeedMode) return;
             
-            const timeLeft = Math.max(0, state.currentTimeRemaining);
-            speedTimer.textContent = timeLeft.toFixed(1);
+            const timeLeft = Math.max(0, state.timeRemaining);
+            timerEl.textContent = timeLeft.toFixed(1) + 's';
             
-            // Update timer styling based on time remaining
-            speedTimer.className = 'speed-timer';
-            if (timeLeft <= 2) {
-                speedTimer.classList.add('danger');
-            } else if (timeLeft <= state.timeLimit / 2) {
-                speedTimer.classList.add('warning');
+            // Color coding based on time remaining
+            const percentage = timeLeft / state.timeLimit;
+            if (percentage > 0.6) {
+                timerEl.className = 'timer good';
+            } else if (percentage > 0.3) {
+                timerEl.className = 'timer warning';
+            } else {
+                timerEl.className = 'timer danger';
             }
             
-            // Show big timer for last 3 seconds
-            if (timeLeft <= 3 && timerDisplay) {
-                timerDisplay.textContent = Math.ceil(timeLeft).toString();
-                timerDisplay.className = 'timer-display active';
-                if (timeLeft <= 1) {
-                    timerDisplay.classList.add('warning');
-                }
-            } else if (timerDisplay) {
-                timerDisplay.className = 'timer-display';
+            // Hide timer when not in player turn
+            if (state.gamePhase !== 'playerTurn') {
+                timerEl.style.display = 'none';
+            } else {
+                timerEl.style.display = 'block';
             }
         }
         
         function handleTimeout() {
+            if (state.gamePhase !== 'playerTurn') return;
+            
             stopDecisionTimer();
             
-            // Record timeout
+            // Track timeout
             if (state.performance) {
                 state.performance.timeouts++;
-                state.performance.totalDecisions++;
-                state.performance.wrongDecisions++; // Count timeout as wrong decision
+                // Timeout counts as incorrect decision
+                recordDecision('timeout', false);
             }
             
-            updateSpeedProgress();
-            
-            // Auto-select the safest option (usually stand)
+            // Auto-stand on timeout
             playerStand();
         }
         
         function recordDecision(action, isCorrect) {
             if (!state.isSpeedMode || !state.performance) return;
             
-            const decisionTime = (Date.now() - state.decisionStartTime) / 1000;
-            state.performance.decisionTimes.push(decisionTime);
             state.performance.totalDecisions++;
-            
             if (isCorrect) {
                 state.performance.correctDecisions++;
-            } else {
-                state.performance.wrongDecisions++;
             }
             
             updateSpeedProgress();
@@ -341,22 +340,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 handsPlayedEl.textContent = state.performance.handsPlayed.toString();
             }
             
-            // Update current accuracy
-            const currentAccuracyEl = document.getElementById('current-accuracy');
-            if (currentAccuracyEl && state.performance && state.performance.totalDecisions > 0) {
-                const accuracy = (state.performance.correctDecisions / state.performance.totalDecisions) * 100;
-                currentAccuracyEl.textContent = Math.round(accuracy) + '%';
+            // Update accuracy
+            const accuracyEl = document.getElementById('current-accuracy');
+            if (accuracyEl && state.performance) {
+                const accuracy = state.performance.totalDecisions > 0 ? 
+                    (state.performance.correctDecisions / state.performance.totalDecisions) * 100 : 0;
+                accuracyEl.textContent = `${Math.round(accuracy)}%`;
             }
             
             // Update average decision time
             const avgTimeEl = document.getElementById('avg-decision-time');
             if (avgTimeEl && state.performance && state.performance.decisionTimes.length > 0) {
                 const avgTime = state.performance.decisionTimes.reduce((a, b) => a + b, 0) / state.performance.decisionTimes.length;
-                avgTimeEl.textContent = avgTime.toFixed(1) + 's';
+                avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
+            } else if (avgTimeEl) {
+                avgTimeEl.textContent = '0.0s';
             }
             
-            // Check if training is complete
-            if (state.handsToPlay > 0 && state.performance && state.performance.handsPlayed >= state.handsToPlay) {
+            // Check if training should end (after many hands)
+            if (state.performance.handsPlayed >= 50) {
                 setTimeout(() => {
                     calculateAndShowResults();
                 }, 1000);
@@ -366,40 +368,31 @@ document.addEventListener('DOMContentLoaded', () => {
         function finalizeSpeedData() {
             if (!state.isSpeedMode || !state.performance) return;
             
+            // Calculate final metrics
             const performance = state.performance;
             
-            // Calculate final metrics
+            const finalAccuracy = performance.totalDecisions > 0 ? 
+                (performance.correctDecisions / performance.totalDecisions) * 100 : 0;
+            
             const avgDecisionTime = performance.decisionTimes.length > 0 ? 
                 performance.decisionTimes.reduce((a, b) => a + b, 0) / performance.decisionTimes.length : 0;
             
-            const fastestDecision = performance.decisionTimes.length > 0 ?
-                Math.min(...performance.decisionTimes) : 0;
-                
-            const slowestDecision = performance.decisionTimes.length > 0 ?
-                Math.max(...performance.decisionTimes) : 0;
-            
-            // Calculate final score as accuracy percentage
-            const finalScore = performance.totalDecisions > 0 ? 
-                (performance.correctDecisions / performance.totalDecisions) * 100 : 0;
+            const trainingDuration = state.speedStartTime ? (Date.now() - state.speedStartTime) / 1000 : 0;
             
             // Store results globally for access
-            window.speedPerformance = {
-                finalScore: finalScore,
+            window.trainerSpeedPerformance = {
+                finalAccuracy,
                 correctDecisions: performance.correctDecisions,
                 totalDecisions: performance.totalDecisions,
-                wrongDecisions: performance.wrongDecisions,
-                timeouts: performance.timeouts,
-                avgDecisionTime,
-                fastestDecision,
-                slowestDecision,
                 totalHands: performance.handsPlayed,
-                penaltyPoints: 0 // No longer using penalties
+                avgDecisionTime,
+                trainingDuration,
+                timeouts: performance.timeouts
             };
         }
         
         // Initialize the game
         function init() {
-            loadSettings();
             createDeck();
             shuffleDeck();
             bindEvents();
@@ -415,68 +408,82 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // Load settings
         function loadSettings() {
-            // Settings are already loaded from the settings object
-            if (settings) {
-                state.decks = settings.decks;
-                state.hitSoft17 = settings.hitSoft17;
-                state.doubleAfterSplit = settings.doubleAfterSplit;
-                state.resplitAces = settings.resplitAces;
-            }
+            // Settings are already loaded from parameters
         }
         
+        // Bind event listeners
         function bindEvents() {
-            dealButton?.addEventListener('click', deal);
-            hitButton?.addEventListener('click', () => makeDecision('hit'));
-            standButton?.addEventListener('click', () => makeDecision('stand'));
-            doubleButton?.addEventListener('click', () => makeDecision('double'));
-            splitButton?.addEventListener('click', () => makeDecision('split'));
+            // Game buttons
+            if (dealButton) dealButton.addEventListener('click', startNewHand);
+            if (hitButton) hitButton.addEventListener('click', () => makeDecision('hit'));
+            if (standButton) standButton.addEventListener('click', () => makeDecision('stand'));
+            if (doubleButton) doubleButton.addEventListener('click', () => makeDecision('double'));
+            if (splitButton) splitButton.addEventListener('click', () => makeDecision('split'));
         }
         
+        // Make a decision and track it for speed mode
         function makeDecision(action) {
-            if (!state.isSpeedMode) {
-                // Normal mode - just execute the action
+            if (state.gamePhase !== 'playerTurn') return;
+            
+            // Check if this is the correct decision for speed mode
+            if (state.isSpeedMode) {
+                const correctAction = getBasicStrategyAdvice();
+                let isCorrect = false;
+                
                 switch(action) {
-                    case 'hit': playerHit(); break;
-                    case 'stand': playerStand(); break;
-                    case 'double': playerDouble(); break;
-                    case 'split': playerSplit(); break;
+                    case 'hit':
+                        isCorrect = correctAction.toLowerCase().includes('hit');
+                        break;
+                    case 'stand':
+                        isCorrect = correctAction.toLowerCase().includes('stand');
+                        break;
+                    case 'double':
+                        isCorrect = correctAction.toLowerCase().includes('double');
+                        break;
+                    case 'split':
+                        isCorrect = correctAction.toLowerCase().includes('split');
+                        break;
                 }
-                return;
+                
+                recordDecision(action, isCorrect);
+                stopDecisionTimer();
             }
-            
-            // Speed mode - check if decision is correct
-            stopDecisionTimer();
-            
-            const correctAction = getBasicStrategyAdvice();
-            const isCorrect = action === correctAction.toLowerCase();
-            
-            recordDecision(action, isCorrect);
             
             // Execute the action
             switch(action) {
-                case 'hit': playerHit(); break;
-                case 'stand': playerStand(); break;
-                case 'double': playerDouble(); break;
-                case 'split': playerSplit(); break;
+                case 'hit':
+                    playerHit();
+                    break;
+                case 'stand':
+                    playerStand();
+                    break;
+                case 'double':
+                    playerDouble();
+                    break;
+                case 'split':
+                    playerSplit();
+                    break;
             }
         }
         
+        // Create and shuffle the deck
         function createDeck() {
-            const suits = ['♥', '♦', '♣', '♠'];
-            const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-            
             state.deck = [];
+            const suits = ['♠', '♥', '♦', '♣'];
+            const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
             
             for (let d = 0; d < state.decks; d++) {
-                for (const suit of suits) {
-                    for (const rank of ranks) {
-                        state.deck.push(rank + suit);
+                for (let suit of suits) {
+                    for (let value of values) {
+                        state.deck.push({ suit, value });
                     }
                 }
             }
         }
         
+        // Shuffle the deck
         function shuffleDeck() {
             for (let i = state.deck.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -484,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // Deal a card
         function dealCard(isHidden = false, isDealer = false) {
             if (state.deck.length === 0) {
                 createDeck();
@@ -491,424 +499,517 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const card = state.deck.pop();
+            card.isHidden = isHidden;
             
-            // Create card element
-            const cardElement = document.createElement('div');
-            cardElement.className = 'card';
-            if (isDealer) {
-                cardElement.classList.add('dealer-card');
-            }
-            
-            const cardImage = document.createElement('img');
-            cardImage.src = isHidden ? cardImagePaths['back'] : cardImagePaths[card];
-            cardImage.alt = isHidden ? 'Hidden card' : card;
-            cardElement.appendChild(cardImage);
-            
-            if (isHidden) {
-                cardElement.dataset.hiddenCard = card;
-            }
-            
-            return { card, element: cardElement };
+            return card;
         }
         
-        function deal() {
-            // Reset for new hand
+        // Start a new hand
+        function startNewHand() {
+            // Reset hands
             state.playerHands = [[]];
             state.dealerHand = [];
             state.currentHandIndex = 0;
+            
+            // Set game phase to dealing
             state.gamePhase = 'dealing';
-            state.doubledHands.clear();
-            state.splitHands = [];
             
-            // Clear the table
-            document.getElementById('player-cards').innerHTML = '';
-            document.getElementById('dealer-cards').innerHTML = '';
+            // Start the sequential dealing animation
+            dealNextCard();
             
-            // Deal initial cards
-            const playerCard1 = dealCard(false, false);
-            const dealerCard1 = dealCard(false, true);
-            const playerCard2 = dealCard(false, false);
-            const dealerCard2 = dealCard(true, true); // Hidden card
-            
-            state.playerHands[0] = [playerCard1.card, playerCard2.card];
-            state.dealerHand = [dealerCard1.card, dealerCard2.card];
-            
-            // Display cards
-            const playerCardsDiv = document.getElementById('player-cards');
-            const dealerCardsDiv = document.getElementById('dealer-cards');
-            
-            playerCardsDiv.appendChild(playerCard1.element);
-            playerCardsDiv.appendChild(playerCard2.element);
-            dealerCardsDiv.appendChild(dealerCard1.element);
-            dealerCardsDiv.appendChild(dealerCard2.element);
-            
-            // Update game phase
-            state.gamePhase = 'playerTurn';
-            
-            // Check for blackjack
-            const playerValue = getHandValue(state.playerHands[0]);
-            const dealerValue = getHandValue(state.dealerHand);
-            
-            if (playerValue === 21 || dealerValue === 21) {
-                // Handle blackjack
-                state.gamePhase = 'evaluating';
-                revealDealerCards();
-                setTimeout(evaluateHands, 1000);
-            } else {
-                // Start decision timer for speed mode
-                if (state.isSpeedMode) {
-                    startDecisionTimer();
-                }
-            }
-            
+            // Update controls
             updateControls();
-            
-            // Track hand for speed mode
-            if (state.isSpeedMode && state.performance) {
-                state.performance.handsPlayed++;
-                updateSpeedProgress();
-            }
         }
         
-        function playerHit() {
-            const currentHand = state.playerHands[state.currentHandIndex];
-            const newCard = dealCard(false, false);
-            currentHand.push(newCard.card);
+        // Helper function to deal cards sequentially with animation
+        function dealNextCard() {
+            const dealingDelay = 500; // Faster for speed training
             
-            // Add card to display
-            const playerCardsDiv = document.getElementById('player-cards');
-            playerCardsDiv.appendChild(newCard.element);
-            
-            // Check if busted
-            const handValue = getHandValue(currentHand);
-            if (handValue > 21) {
-                // Busted - move to dealer turn or next hand
-                if (state.currentHandIndex < state.playerHands.length - 1) {
-                    state.currentHandIndex++;
+            if (state.playerHands[0].length === 0) {
+                // Player's first card
+                state.playerHands[0].push(dealCard(false, false));
+                updateGameDisplay();
+                setTimeout(dealNextCard, dealingDelay);
+            } else if (state.dealerHand.length === 0) {
+                // Dealer's first card (face up)
+                state.dealerHand.push(dealCard(false, true));
+                updateGameDisplay();
+                setTimeout(dealNextCard, dealingDelay);
+            } else if (state.playerHands[0].length === 1) {
+                // Player's second card
+                state.playerHands[0].push(dealCard(false, false));
+                updateGameDisplay();
+                setTimeout(dealNextCard, dealingDelay);
+            } else if (state.dealerHand.length === 1) {
+                // Dealer's second card (face down)
+                state.dealerHand.push(dealCard(true, true));
+                updateGameDisplay();
+                
+                // Dealing complete, transition to player turn
+                state.gamePhase = 'playerTurn';
+                
+                // Check for natural blackjacks
+                if (getHandValue(state.playerHands[0]) === 21) {
+                    // Player has blackjack, reveal dealer card and evaluate
+                    revealDealerCards();
+                    updateGameDisplay();
+                    
+                    if (getHandValue(state.dealerHand) === 21) {
+                        // Push (tie)
+                        state.gamePhase = 'gameOver';
+                        displayOutcomeMessage('Push! Both have Blackjack.', 'push');
+                    } else {
+                        // Player wins with Blackjack
+                        state.gamePhase = 'gameOver';
+                        displayOutcomeMessage('Blackjack! You win!', 'blackjack');
+                    }
+                    
+                    // Track hand completion
+                    if (state.performance) {
+                        state.performance.handsPlayed++;
+                        updateSpeedProgress();
+                    }
+                } else {
+                    // Start decision timer for speed mode
                     if (state.isSpeedMode) {
                         startDecisionTimer();
                     }
-                } else {
-                    state.gamePhase = 'dealerTurn';
-                    setTimeout(dealerTurn, 1000);
                 }
-            } else if (state.isSpeedMode) {
-                // Continue with timer for next decision
-                startDecisionTimer();
+                
+                updateControls();
             }
-            
-            updateControls();
         }
         
-        function playerStand() {
-            // Move to next hand or dealer turn
-            if (state.currentHandIndex < state.playerHands.length - 1) {
-                state.currentHandIndex++;
+        // Player hits (takes a card)
+        function playerHit() {
+            if (state.gamePhase !== 'playerTurn') return;
+            
+            const currentHand = state.playerHands[state.currentHandIndex];
+            currentHand.push(dealCard(false, false));
+            
+            const handValue = getHandValue(currentHand);
+            
+            // Check if player busts
+            if (handValue > 21) {
+                state.gamePhase = 'evaluating';
+                stopDecisionTimer();
+                
+                // Reveal dealer's hole card
+                revealDealerCards();
+                updateGameDisplay();
+                
+                setTimeout(() => {
+                    evaluateHands();
+                }, 500);
+            } else {
+                // Continue with decision timer if in speed mode
                 if (state.isSpeedMode) {
                     startDecisionTimer();
                 }
-                updateControls();
-            } else {
-                state.gamePhase = 'dealerTurn';
-                updateControls();
-                setTimeout(dealerTurn, 500);
             }
+            
+            updateGameDisplay();
+            updateControls();
         }
         
+        // Player stands (ends turn)
+        function playerStand() {
+            if (state.gamePhase !== 'playerTurn') return;
+            
+            state.gamePhase = 'dealerTurn';
+            stopDecisionTimer();
+            
+            setTimeout(dealerTurn, 500);
+            
+            updateGameDisplay();
+            updateControls();
+        }
+        
+        // Player doubles down
         function playerDouble() {
+            if (state.gamePhase !== 'playerTurn') return;
+            
+            // Check if hand is eligible for doubling
             const currentHand = state.playerHands[state.currentHandIndex];
+            if (currentHand.length > 2) {
+                return; // Can't double after hitting
+            }
             
-            // Mark this hand as doubled
-            state.doubledHands.add(state.currentHandIndex);
+            stopDecisionTimer();
             
-            // Deal one card and stand
-            const newCard = dealCard(false, false);
-            currentHand.push(newCard.card);
+            // Deal one card and end turn for this hand
+            currentHand.push(dealCard(false, false));
             
-            // Add card to display
-            const playerCardsDiv = document.getElementById('player-cards');
-            playerCardsDiv.appendChild(newCard.element);
+            state.gamePhase = 'dealerTurn';
+            setTimeout(dealerTurn, 500);
             
-            // Automatically stand after double
-            playerStand();
+            updateGameDisplay();
+            updateControls();
         }
         
+        // Player splits hand
         function playerSplit() {
+            if (state.gamePhase !== 'playerTurn') return;
+            
             const currentHand = state.playerHands[state.currentHandIndex];
             
-            if (currentHand.length !== 2) return;
+            // Check if hand is eligible for splitting
+            if (currentHand.length !== 2 || getCardValue(currentHand[0]) !== getCardValue(currentHand[1])) {
+                return; // Can only split a pair
+            }
             
-            const card1 = currentHand[0];
-            const card2 = currentHand[1];
+            stopDecisionTimer();
             
-            // Create two new hands
-            state.playerHands[state.currentHandIndex] = [card1];
-            state.playerHands.splice(state.currentHandIndex + 1, 0, [card2]);
-            state.splitHands.push(state.currentHandIndex, state.currentHandIndex + 1);
+            // Create new hand
+            const newHand = [currentHand.pop()];
             
-            // Deal a card to each hand
-            const newCard1 = dealCard(false, false);
-            const newCard2 = dealCard(false, false);
+            // Deal a new card to each hand
+            currentHand.push(dealCard(false, false));
+            newHand.push(dealCard(false, false));
             
-            state.playerHands[state.currentHandIndex].push(newCard1.card);
-            state.playerHands[state.currentHandIndex + 1].push(newCard2.card);
+            // Add the new hand to player hands
+            state.playerHands.splice(state.currentHandIndex + 1, 0, newHand);
             
-            // Update display
-            renderCards();
-            
-            // Continue with first hand
+            // Continue with current hand (restart timer)
             if (state.isSpeedMode) {
                 startDecisionTimer();
             }
             
+            updateGameDisplay();
             updateControls();
         }
         
+        // Dealer's turn
         function dealerTurn() {
-            state.gamePhase = 'dealerTurn';
+            // Reveal dealer's hole card first
             revealDealerCards();
             
+            // Simple dealer logic for speed training
             function dealNextCard() {
                 if (shouldDealerHit()) {
                     const newCard = dealCard(false, true);
-                    state.dealerHand.push(newCard.card);
-                    
-                    const dealerCardsDiv = document.getElementById('dealer-cards');
-                    dealerCardsDiv.appendChild(newCard.element);
+                    state.dealerHand.push(newCard);
+                    updateGameDisplay();
                     
                     setTimeout(dealNextCard, 500);
                 } else {
-                    // Dealer done, evaluate hands
+                    // Dealer is done, evaluate hands
                     state.gamePhase = 'evaluating';
                     setTimeout(evaluateHands, 500);
                 }
             }
             
-            setTimeout(dealNextCard, 500);
+            setTimeout(dealNextCard, 800);
         }
         
+        // Determine if dealer should hit
         function shouldDealerHit() {
-            const value = getHandValue(state.dealerHand);
+            const dealerValue = getHandValue(state.dealerHand);
             
-            if (value < 17) return true;
-            if (value > 17) return false;
+            if (dealerValue >= 18) return false;
+            if (dealerValue <= 16) return true;
             
-            // Value is 17
-            if (!state.hitSoft17) return false;
-            
-            // Check if it's soft 17
-            return isSoftHand(state.dealerHand) && value === 17;
-        }
-        
-        function revealDealerCards() {
-            const dealerCardsDiv = document.getElementById('dealer-cards');
-            const hiddenCard = dealerCardsDiv.querySelector('[data-hidden-card]');
-            
-            if (hiddenCard) {
-                const cardValue = hiddenCard.dataset.hiddenCard;
-                const img = hiddenCard.querySelector('img');
-                img.src = cardImagePaths[cardValue];
-                img.alt = cardValue;
-                hiddenCard.removeAttribute('data-hidden-card');
+            // For soft 17
+            if (dealerValue === 17) {
+                return state.hitSoft17 && isSoftHand(state.dealerHand);
             }
+            
+            return false;
         }
         
+        // Reveal dealer's face down cards
+        function revealDealerCards() {
+            state.dealerHand.forEach(card => {
+                card.isHidden = false;
+            });
+            updateGameDisplay();
+        }
+        
+        // Evaluate all hands and determine winners
         function evaluateHands() {
+            if (state.gamePhase !== 'evaluating') return;
+            
+            const dealerValue = getHandValue(state.dealerHand);
+            const playerValue = getHandValue(state.playerHands[0]);
+            
             state.gamePhase = 'gameOver';
             
-            // Evaluate each player hand
-            const dealerValue = getHandValue(state.dealerHand);
-            const dealerBusted = dealerValue > 21;
+            // Track hand completion for speed mode
+            if (state.isSpeedMode && state.performance) {
+                state.performance.handsPlayed++;
+                updateSpeedProgress();
+            }
             
-            state.playerHands.forEach((hand, index) => {
-                const playerValue = getHandValue(hand);
-                const playerBusted = playerValue > 21;
-                
-                let result;
-                if (playerBusted) {
-                    result = 'lose';
-                } else if (dealerBusted) {
-                    result = 'win';
-                } else if (playerValue > dealerValue) {
-                    result = 'win';
-                } else if (playerValue < dealerValue) {
-                    result = 'lose';
-                } else {
-                    result = 'push';
-                }
-                
-                // Display result (implement visual feedback as needed)
-                console.log(`Hand ${index + 1}: ${result}`);
-            });
+            // Show outcome
+            if (playerValue > 21) {
+                displayOutcomeMessage('Bust!', 'bust');
+            } else if (dealerValue > 21) {
+                displayOutcomeMessage('You Win!', 'win');
+            } else if (playerValue > dealerValue) {
+                displayOutcomeMessage('You Win!', 'win');
+            } else if (playerValue === dealerValue) {
+                displayOutcomeMessage('Push', 'push');
+            } else {
+                displayOutcomeMessage('Dealer Wins', 'lose');
+            }
             
+            updateGameDisplay();
             updateControls();
         }
         
+        // Get the value of a single card
         function getCardValue(card) {
-            const rank = card.slice(0, -1);
-            if (rank === 'A') return 11;
-            if (['K', 'Q', 'J'].includes(rank)) return 10;
-            return parseInt(rank);
+            if (!card) return 0;
+            
+            if (card.value === 'A') return 11;
+            if (['K', 'Q', 'J', '10'].includes(card.value)) return 10;
+            return parseInt(card.value);
         }
         
+        // Calculate the value of a hand
         function getHandValue(hand) {
-            let value = 0;
-            let aces = 0;
+            if (!hand || hand.length === 0) return 0;
             
-            for (const card of hand) {
-                const cardValue = getCardValue(card);
-                value += cardValue;
-                if (cardValue === 11) aces++;
-            }
+            let sum = 0;
+            let aceCount = 0;
             
-            // Adjust for aces
-            while (value > 21 && aces > 0) {
-                value -= 10;
-                aces--;
-            }
-            
-            return value;
-        }
-        
-        function isSoftHand(hand) {
-            let value = 0;
-            let aces = 0;
-            
-            for (const card of hand) {
-                const cardValue = getCardValue(card);
-                value += cardValue;
-                if (cardValue === 11) aces++;
-            }
-            
-            // If we can reduce an ace and stay under 21, it's soft
-            return aces > 0 && value <= 21;
-        }
-        
-        function updateControls() {
-            const dealing = state.gamePhase === 'dealing';
-            const playerTurn = state.gamePhase === 'playerTurn';
-            const gameOver = state.gamePhase === 'gameOver';
-            
-            dealButton.disabled = !gameOver;
-            hitButton.disabled = !playerTurn;
-            standButton.disabled = !playerTurn;
-            
-            // Double only on first two cards
-            const currentHand = state.playerHands[state.currentHandIndex];
-            doubleButton.disabled = !playerTurn || !currentHand || currentHand.length !== 2;
-            
-            // Split only on pairs
-            const canSplit = playerTurn && currentHand && currentHand.length === 2 && 
-                           getCardValue(currentHand[0]) === getCardValue(currentHand[1]);
-            splitButton.disabled = !canSplit;
-        }
-        
-        function renderCards() {
-            // Re-render all cards (used after split)
-            const playerCardsDiv = document.getElementById('player-cards');
-            playerCardsDiv.innerHTML = '';
-            
-            state.playerHands.forEach((hand, handIndex) => {
-                const handDiv = document.createElement('div');
-                handDiv.className = 'player-hand';
-                if (handIndex === state.currentHandIndex) {
-                    handDiv.classList.add('active');
+            for (let card of hand) {
+                if (card.value === 'A') {
+                    aceCount++;
+                    sum += 11;
+                } else if (['K', 'Q', 'J', '10'].includes(card.value)) {
+                    sum += 10;
+                } else {
+                    sum += parseInt(card.value);
                 }
+            }
+            
+            // Adjust for Aces if needed
+            while (sum > 21 && aceCount > 0) {
+                sum -= 10;
+                aceCount--;
+            }
+            
+            return sum;
+        }
+        
+        // Check if a hand is soft (contains an Ace counted as 11)
+        function isSoftHand(hand) {
+            let sum = 0;
+            let aceCount = 0;
+            
+            for (let card of hand) {
+                if (card.value === 'A') {
+                    aceCount++;
+                    sum += 11;
+                } else if (['K', 'Q', 'J', '10'].includes(card.value)) {
+                    sum += 10;
+                } else {
+                    sum += parseInt(card.value);
+                }
+            }
+            
+            return aceCount > 0 && sum <= 21;
+        }
+        
+        // Update controls based on game state
+        function updateControls() {
+            const isDealingPhase = state.gamePhase === 'dealing';
+            
+            if (dealButton) dealButton.disabled = (state.gamePhase !== 'gameOver') || isDealingPhase;
+            if (hitButton) hitButton.disabled = state.gamePhase !== 'playerTurn' || isDealingPhase;
+            if (standButton) standButton.disabled = state.gamePhase !== 'playerTurn' || isDealingPhase;
+            if (doubleButton) {
+                const canDouble = state.gamePhase === 'playerTurn' && 
+                                  state.playerHands[state.currentHandIndex].length === 2;
+                doubleButton.disabled = !canDouble || isDealingPhase;
+            }
+            if (splitButton) {
+                const currentHand = state.playerHands[state.currentHandIndex] || [];
+                const canSplit = state.gamePhase === 'playerTurn' && 
+                                 currentHand.length === 2 && 
+                                 currentHand[0]?.value === currentHand[1]?.value;
+                splitButton.disabled = !canSplit || isDealingPhase;
+            }
+        }
+        
+        // Update game display with current state
+        function updateGameDisplay() {
+            renderCards();
+        }
+        
+        // Render all cards on the table
+        function renderCards() {
+            const dealerCardArea = document.getElementById('dealer-cards');
+            const playerCardArea = document.getElementById('player-cards');
+            
+            if (dealerCardArea) {
+                dealerCardArea.innerHTML = '';
                 
-                hand.forEach(card => {
-                    const cardElement = document.createElement('div');
-                    cardElement.className = 'card';
+                const dealerHandEl = document.createElement('div');
+                dealerHandEl.className = 'hand';
+                
+                state.dealerHand.forEach(card => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'card';
                     
                     const cardImage = document.createElement('img');
-                    cardImage.src = cardImagePaths[card];
-                    cardImage.alt = card;
-                    cardElement.appendChild(cardImage);
+                    cardImage.className = 'card-img';
+                    cardImage.alt = card.isHidden ? '?' : `${card.value}${card.suit}`;
+                    cardImage.src = getCardImagePath(card);
                     
-                    handDiv.appendChild(cardElement);
+                    cardEl.appendChild(cardImage);
+                    dealerHandEl.appendChild(cardEl);
                 });
                 
-                playerCardsDiv.appendChild(handDiv);
-            });
-        }
-        
-        // Basic Strategy Implementation
-        function getBasicStrategyAdvice() {
-            if (state.gamePhase !== 'playerTurn') return '';
-            
-            const playerHand = state.playerHands[state.currentHandIndex];
-            const dealerUpCard = state.dealerHand[0];
-            const dealerValue = getCardValue(dealerUpCard);
-            const playerValue = getHandValue(playerHand);
-            
-            // Check for pairs first
-            if (playerHand.length === 2 && getCardValue(playerHand[0]) === getCardValue(playerHand[1])) {
-                const pairCard = getCardValue(playerHand[0]);
-                return getPairAdvice(pairCard, dealerValue);
+                // Display dealer hand value
+                const dealerValueEl = document.createElement('div');
+                dealerValueEl.className = 'hand-value';
+                
+                if (!state.dealerHand.some(card => card.isHidden) || state.gamePhase === 'gameOver') {
+                    dealerValueEl.textContent = getHandValue(state.dealerHand);
+                } else {
+                    dealerValueEl.textContent = '?';
+                }
+                
+                dealerHandEl.appendChild(dealerValueEl);
+                dealerCardArea.appendChild(dealerHandEl);
             }
             
-            // Check for soft hands
-            if (isSoftHand(playerHand)) {
+            if (playerCardArea) {
+                playerCardArea.innerHTML = '';
+                
+                state.playerHands.forEach((hand, handIndex) => {
+                    const handEl = document.createElement('div');
+                    handEl.className = 'hand';
+                    
+                    if (handIndex === state.currentHandIndex && state.gamePhase === 'playerTurn') {
+                        handEl.classList.add('active');
+                    }
+                    
+                    hand.forEach(card => {
+                        const cardEl = document.createElement('div');
+                        cardEl.className = 'card';
+                        
+                        const cardImage = document.createElement('img');
+                        cardImage.className = 'card-img';
+                        cardImage.alt = `${card.value}${card.suit}`;
+                        cardImage.src = getCardImagePath(card);
+                        
+                        cardEl.appendChild(cardImage);
+                        handEl.appendChild(cardEl);
+                    });
+                    
+                    // Display hand value
+                    const valueEl = document.createElement('div');
+                    valueEl.className = 'hand-value';
+                    valueEl.textContent = getHandValue(hand);
+                    
+                    handEl.appendChild(valueEl);
+                    playerCardArea.appendChild(handEl);
+                });
+            }
+        }
+        
+        // Get the image path for a card
+        function getCardImagePath(card) {
+            if (card.isHidden) {
+                return cardImagePaths.back;
+            }
+            
+            const cardKey = `${card.value}${card.suit}`;
+            return cardImagePaths[cardKey];
+        }
+        
+        // Get basic strategy advice
+        function getBasicStrategyAdvice() {
+            if (state.gamePhase !== 'playerTurn') return 'Waiting for next hand...';
+            
+            const currentHand = state.playerHands[state.currentHandIndex];
+            if (!currentHand || currentHand.length === 0) return 'Waiting for cards...';
+            
+            const playerValue = getHandValue(currentHand);
+            const dealerUpcard = state.dealerHand[0]?.value;
+            if (!dealerUpcard) return 'Waiting for dealer card...';
+            
+            const dealerValue = getCardValue(state.dealerHand[0]);
+            
+            // Check for pair
+            if (currentHand.length === 2 && currentHand[0].value === currentHand[1].value) {
+                return getPairAdvice(currentHand[0].value, dealerValue);
+            }
+            // Check for soft hand
+            else if (isSoftHand(currentHand)) {
                 return getSoftHandAdvice(playerValue, dealerValue);
             }
-            
-            // Hard hands
-            return getHardHandAdvice(playerValue, dealerValue);
+            // Hard hand
+            else {
+                return getHardHandAdvice(playerValue, dealerValue);
+            }
         }
         
+        // Get advice for pair hands
         function getPairAdvice(pairValue, dealerValue) {
-            const splitMatrix = {
-                11: 'split',  // Always split aces
-                10: 'stand',  // Never split tens
-                9: dealerValue === 7 || dealerValue >= 10 ? 'stand' : 'split',
-                8: 'split',   // Always split eights
-                7: dealerValue <= 7 ? 'split' : 'hit',
-                6: dealerValue <= 6 ? 'split' : 'hit',
-                5: 'double',  // Never split fives, double like 10
-                4: dealerValue === 5 || dealerValue === 6 ? 'split' : 'hit',
-                3: dealerValue <= 7 ? 'split' : 'hit',
-                2: dealerValue <= 7 ? 'split' : 'hit'
-            };
-            
-            return splitMatrix[pairValue] || 'stand';
+            switch(pairValue) {
+                case 'A': return 'Split';
+                case 'K': case 'Q': case 'J': case '10': return 'Stand';
+                case '9': return [7, 10, 11].includes(dealerValue) ? 'Stand' : 'Split';
+                case '8': return 'Split';
+                case '7': return dealerValue <= 7 ? 'Split' : 'Hit';
+                case '6': return dealerValue <= 6 ? 'Split' : 'Hit';
+                case '5': return dealerValue <= 9 ? 'Double' : 'Hit';
+                case '4': return [5, 6].includes(dealerValue) ? 'Split' : 'Hit';
+                case '3': case '2': return dealerValue <= 7 ? 'Split' : 'Hit';
+                default: return 'Hit';
+            }
         }
         
+        // Get advice for soft hands
         function getSoftHandAdvice(playerValue, dealerValue) {
-            if (playerValue >= 19) return 'stand';
-            if (playerValue === 18) {
-                if (dealerValue >= 9) return 'hit';
-                if (dealerValue >= 7) return 'stand';
-                return state.doubleAfterSplit ? 'double' : 'stand';
-            }
-            if (playerValue === 17) {
-                return dealerValue <= 6 ? 'double' : 'hit';
-            }
-            if (playerValue <= 16) {
-                return dealerValue <= 6 ? 'double' : 'hit';
-            }
-            return 'hit';
+            if (playerValue >= 19) return 'Stand';
+            if (playerValue === 18) return dealerValue <= 6 ? 'Double if allowed, otherwise Stand' : 
+                                           dealerValue <= 8 ? 'Stand' : 'Hit';
+            if (playerValue === 17) return dealerValue <= 6 ? 'Double if allowed, otherwise Hit' : 'Hit';
+            if (playerValue >= 15) return dealerValue <= 6 ? 'Double if allowed, otherwise Hit' : 'Hit';
+            if (playerValue >= 13) return dealerValue <= 5 ? 'Double if allowed, otherwise Hit' : 'Hit';
+            return 'Hit';
         }
         
+        // Get advice for hard hands
         function getHardHandAdvice(playerValue, dealerValue) {
-            if (playerValue >= 17) return 'stand';
-            if (playerValue >= 13 && playerValue <= 16) {
-                return dealerValue <= 6 ? 'stand' : 'hit';
-            }
-            if (playerValue === 12) {
-                return dealerValue >= 4 && dealerValue <= 6 ? 'stand' : 'hit';
-            }
-            if (playerValue === 11) {
-                return 'double';
-            }
-            if (playerValue === 10) {
-                return dealerValue <= 9 ? 'double' : 'hit';
-            }
-            if (playerValue === 9) {
-                return dealerValue >= 3 && dealerValue <= 6 ? 'double' : 'hit';
-            }
-            return 'hit';
+            if (playerValue >= 17) return 'Stand';
+            if (playerValue >= 13) return dealerValue <= 6 ? 'Stand' : 'Hit';
+            if (playerValue === 12) return [4, 5, 6].includes(dealerValue) ? 'Stand' : 'Hit';
+            if (playerValue === 11) return 'Double if allowed, otherwise Hit';
+            if (playerValue === 10) return dealerValue <= 9 ? 'Double if allowed, otherwise Hit' : 'Hit';
+            if (playerValue === 9) return [3, 4, 5, 6].includes(dealerValue) ? 'Double if allowed, otherwise Hit' : 'Hit';
+            return 'Hit';
         }
         
-        // Initialize the trainer
+        // Function to display outcome message
+        function displayOutcomeMessage(message, outcomeType) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `outcome-message ${outcomeType}`;
+            messageEl.textContent = message;
+            
+            const table = document.querySelector('.blackjack-table');
+            if (table) {
+                table.appendChild(messageEl);
+                
+                setTimeout(() => {
+                    messageEl.classList.add('show');
+                }, 100);
+                
+                setTimeout(() => {
+                    messageEl.classList.remove('show');
+                    setTimeout(() => {
+                        messageEl.remove();
+                    }, 500);
+                }, 2500);
+            }
+        }
+        
+        // Initialize the app
         init();
     }
 }); 
