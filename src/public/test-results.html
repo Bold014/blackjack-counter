@@ -361,8 +361,7 @@
         window.addEventListener('load', async function () {
             try {
                 if (typeof window.Clerk === 'undefined') {
-                    console.error('Clerk is not loaded');
-                    window.location.href = '/index.html';
+                    console.warn('Clerk is not loaded, but showing results anyway');
                     return;
                 }
                 
@@ -374,12 +373,19 @@
                     // Save high score after Clerk is initialized
                     await saveHighScore();
                 } else {
-                    window.location.href = '/index.html';
+                    console.warn('User not authenticated, but allowing results display');
+                    setTimeout(() => {
+                        if (!authenticationComplete) {
+                            window.location.href = '../index.html';
+                        }
+                    }, 5000);
                 }
                 
             } catch (error) {
                 console.error('Error initializing Clerk:', error);
-                window.location.href = '/index.html';
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 5000);
             }
         });
 
@@ -407,7 +413,7 @@
                 
                 signOutBtn.addEventListener('click', async () => {
                     await clerk.signOut();
-                    window.location.href = '/index.html';
+                    window.location.href = '../index.html';
                 });
 
                 // Progress button functionality

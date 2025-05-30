@@ -652,7 +652,7 @@
             try {
                 if (typeof window.Clerk === 'undefined') {
                     console.error('Clerk is not loaded');
-                    window.location.href = '/index.html';
+                    window.location.href = '../index.html';
                     return;
                 }
                 
@@ -663,12 +663,12 @@
                     showUserButton();
                     await initializeProgress();
                 } else {
-                    window.location.href = '/index.html';
+                    window.location.href = '../index.html';
                 }
                 
             } catch (error) {
                 console.error('Error initializing progress page:', error);
-                window.location.href = '/index.html';
+                window.location.href = '../index.html';
             }
         });
 
@@ -1218,7 +1218,7 @@
                 
                 signOutBtn.addEventListener('click', async () => {
                     await clerk.signOut();
-                    window.location.href = '/index.html';
+                    window.location.href = '../index.html';
                 });
 
                 // Progress button functionality (for consistency, though it's the same page)

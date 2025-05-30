@@ -381,7 +381,7 @@
                     // Don't redirect immediately - let user see results
                     setTimeout(() => {
                         if (!authenticationComplete) {
-                            window.location.href = '/index.html';
+                            window.location.href = '../index.html';
                         }
                     }, 5000); // Give 5 seconds to see results
                 }
@@ -392,7 +392,7 @@
                 console.error('Error initializing Clerk:', error);
                 // Don't redirect immediately on error - let user see results
                 setTimeout(() => {
-                    window.location.href = '/index.html';
+                    window.location.href = '../index.html';
                 }, 5000);
             }
         });
@@ -421,7 +421,7 @@
                 
                 signOutBtn.addEventListener('click', async () => {
                     await clerk.signOut();
-                    window.location.href = '/index.html';
+                    window.location.href = '../index.html';
                 });
 
                 // Progress button functionality
