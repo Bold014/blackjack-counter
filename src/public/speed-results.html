@@ -242,10 +242,26 @@
         // Load and display results from localStorage
         document.addEventListener('DOMContentLoaded', () => {
             const results = JSON.parse(localStorage.getItem('speedResults') || '{}');
+            console.log('Loaded speed results:', results);
+            
+            // Check if we have valid results data
+            if (!results || Object.keys(results).length === 0 || results.totalDecisions === 0) {
+                console.warn('No valid speed results found, using default values');
+                // Set default values for display
+                document.getElementById('final-score').textContent = '0%';
+                document.getElementById('accuracy-rate').textContent = '0%';
+                document.getElementById('avg-time').textContent = '0.0s';
+                document.getElementById('fastest-time').textContent = '0.0s';
+                document.getElementById('timeout-count').textContent = '0';
+                document.getElementById('wrong-count').textContent = '0';
+                document.getElementById('performance-message').textContent = 'No speed training data found. Please try completing a speed training session.';
+                return;
+            }
             
             // Display final score
             const finalScoreEl = document.getElementById('final-score');
             if (finalScoreEl && results.finalScore !== undefined) {
+                console.log('Setting final score to:', results.finalScore);
                 finalScoreEl.textContent = Math.round(results.finalScore) + '%';
                 
                 // Color code based on score

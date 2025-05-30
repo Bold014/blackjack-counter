@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get speed training results from the trainer
     function getSpeedResults() {
         // This will be populated by the trainer
-        return window.trainerSpeedPerformance || {
+        const trainerResults = window.trainerSpeedPerformance || {
             finalAccuracy: 0,
             correctDecisions: 0,
             totalDecisions: 0,
@@ -156,6 +156,20 @@ document.addEventListener('DOMContentLoaded', () => {
             avgDecisionTime: 0,
             trainingDuration: 0,
             timeouts: 0
+        };
+        
+        // Convert to format expected by speed-results.html
+        return {
+            finalScore: trainerResults.finalAccuracy || 0, // results page expects finalScore
+            finalAccuracy: trainerResults.finalAccuracy || 0,
+            correctDecisions: trainerResults.correctDecisions || 0,
+            totalDecisions: trainerResults.totalDecisions || 0,
+            totalHands: trainerResults.totalHands || 0,
+            avgDecisionTime: trainerResults.avgDecisionTime || 0,
+            trainingDuration: trainerResults.trainingDuration || 0,
+            timeouts: trainerResults.timeouts || 0,
+            wrongDecisions: Math.max(0, (trainerResults.totalDecisions || 0) - (trainerResults.correctDecisions || 0)),
+            fastestDecision: trainerResults.fastestDecisionTime || trainerResults.avgDecisionTime || 0
         };
     }
 
@@ -200,7 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 handsPlayed: 0,
                 decisionTimes: [],
                 timeouts: 0,
-                speedStartTime: Date.now()
+                speedStartTime: Date.now(),
+                fastestDecisionTime: Infinity
             } : null
         };
         
@@ -313,6 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.decisionStartTime && state.performance) {
                 const decisionTime = (Date.now() - state.decisionStartTime) / 1000;
                 state.performance.decisionTimes.push(decisionTime);
+                
+                // Track fastest decision time
+                if (decisionTime < state.performance.fastestDecisionTime) {
+                    state.performance.fastestDecisionTime = decisionTime;
+                }
             }
             
             state.decisionStartTime = null;
@@ -460,6 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const avgDecisionTime = performance.decisionTimes.length > 0 ? 
                 performance.decisionTimes.reduce((a, b) => a + b, 0) / performance.decisionTimes.length : 0;
             
+            const fastestDecisionTime = performance.fastestDecisionTime === Infinity ? 0 : performance.fastestDecisionTime;
+            
             const trainingDuration = state.speedStartTime ? (Date.now() - state.speedStartTime) / 1000 : 0;
             
             // Store results globally for access
@@ -469,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalDecisions: performance.totalDecisions,
                 totalHands: performance.handsPlayed,
                 avgDecisionTime,
+                fastestDecisionTime,
                 trainingDuration,
                 timeouts: performance.timeouts
             };
