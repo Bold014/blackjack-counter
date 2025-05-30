@@ -101,10 +101,6 @@ body {
     position: relative;
     font-size: 16px;
     overflow-x: hidden;
-    /* Inherit flex layout from styles.css for sticky footer */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 /* Add felt texture overlay - same as landing page */
@@ -183,14 +179,6 @@ body::before {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    flex: 1; /* Push footer down */
-}
-
-/* Ensure all main content containers grow to push footer down */
-body > .container,
-body > div:not(footer),
-body > main {
-    flex: 1;
 }
 
 /* Header adjustments */
@@ -434,7 +422,7 @@ footer {
     -webkit-backdrop-filter: blur(var(--glass-blur));
     padding: 4rem 5% 2rem;
     border-top: 1px solid var(--glass-border);
-    margin-top: auto; /* Stick to bottom */
+    margin-top: 50px;
 }
 
 .footer-content {
