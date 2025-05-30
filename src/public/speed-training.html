@@ -52,6 +52,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            z-index: 100;
         }
 
         .speed-timer {
@@ -90,6 +91,55 @@
                 transform: translateY(-100px);
             }
         }
+
+        /* Decision timer overlay */
+        .decision-timer-overlay {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 1001;
+            border: 2px solid #4caf50;
+            transition: border-color 0.3s ease;
+            display: none;
+        }
+
+        .decision-timer-overlay.warning {
+            border-color: #ffa726;
+        }
+
+        .decision-timer-overlay.danger {
+            border-color: #ff5252;
+        }
+
+        .decision-timer-overlay.active {
+            display: block;
+        }
+
+        /* Make sure cards are visible */
+        .card {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* Ensure blackjack table doesn't interfere with timer */
+        .blackjack-table {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -118,6 +168,11 @@
     
     <!-- Timer display for countdown -->
     <div id="timer-display" class="timer-display"></div>
+    
+    <!-- Decision timer overlay -->
+    <div id="decision-timer-overlay" class="decision-timer-overlay">
+        <i class="fas fa-clock"></i> Time remaining: <span id="decision-timer-text">5.0s</span>
+    </div>
     
     <div class="container">
         <!-- Speed Training Settings -->
@@ -275,7 +330,7 @@
         </div>
     </footer>
     
-    <script src="../../speed-training.js"></script>
+    <script src="speed-training.js"></script>
     
     <!-- Clerk Integration -->
     <script 

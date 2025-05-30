@@ -277,30 +277,74 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             state.decisionStartTime = null;
+            
+            // Hide timer displays
+            const overlayEl = document.getElementById('decision-timer-overlay');
+            const largeTimerEl = document.getElementById('timer-display');
+            
+            if (overlayEl) {
+                overlayEl.classList.remove('active');
+            }
+            if (largeTimerEl) {
+                largeTimerEl.className = 'timer-display';
+            }
         }
         
         function updateTimerDisplay() {
-            const timerEl = document.getElementById('decision-timer');
-            if (!timerEl || !state.isSpeedMode) return;
+            const timerEl = document.getElementById('speed-timer');
+            const overlayEl = document.getElementById('decision-timer-overlay');
+            const overlayTextEl = document.getElementById('decision-timer-text');
+            
+            if (!state.isSpeedMode) return;
             
             const timeLeft = Math.max(0, state.timeRemaining);
-            timerEl.textContent = timeLeft.toFixed(1) + 's';
             
-            // Color coding based on time remaining
-            const percentage = timeLeft / state.timeLimit;
-            if (percentage > 0.6) {
-                timerEl.className = 'timer good';
-            } else if (percentage > 0.3) {
-                timerEl.className = 'timer warning';
-            } else {
-                timerEl.className = 'timer danger';
+            // Update small timer in corner
+            if (timerEl) {
+                timerEl.textContent = timeLeft.toFixed(1);
+                
+                // Color coding based on time remaining
+                const percentage = timeLeft / state.timeLimit;
+                if (percentage > 0.6) {
+                    timerEl.className = 'speed-timer good';
+                } else if (percentage > 0.3) {
+                    timerEl.className = 'speed-timer warning';
+                } else {
+                    timerEl.className = 'speed-timer danger';
+                }
             }
             
-            // Hide timer when not in player turn
-            if (state.gamePhase !== 'playerTurn') {
-                timerEl.style.display = 'none';
-            } else {
-                timerEl.style.display = 'block';
+            // Update decision timer overlay
+            if (overlayEl && overlayTextEl) {
+                if (state.gamePhase === 'playerTurn' && timeLeft > 0) {
+                    overlayEl.classList.add('active');
+                    overlayTextEl.textContent = timeLeft.toFixed(1) + 's';
+                    
+                    // Color coding for overlay
+                    const percentage = timeLeft / state.timeLimit;
+                    overlayEl.className = 'decision-timer-overlay active';
+                    if (percentage <= 0.3) {
+                        overlayEl.classList.add('danger');
+                    } else if (percentage <= 0.6) {
+                        overlayEl.classList.add('warning');
+                    }
+                } else {
+                    overlayEl.classList.remove('active');
+                }
+            }
+            
+            // Update the large timer display for last few seconds
+            const largeTimerEl = document.getElementById('timer-display');
+            if (largeTimerEl) {
+                if (timeLeft <= 3 && timeLeft > 0 && state.gamePhase === 'playerTurn') {
+                    largeTimerEl.textContent = Math.ceil(timeLeft).toString();
+                    largeTimerEl.className = 'timer-display active';
+                    if (timeLeft <= 1) {
+                        largeTimerEl.classList.add('warning');
+                    }
+                } else {
+                    largeTimerEl.className = 'timer-display';
+                }
             }
         }
         
