@@ -101,6 +101,9 @@ body {
     position: relative;
     font-size: 16px;
     overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Add felt texture overlay - same as landing page */
@@ -179,6 +182,9 @@ body::before {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header adjustments */
@@ -422,7 +428,6 @@ footer {
     -webkit-backdrop-filter: blur(var(--glass-blur));
     padding: 4rem 5% 2rem;
     border-top: 1px solid var(--glass-border);
-    margin-top: 50px;
 }
 
 .footer-content {
