@@ -524,91 +524,16 @@ footer {
 }
 
 @media (max-width: 768px) {
-    /* Fix mobile viewport and background rendering */
-    body {
-        background: var(--gradient-green);
-        background-attachment: scroll; /* Fix for mobile Safari */
-        min-height: 100vh;
-        -webkit-background-size: cover;
-        background-size: cover;
-    }
-    
-    /* Fix backdrop-filter for mobile browsers */
-    .mode-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(var(--glass-blur));
-        -webkit-backdrop-filter: blur(var(--glass-blur));
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        /* Fallback for browsers that don't support backdrop-filter */
-        background-color: rgba(12, 20, 41, 0.7);
-    }
-    
-    /* Ensure proper color inheritance on mobile */
-    .mode-card h3,
-    .mode-card p,
-    .feature {
-        color: var(--light-color);
-        -webkit-text-fill-color: var(--light-color);
-    }
-    
-    /* Fix gradient text rendering on mobile */
-    .mode-icon i,
-    .feature i {
-        background: linear-gradient(45deg, #ffd78a 0%, #feb750 60%, #f5a423 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        /* Fallback for browsers that don't support text clipping */
-        color: #feb750;
-    }
-    
     .container {
-        padding: 20px 15px;
         padding-top: 60px;
     }
     
     .trainer-header h1 {
         font-size: 2.5rem;
-        color: var(--secondary-color);
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
     
     .training-modes {
         grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .mode-card {
-        padding: 1.5rem;
-        margin-bottom: 15px;
-    }
-    
-    .mode-icon {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    
-    .mode-card h3 {
-        font-size: 1.3rem;
-        margin-bottom: 12px;
-    }
-    
-    .mode-card p {
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-    
-    .mode-features {
-        margin-bottom: 20px;
-    }
-    
-    .feature {
-        font-size: 0.85rem;
-    }
-    
-    .mode-btn {
-        padding: 10px 20px;
-        font-size: 0.9rem;
     }
     
     .settings-grid {
@@ -638,15 +563,12 @@ footer {
     
     .settings-header {
         text-align: left;
-        padding: 20px 15px;
     }
     
     .home-button {
         top: 15px;
         left: 15px;
         padding: 6px;
-        background: rgba(12, 20, 41, 0.9);
-        border: 2px solid rgba(254, 183, 80, 0.4);
     }
     
     .home-logo-image {
@@ -660,71 +582,6 @@ footer {
     
     .score-circle span:first-child {
         font-size: 2.2rem;
-    }
-}
-
-/* Additional mobile-specific fixes */
-@media (max-width: 480px) {
-    .container {
-        padding: 15px 10px;
-        padding-top: 70px;
-    }
-    
-    .trainer-header h1 {
-        font-size: 2rem;
-    }
-    
-    .trainer-header .subtitle {
-        font-size: 1rem;
-    }
-    
-    .mode-card {
-        padding: 1.2rem;
-    }
-    
-    .mode-icon {
-        font-size: 1.8rem;
-    }
-    
-    .mode-card h3 {
-        font-size: 1.2rem;
-    }
-    
-    .mode-card p {
-        font-size: 0.85rem;
-    }
-    
-    /* Ensure proper color rendering on very small screens */
-    .primary-btn {
-        background: linear-gradient(135deg, #1a1a2e 0%, #2d2d54 50%, #1a1a2e 100%);
-        color: white !important;
-        border: 2px solid #feb750;
-    }
-    
-    /* Fix for very small screens where backdrop-filter might not work */
-    @supports not (backdrop-filter: blur(10px)) {
-        .mode-card {
-            background: rgba(12, 20, 41, 0.85);
-            border: 2px solid rgba(254, 183, 80, 0.3);
-        }
-        
-        .home-button {
-            background: rgba(12, 20, 41, 0.95);
-        }
-    }
-}
-
-/* iOS Safari specific fixes */
-@supports (-webkit-touch-callout: none) {
-    body {
-        background-attachment: scroll;
-        -webkit-background-size: cover;
-        background-size: cover;
-    }
-    
-    .mode-card {
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
     }
 }
 
@@ -1586,4 +1443,121 @@ select, button, .game-btn {
 .close-alert:hover {
     opacity: 1;
     background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .settings-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .training-modes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding-top: 60px;
+    }
+    
+    .trainer-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .training-modes {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .results-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .back-btn {
+        position: static;
+        transform: none;
+        margin-bottom: 15px;
+        align-self: flex-start;
+    }
+    
+    .settings-header {
+        text-align: left;
+    }
+    
+    .home-button {
+        top: 15px;
+        left: 15px;
+        padding: 6px;
+    }
+    
+    .home-logo-image {
+        height: 45px;
+    }
+    
+    .score-circle {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .score-circle span:first-child {
+        font-size: 2.2rem;
+    }
+}
+
+/* Home button - positioned in top left with buffer */
+.home-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(12, 20, 41, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(254, 183, 80, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.home-button:hover {
+    transform: translateY(-2px);
+    background: rgba(12, 20, 41, 0.9);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border-color: rgba(254, 183, 80, 0.6);
+}
+
+.home-link {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.home-link:hover {
+    transform: scale(1.05);
+}
+
+.home-logo-image {
+    display: block;
+    height: 60px;
+    width: auto;
+    max-width: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: filter 0.3s ease;
+}
+
+.home-logo-image:hover {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.1);
 } 
