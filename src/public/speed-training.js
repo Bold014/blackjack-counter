@@ -94,14 +94,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // End speed training early
     function endSpeedTraining() {
+        console.log('End Speed Training clicked!');
         // Calculate final results and redirect to results page
         calculateAndShowResults();
     }
     
     // Calculate and display speed training results
     function calculateAndShowResults() {
+        console.log('Calculating and showing results...');
+        
         // Finalize speed data calculation
         if (window.trainerState && window.trainerState.isSpeedMode) {
+            console.log('Finalizing speed data...');
             // Call the finalization function from the trainer
             if (typeof finalizeSpeedData === 'function') {
                 finalizeSpeedData();
@@ -110,10 +114,33 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Get speed training results from the trainer
         const results = getSpeedResults();
+        console.log('Speed results:', results);
+        
+        // Save to high scores system if available
+        if (window.highScoresManager && results.totalDecisions > 0) {
+            const speedTestResult = {
+                testType: 'speed',
+                overallScore: results.finalAccuracy,
+                strategyAccuracy: results.finalAccuracy,
+                bettingAccuracy: 0, // Not applicable for speed training
+                totalHands: results.totalHands,
+                testDuration: results.trainingDuration,
+                avgDecisionTime: results.avgDecisionTime,
+                finalBalance: 0, // Not applicable for speed training
+                startingBalance: 0, // Not applicable for speed training
+                correctDecisions: results.correctDecisions,
+                totalDecisions: results.totalDecisions,
+                timeouts: results.timeouts,
+                finalAccuracy: results.finalAccuracy
+            };
+            
+            window.highScoresManager.saveTestResult(speedTestResult);
+        }
         
         // Store results in localStorage for the results page
         localStorage.setItem('speedResults', JSON.stringify(results));
         
+        console.log('Redirecting to results page...');
         // Redirect to results page
         window.location.href = 'speed-results.html';
     }

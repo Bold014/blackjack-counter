@@ -27,20 +27,26 @@ class HighScoresManager {
             const newScore = {
                 id: Date.now().toString(),
                 timestamp: new Date().toISOString(),
+                testType: testResult.testType || 'performance', // 'performance' or 'speed'
                 overallScore: Math.round(testResult.overallScore),
                 strategyAccuracy: Math.round(testResult.strategyAccuracy),
-                bettingAccuracy: Math.round(testResult.bettingAccuracy),
+                bettingAccuracy: Math.round(testResult.bettingAccuracy || 0),
                 totalHands: testResult.totalHands,
                 testDuration: testResult.testDuration,
                 avgDecisionTime: testResult.avgDecisionTime,
-                finalBalance: testResult.finalBalance,
-                startingBalance: testResult.startingBalance,
-                netGain: testResult.finalBalance - testResult.startingBalance,
-                correctHits: testResult.correctHits,
-                correctStands: testResult.correctStands,
-                correctDoubles: testResult.correctDoubles,
-                correctSplits: testResult.correctSplits,
-                bettingDecisions: testResult.bettingDecisions
+                finalBalance: testResult.finalBalance || 0,
+                startingBalance: testResult.startingBalance || 0,
+                netGain: (testResult.finalBalance || 0) - (testResult.startingBalance || 0),
+                correctHits: testResult.correctHits || 0,
+                correctStands: testResult.correctStands || 0,
+                correctDoubles: testResult.correctDoubles || 0,
+                correctSplits: testResult.correctSplits || 0,
+                bettingDecisions: testResult.bettingDecisions || 0,
+                // Speed training specific fields
+                correctDecisions: testResult.correctDecisions || 0,
+                totalDecisions: testResult.totalDecisions || 0,
+                timeouts: testResult.timeouts || 0,
+                finalAccuracy: testResult.finalAccuracy || 0
             };
 
             // Add to scores array
@@ -205,7 +211,69 @@ class HighScoresManager {
     formatDuration(seconds) {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        return `${minutes}m ${remainingSeconds}s`;
+    }
+
+    // Get performance test results only
+    async getPerformanceTestResults() {
+        const allScores = await this.getHighScores();
+        return allScores.filter(score => score.testType === 'performance' || !score.testType);
+    }
+
+    // Get speed training results only
+    async getSpeedTrainingResults() {
+        const allScores = await this.getHighScores();
+        return allScores.filter(score => score.testType === 'speed');
+    }
+
+    // Get personal bests for speed training
+    async getSpeedTrainingBests() {
+        const speedScores = await this.getSpeedTrainingResults();
+        
+        if (speedScores.length === 0) return null;
+
+        return {
+            bestAccuracy: Math.max(...speedScores.map(s => s.finalAccuracy || s.overallScore)),
+            fastestAvgDecisionTime: Math.min(...speedScores.map(s => s.avgDecisionTime)),
+            mostHandsPlayed: Math.max(...speedScores.map(s => s.totalHands)),
+            fewestTimeouts: Math.min(...speedScores.map(s => s.timeouts)),
+            averageAccuracy: speedScores.reduce((sum, s) => sum + (s.finalAccuracy || s.overallScore), 0) / speedScores.length,
+            totalSpeedTests: speedScores.length
+        };
+    }
+
+    // Get speed training improvement trends
+    async getSpeedTrainingTrends() {
+        const speedScores = await this.getSpeedTrainingResults();
+        
+        if (speedScores.length < 5) return null; // Need at least 5 tests for trends
+
+        // Sort by timestamp
+        speedScores.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        const recent = speedScores.slice(-5);
+        const older = speedScores.slice(0, -5);
+
+        if (older.length === 0) return null;
+
+        const recentAvg = {
+            accuracy: recent.reduce((sum, s) => sum + (s.finalAccuracy || s.overallScore), 0) / recent.length,
+            decisionTime: recent.reduce((sum, s) => sum + s.avgDecisionTime, 0) / recent.length,
+            timeouts: recent.reduce((sum, s) => sum + s.timeouts, 0) / recent.length
+        };
+
+        const olderAvg = {
+            accuracy: older.reduce((sum, s) => sum + (s.finalAccuracy || s.overallScore), 0) / older.length,
+            decisionTime: older.reduce((sum, s) => sum + s.avgDecisionTime, 0) / older.length,
+            timeouts: older.reduce((sum, s) => sum + s.timeouts, 0) / older.length
+        };
+
+        return {
+            accuracyImprovement: recentAvg.accuracy - olderAvg.accuracy,
+            decisionTimeImprovement: olderAvg.decisionTime - recentAvg.decisionTime, // Positive = faster
+            timeoutImprovement: olderAvg.timeouts - recentAvg.timeouts, // Positive = fewer timeouts
+            totalSpeedTests: speedScores.length
+        };
     }
 }
 
