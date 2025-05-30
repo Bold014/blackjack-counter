@@ -1,10 +1,12 @@
 // Speed Training Page Component
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Speed Training script loaded!');
     // Initialize the speed training page
     initSpeedTraining();
     
     // Main initialization function
     function initSpeedTraining() {
+        console.log('Initializing speed training...');
         // Initialize navigation system
         initNavigation();
         
@@ -14,15 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Navigation system for different screens
     function initNavigation() {
+        console.log('Initializing navigation...');
+        
         // Settings screen handlers
         const startBtn = document.getElementById('start-speed-training');
+        console.log('Start button found:', startBtn);
         
         if (startBtn) {
             startBtn.addEventListener('click', startSpeedTraining);
+            console.log('Event listener attached to start button');
+        } else {
+            console.error('Start button not found!');
         }
         
         // Game screen handlers
-        const endBtn = document.getElementById('end-training-early');
+        const endBtn = document.getElementById('end-speed-early');
         if (endBtn) {
             endBtn.addEventListener('click', endSpeedTraining);
         }
@@ -53,14 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Start speed training
     function startSpeedTraining() {
+        console.log('Start Speed Training clicked!');
+        
         // Get settings
         const settings = getSpeedSettings();
+        console.log('Settings:', settings);
         
         // Initialize speed training
         initSpeedRun(settings);
         
         // Show game screen
         showSpeedTrainingGame();
+        console.log('Game screen should now be visible');
     }
     
     // Get speed training settings from the form
@@ -70,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timeLimit: parseInt(document.getElementById('speed-time-limit')?.value || 5),
             hitSoft17: document.getElementById('speed-hit-soft-17')?.value === 'yes',
             doubleAfterSplit: document.getElementById('speed-double-after-split')?.value === 'yes',
-            resplitAces: document.getElementById('speed-resplit-aces')?.value === 'yes'
+            resplitAces: false // Always false for speed training
         };
     }
     
