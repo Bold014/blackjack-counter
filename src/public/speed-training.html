@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Training - HitOrStand</title>
+    <link rel="stylesheet" href="../styles/pages/styles.css">
+    <link rel="stylesheet" href="../styles/pages/trainer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Speed training specific styles */
+        .timer-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer-display.active {
+            opacity: 1;
+        }
+
+        .timer-display.warning {
+            color: #ff6b6b;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .speed-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            transition: color 0.3s ease;
+        }
+
+        .speed-timer.warning {
+            color: #ffa726;
+        }
+
+        .speed-timer.danger {
+            color: #ff5252;
+        }
+
+        .penalty-animation {
+            position: fixed;
+            font-size: 48px;
+            font-weight: bold;
+            color: #ff5252;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            pointer-events: none;
+            animation: penaltyFloat 2s ease-out forwards;
+        }
+
+        @keyframes penaltyFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home-button">
+        <a href="index.html" class="home-link">
+            <img src="../assets/images/logosmall.png" alt="HitOrStand" class="home-logo-image" style="height: 60px; width: auto; max-width: none;">
+        </a>
+    </div>
+    
+    <!-- User button for signed-in users -->
+    <div class="user-button" id="user-button" style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: none;">
+        <button id="user-menu-btn" class="user-menu-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 15px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user"></i>
+            <span id="user-name"></span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="user-dropdown" class="user-dropdown" style="position: absolute; top: 100%; right: 0; background: #0c1429; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; min-width: 150px; display: none;">
+            <button id="view-progress-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-trophy"></i> View Progress
+            </button>
+            <button id="sign-out-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </div>
+    </div>
+    
+    <!-- Timer display for countdown -->
+    <div id="timer-display" class="timer-display"></div>
+    
+    <div class="container">
+        <!-- Speed Training Settings -->
+        <div id="speed-training-settings" class="settings-container active">
+            <header class="settings-header">
+                <button id="back-to-modes" class="back-btn" onclick="window.location.href='trainer.html'">
+                    <i class="fas fa-arrow-left"></i> Back to Modes
+                </button>
+                <h2>Speed Training Settings</h2>
+                <p>Configure your speed training parameters</p>
+            </header>
+            
+            <div class="settings-panel">
+                <div class="settings-grid">
+                    <div class="setting">
+                        <label for="speed-decks">Number of Decks:</label>
+                        <select id="speed-decks">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6" selected>6</option>
+                            <option value="8">8</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label for="speed-time-limit">Time Limit per Decision:</label>
+                        <select id="speed-time-limit">
+                            <option value="3">3 seconds</option>
+                            <option value="5" selected>5 seconds</option>
+                            <option value="8">8 seconds</option>
+                            <option value="10">10 seconds</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label for="speed-difficulty">Difficulty:</label>
+                        <select id="speed-difficulty">
+                            <option value="easy">Easy (10% penalty)</option>
+                            <option value="medium" selected>Medium (20% penalty)</option>
+                            <option value="hard">Hard (30% penalty)</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label for="speed-hit-soft-17">Dealer Hits Soft 17:</label>
+                        <select id="speed-hit-soft-17">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label for="speed-double-after-split">Double After Split:</label>
+                        <select id="speed-double-after-split">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label for="speed-hands-to-play">Hands to Play:</label>
+                        <select id="speed-hands-to-play">
+                            <option value="20">20 hands</option>
+                            <option value="50" selected>50 hands</option>
+                            <option value="100">100 hands</option>
+                            <option value="0">Full shoe</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="test-info">
+                    <h3>Speed Training Overview</h3>
+                    <p>Test your decision-making speed under time pressure. You have limited time to make each decision!</p>
+                    <ul>
+                        <li>⏱️ Time limit for each decision</li>
+                        <li>❌ Wrong decisions reduce your score</li>
+                        <li>⚡ Faster correct decisions earn bonus points</li>
+                        <li>🎯 Perfect score requires both speed and accuracy</li>
+                    </ul>
+                </div>
+                
+                <button id="start-speed-training" class="start-test-btn">
+                    <i class="fas fa-bolt"></i> Start Speed Training
+                </button>
+            </div>
+        </div>
+
+        <!-- Speed Training Game Interface -->
+        <div id="speed-training-game" class="game-container">
+            <div class="test-progress">
+                <div class="progress-header">
+                    <h3>Speed Training in Progress</h3>
+                    <button id="end-speed-early" class="end-test-btn">
+                        <i class="fas fa-stop"></i> End Training
+                    </button>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat">
+                        <span class="stat-label">Hands Played:</span>
+                        <span id="hands-played">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Current Score:</span>
+                        <span id="current-score">100</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Avg Decision Time:</span>
+                        <span id="avg-decision-time">0.0s</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trainer-container">
+                <div class="blackjack-table">
+                    <div class="speed-indicator">
+                        <i class="fas fa-clock"></i>
+                        <span id="speed-timer" class="speed-timer">5</span>
+                    </div>
+                    
+                    <div class="table-felt">
+                        <div class="dealer-area">
+                            <h3>Dealer's Hand</h3>
+                            <div id="dealer-cards" class="dealer-cards"></div>
+                        </div>
+                        
+                        <div class="player-area">
+                            <h3>Your Hand</h3>
+                            <div id="player-cards" class="player-cards"></div>
+                            
+                            <div class="game-controls">
+                                <button id="deal-button" class="game-btn">Deal</button>
+                                <button id="hit-button" class="game-btn" disabled>Hit</button>
+                                <button id="stand-button" class="game-btn" disabled>Stand</button>
+                                <button id="double-button" class="game-btn" disabled>Double</button>
+                                <button id="split-button" class="game-btn" disabled>Split</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html" class="logo-link">
+                    <img src="../assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="trainer.html">Trainer</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://x.com/joethebrojoe" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: 24px; height: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 1200 1227" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 HitOrStand. For educational purposes only.</p>
+        </div>
+    </footer>
+    
+    <script src="../../speed-training.js"></script>
+    
+    <!-- Clerk Integration -->
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_live_Y2xlcmsuaGl0b3JzdGFuZHRyYWluZXIuY29tJA"
+        src="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript">
+    </script>
+    <script>
+        // Clerk Integration
+        let clerk;
+
+        window.addEventListener('load', async function () {
+            try {
+                if (typeof window.Clerk === 'undefined') {
+                    console.error('Clerk is not loaded');
+                    window.location.href = '/index.html';
+                    return;
+                }
+                
+                clerk = window.Clerk;
+                await clerk.load();
+
+                if (clerk.user) {
+                    showUserButton();
+                } else {
+                    window.location.href = '/index.html';
+                }
+                
+            } catch (error) {
+                console.error('Error initializing Clerk:', error);
+                window.location.href = '/index.html';
+            }
+        });
+
+        function showUserButton() {
+            const userButton = document.getElementById('user-button');
+            const userName = document.getElementById('user-name');
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            
+            if (clerk.user && userButton && userName) {
+                const firstName = clerk.user.firstName || clerk.user.emailAddresses[0].emailAddress.split('@')[0];
+                userName.textContent = firstName;
+                userButton.style.display = 'block';
+                
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userButton.contains(e.target)) {
+                        userDropdown.style.display = 'none';
+                    }
+                });
+                
+                signOutBtn.addEventListener('click', async () => {
+                    await clerk.signOut();
+                    window.location.href = '/index.html';
+                });
+
+                // Progress button functionality
+                const viewProgressBtn = document.getElementById('view-progress-btn');
+                if (viewProgressBtn) {
+                    viewProgressBtn.addEventListener('click', () => {
+                        window.location.href = 'progress.html';
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
