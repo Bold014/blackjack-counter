@@ -36,6 +36,9 @@
                     <i class="fas fa-chevron-down"></i>
                 </button>
                 <div id="user-dropdown" class="user-dropdown" style="display: none;">
+                    <button id="view-progress-btn" class="dropdown-item">
+                        <i class="fas fa-trophy"></i> View Progress
+                    </button>
                     <button id="sign-out-btn" class="dropdown-item">
                         <i class="fas fa-sign-out-alt"></i> Sign Out
                     </button>
@@ -506,6 +509,14 @@
                     await clerk.signOut();
                     window.location.href = '/index.html';
                 });
+
+                // Progress button functionality (for consistency, though it's the same page)
+                const viewProgressBtn = document.getElementById('view-progress-btn');
+                if (viewProgressBtn) {
+                    viewProgressBtn.addEventListener('click', () => {
+                        window.location.href = 'progress.html';
+                    });
+                }
             }
         }
     </script>

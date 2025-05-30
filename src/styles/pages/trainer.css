@@ -757,16 +757,6 @@ select, button, .game-btn {
     box-shadow: 0 15px 40px rgba(78, 205, 196, 0.2);
 }
 
-.mode-card.progress-mode {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
-    border: 2px solid rgba(212, 175, 55, 0.3);
-}
-
-.mode-card.progress-mode:hover {
-    border-color: var(--accent-gold);
-    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.2);
-}
-
 .mode-card.coming-soon {
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
@@ -1525,23 +1515,4 @@ select, button, .game-btn {
 
 .home-logo-image:hover {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.1);
-}
-
-.progress-btn {
-    background: linear-gradient(135deg, var(--accent-gold), #ffc107);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-    font-size: 1.1rem;
-}
-
-.progress-btn:hover {
-    background: linear-gradient(135deg, #b8860b, var(--accent-gold));
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
 } 
