@@ -9,35 +9,26 @@ const PORT = process.env.PORT || 3000;
 // Initialize Stripe with your secret key
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-// Configure CORS to allow requests from your frontend domain
-const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            'https://hitorstandtrainer.com',
-            'http://localhost:3000',
-            'https://localhost:3000'
-        ];
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'stripe-signature'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-};
-
-// Apply CORS middleware
-app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
+// Configure CORS - simplified approach
+app.use((req, res, next) => {
+    const allowedOrigins = ['https://hitorstandtrainer.com', 'http://localhost:3000'];
+    const origin = req.headers.origin;
+    
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, stripe-signature');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+    
+    next();
+});
 
 // Stripe webhook endpoint (MUST be before express.json() middleware)
 app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
@@ -72,15 +63,12 @@ app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
 
 // Apply JSON middleware after webhook route
 app.use(express.json());
-app.use(express.static('src'));
 
-// Serve static files from src directory
-app.use(express.static(path.join(__dirname, 'src')));
-
-// API Routes for Stripe integration
+// API Routes for Stripe integration (BEFORE static files)
 
 // Create checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
+    console.log('Create checkout session endpoint hit');
     try {
         const { priceId, userId, userEmail } = req.body;
 
@@ -114,6 +102,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
 // Verify subscription after successful payment
 app.post('/api/verify-subscription', async (req, res) => {
+    console.log('Verify subscription endpoint hit');
     try {
         const { sessionId, userId } = req.body;
 
@@ -149,6 +138,7 @@ app.post('/api/verify-subscription', async (req, res) => {
 
 // Cancel subscription
 app.post('/api/cancel-subscription', async (req, res) => {
+    console.log('Cancel subscription endpoint hit');
     try {
         const { subscriptionId, userId } = req.body;
 
@@ -175,6 +165,10 @@ app.post('/api/cancel-subscription', async (req, res) => {
         res.status(500).json({ error: 'Failed to cancel subscription' });
     }
 });
+
+// Serve static files AFTER API routes
+app.use(express.static('src'));
+app.use(express.static(path.join(__dirname, 'src')));
 
 // Serve HTML files
 app.get('/', (req, res) => {
