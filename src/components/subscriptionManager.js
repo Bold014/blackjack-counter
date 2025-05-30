@@ -157,8 +157,8 @@ class SubscriptionManager {
         }
 
         try {
-            // In production, this should call your backend API
-            const response = await fetch('/api/create-checkout-session', {
+            // Call the Heroku backend API
+            const response = await fetch('https://blackjacc-counter.herokuapp.com/api/create-checkout-session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -194,7 +194,7 @@ class SubscriptionManager {
 
         try {
             // Verify the session with your backend
-            const response = await fetch('/api/verify-subscription', {
+            const response = await fetch('https://blackjacc-counter.herokuapp.com/api/verify-subscription', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -242,7 +242,7 @@ class SubscriptionManager {
             }
 
             // Call your backend to cancel the subscription
-            const response = await fetch('/api/cancel-subscription', {
+            const response = await fetch('https://blackjacc-counter.herokuapp.com/api/cancel-subscription', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
