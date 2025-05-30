@@ -23,16 +23,6 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-
-// Explicit preflight handler for all API routes
-app.options('/api/*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.sendStatus(200);
-});
-
 app.use(express.json());
 app.use(express.static('src'));
 
@@ -42,12 +32,7 @@ app.use(express.static(path.join(__dirname, 'src')));
 // API Routes for Stripe integration
 
 // Create checkout session
-app.post('/api/create-checkout-session', (req, res, next) => {
-    // Ensure CORS headers are set
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-}, async (req, res) => {
+app.post('/api/create-checkout-session', async (req, res) => {
     try {
         const { priceId, userId, userEmail } = req.body;
 
@@ -80,12 +65,7 @@ app.post('/api/create-checkout-session', (req, res, next) => {
 });
 
 // Verify subscription after successful payment
-app.post('/api/verify-subscription', (req, res, next) => {
-    // Ensure CORS headers are set
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-}, async (req, res) => {
+app.post('/api/verify-subscription', async (req, res) => {
     try {
         const { sessionId, userId } = req.body;
 
@@ -120,12 +100,7 @@ app.post('/api/verify-subscription', (req, res, next) => {
 });
 
 // Cancel subscription
-app.post('/api/cancel-subscription', (req, res, next) => {
-    // Ensure CORS headers are set
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-}, async (req, res) => {
+app.post('/api/cancel-subscription', async (req, res) => {
     try {
         const { subscriptionId, userId } = req.body;
 
