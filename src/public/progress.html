@@ -332,7 +332,6 @@
                 <div class="test-type-nav" style="margin-top: 2rem;">
                     <button id="show-performance-btn" class="nav-btn active">Performance Tests</button>
                     <button id="show-speed-btn" class="nav-btn">Speed Training</button>
-                    <button id="show-combined-btn" class="nav-btn">Combined View</button>
                 </div>
             </header>
 
@@ -424,7 +423,7 @@
                     <div class="training-modes">
                         <div class="mode-card">
                             <div class="mode-icon">
-                                <i class="fas fa-target"></i>
+                                <i class="fas fa-bullseye"></i>
                             </div>
                             <div class="mode-content">
                                 <h3>Best Accuracy</h3>
@@ -494,107 +493,6 @@
                         <!-- Recent speed tests will be populated here -->
                     </div>
                 </section>
-            </div>
-
-            <!-- Combined Section -->
-            <div id="combined-section" class="test-section" style="display: none;">
-            <!-- Improvement Trends Section -->
-                <section class="improvement-trends" id="improvement-section">
-                    <h2><i class="fas fa-trending-up"></i> Overall Improvement</h2>
-                <div class="training-modes">
-                    <div class="mode-card trend-card positive" id="overall-trend">
-                        <div class="mode-icon">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Overall Score</h3>
-                            <span class="trend-value">+0%</span>
-                            <p>improvement over time</p>
-                        </div>
-                    </div>
-                    <div class="mode-card trend-card positive" id="strategy-trend">
-                        <div class="mode-icon">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Strategy Accuracy</h3>
-                            <span class="trend-value">+0%</span>
-                            <p>improvement over time</p>
-                        </div>
-                    </div>
-                    <div class="mode-card trend-card positive" id="betting-trend">
-                        <div class="mode-icon">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Betting Accuracy</h3>
-                            <span class="trend-value">+0%</span>
-                            <p>improvement over time</p>
-                        </div>
-                    </div>
-                    <div class="mode-card trend-card positive" id="speed-trend">
-                        <div class="mode-icon">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Decision Speed</h3>
-                            <span class="trend-value">+0.0s</span>
-                            <p>faster decisions</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-                <!-- Combined Progress Chart Section -->
-            <section class="progress-chart-section">
-                    <h2><i class="fas fa-chart-line"></i> Combined Progress Over Time</h2>
-                <div class="chart-container" style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 2rem; margin-top: 1rem;">
-                        <canvas id="combinedChart"></canvas>
-                </div>
-            </section>
-
-            <!-- Statistics Summary -->
-            <section class="stats-summary">
-                <h2><i class="fas fa-chart-bar"></i> Overall Statistics</h2>
-                <div class="training-modes">
-                    <div class="mode-card">
-                        <div class="mode-icon">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Tests Completed</h3>
-                            <span class="stat-value" id="total-tests">0</span>
-                        </div>
-                    </div>
-                    <div class="mode-card">
-                        <div class="mode-icon">
-                            <i class="fas fa-hand-rock"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Total Hands</h3>
-                            <span class="stat-value" id="total-hands">0</span>
-                        </div>
-                    </div>
-                    <div class="mode-card">
-                        <div class="mode-icon">
-                            <i class="fas fa-percentage"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Average Score</h3>
-                            <span class="stat-value" id="avg-score">0%</span>
-                        </div>
-                    </div>
-                    <div class="mode-card">
-                        <div class="mode-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="mode-content">
-                            <h3>Practice Time</h3>
-                            <span class="stat-value" id="total-time">0h 0m</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
             </div>
 
             <!-- Action Buttons Section -->
@@ -692,18 +590,15 @@
         function initNavigation() {
             const performanceBtn = document.getElementById('show-performance-btn');
             const speedBtn = document.getElementById('show-speed-btn');
-            const combinedBtn = document.getElementById('show-combined-btn');
 
             performanceBtn.addEventListener('click', () => showSection('performance'));
             speedBtn.addEventListener('click', () => showSection('speed'));
-            combinedBtn.addEventListener('click', () => showSection('combined'));
         }
 
         function showSection(sectionType) {
             // Hide all sections
             document.getElementById('performance-section').style.display = 'none';
             document.getElementById('speed-section').style.display = 'none';
-            document.getElementById('combined-section').style.display = 'none';
 
             // Remove active class from all buttons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -717,10 +612,6 @@
                 case 'speed':
                     document.getElementById('speed-section').style.display = 'block';
                     document.getElementById('show-speed-btn').classList.add('active');
-                    break;
-                case 'combined':
-                    document.getElementById('combined-section').style.display = 'block';
-                    document.getElementById('show-combined-btn').classList.add('active');
                     break;
             }
         }
@@ -770,12 +661,6 @@
             } else {
                 console.log('No speed training data found');
             }
-
-            // Combined data
-            const combinedTrends = await window.highScoresManager.getImprovementTrends();
-            updateImprovementTrends(combinedTrends);
-            updateCombinedChart(allScores);
-            updateStatsSummary(allScores);
 
             // Show content
             document.getElementById('loading-state').style.display = 'none';
@@ -993,76 +878,6 @@
             });
         }
 
-        function updateCombinedChart(allScores) {
-            const ctx = document.getElementById('combinedChart').getContext('2d');
-            
-            // Sort scores by timestamp
-            allScores.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            // Take last 20 scores for the chart
-            const chartData = allScores.slice(-20);
-            
-            const labels = chartData.map((score, index) => `Test ${index + 1}`);
-            const performanceScores = chartData.filter(s => s.testType !== 'speed').map(s => s.overallScore);
-            const speedScores = chartData.filter(s => s.testType === 'speed').map(s => s.finalAccuracy || s.overallScore);
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Performance Tests',
-                        data: performanceScores,
-                        borderColor: '#4ecdc4',
-                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }, {
-                        label: 'Speed Training',
-                        data: speedScores,
-                        borderColor: '#ff6b6b',
-                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#ffffff'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                color: '#ffffff',
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#ffffff'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
         function updateRecentPerformanceTests(recentTests) {
             const container = document.getElementById('recent-performance-list');
             container.innerHTML = '';
@@ -1132,61 +947,6 @@
                 
                 container.appendChild(testItem);
             });
-        }
-
-        function updateImprovementTrends(trends) {
-            if (!trends || trends.totalTestsCount < 10) {
-                return; // Need at least 10 tests to show meaningful trends
-            }
-
-            document.getElementById('improvement-section').style.display = 'block';
-
-            updateTrendCard('overall-trend', trends.overallScoreImprovement, '%');
-            updateTrendCard('strategy-trend', trends.strategyAccuracyImprovement, '%');
-            updateTrendCard('betting-trend', trends.bettingAccuracyImprovement, '%');
-            updateTrendCard('speed-trend', trends.decisionTimeImprovement, 's', true); // true for "faster is better"
-        }
-
-        function updateTrendCard(cardId, improvement, unit, fasterIsBetter = false) {
-            const card = document.getElementById(cardId);
-            const value = card.querySelector('.trend-value');
-            const icon = card.querySelector('.mode-icon i');
-            
-            const isImprovement = fasterIsBetter ? improvement > 0 : improvement > 0;
-            const displayValue = fasterIsBetter ? 
-                (improvement > 0 ? `+${improvement.toFixed(1)}${unit}` : `${improvement.toFixed(1)}${unit}`) :
-                (improvement > 0 ? `+${improvement.toFixed(1)}${unit}` : `${improvement.toFixed(1)}${unit}`);
-
-            value.textContent = displayValue;
-
-            if (isImprovement) {
-                card.classList.add('positive');
-                card.classList.remove('negative', 'neutral');
-                icon.className = 'fas fa-arrow-up';
-            } else if (improvement < 0) {
-                card.classList.add('negative');
-                card.classList.remove('positive', 'neutral');
-                icon.className = 'fas fa-arrow-down';
-            } else {
-                card.classList.add('neutral');
-                card.classList.remove('positive', 'negative');
-                icon.className = 'fas fa-minus';
-            }
-        }
-
-        function updateStatsSummary(scores) {
-            const totalTests = scores.length;
-            const totalHands = scores.reduce((sum, test) => sum + test.totalHands, 0);
-            const avgScore = scores.reduce((sum, test) => sum + test.overallScore, 0) / totalTests;
-            const totalTime = scores.reduce((sum, test) => sum + test.testDuration, 0);
-
-            document.getElementById('total-tests').textContent = totalTests.toString();
-            document.getElementById('total-hands').textContent = totalHands.toString();
-            document.getElementById('avg-score').textContent = `${Math.round(avgScore)}%`;
-            
-            const hours = Math.floor(totalTime / 3600);
-            const minutes = Math.floor((totalTime % 3600) / 60);
-            document.getElementById('total-time').textContent = `${hours}h ${minutes}m`;
         }
 
         function showNoDataState() {
