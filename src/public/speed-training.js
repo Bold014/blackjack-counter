@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Save to high scores system if available
         if (window.highScoresManager && results.totalDecisions > 0) {
+            console.log('Saving to highScoresManager...');
             const speedTestResult = {
                 testType: 'speed',
                 overallScore: results.finalAccuracy,
@@ -134,7 +135,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalAccuracy: results.finalAccuracy
             };
             
-            window.highScoresManager.saveTestResult(speedTestResult);
+            console.log('Speed test result to save:', speedTestResult);
+            window.highScoresManager.saveTestResult(speedTestResult)
+                .then(success => {
+                    console.log('Save result:', success);
+                })
+                .catch(error => {
+                    console.error('Error saving speed training result:', error);
+                });
+        } else {
+            console.warn('highScoresManager not available or no decisions made:', {
+                manager: !!window.highScoresManager,
+                totalDecisions: results.totalDecisions
+            });
         }
         
         // Store results in localStorage for the results page
