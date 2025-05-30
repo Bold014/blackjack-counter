@@ -26,10 +26,12 @@ window.addEventListener('load', async function () {
             console.log('User is signed in:', clerk.user);
             showSignedInState();
             showTrainerNavButton();
+            showProgressNavButton();
         } else {
             console.log('User is not signed in');
             showAuthOptions();
             hideTrainerNavButton();
+            hideProgressNavButton();
         }
         
     } catch (error) {
@@ -335,5 +337,19 @@ function hideTrainerNavButton() {
     const trainerNavBtn = document.getElementById('trainer-nav-btn');
     if (trainerNavBtn) {
         trainerNavBtn.style.display = 'none';
+    }
+}
+
+function showProgressNavButton() {
+    const progressNavBtn = document.getElementById('progress-nav-btn');
+    if (progressNavBtn) {
+        progressNavBtn.style.display = 'flex';
+    }
+}
+
+function hideProgressNavButton() {
+    const progressNavBtn = document.getElementById('progress-nav-btn');
+    if (progressNavBtn) {
+        progressNavBtn.style.display = 'none';
     }
 } 

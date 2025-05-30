@@ -130,6 +130,25 @@
                     <button id="back-to-modes-results" class="action-btn secondary" onclick="window.location.href='trainer.html'">
                         <i class="fas fa-home"></i> Back to Modes
                     </button>
+                    <button id="view-progress-btn" class="action-btn secondary" onclick="window.location.href='progress.html'">
+                        <i class="fas fa-trophy"></i> View Progress
+                    </button>
+                </div>
+
+                <!-- Personal Best Alert -->
+                <div id="personal-best-alert" class="personal-best-alert" style="display: none;">
+                    <div class="alert-content">
+                        <div class="alert-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="alert-text">
+                            <h3>🎉 New Personal Best!</h3>
+                            <p id="best-improvements">You've achieved new personal bests!</p>
+                        </div>
+                        <button id="close-alert" class="close-alert">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,13 +180,17 @@
         </div>
     </footer>
     
+    <script src="../components/highScores.js"></script>
     <script>
         // Load and display results from localStorage or URL parameters
+        let clerk;
+        let currentResults = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             loadTestResults();
         });
 
-        function loadTestResults() {
+        async function loadTestResults() {
             // Try to get results from localStorage first
             const results = JSON.parse(localStorage.getItem('testResults') || '{}');
             
@@ -188,8 +211,11 @@
                 avgDecisionTime: 0
             };
 
-            const finalResults = { ...defaultResults, ...results };
-            displayResults(finalResults);
+            currentResults = { ...defaultResults, ...results };
+            displayResults(currentResults);
+
+            // Clear the stored results to prevent reusing them
+            localStorage.removeItem('testResults');
         }
 
         function displayResults(results) {
@@ -250,6 +276,73 @@
                 avgDecisionTimeEl.textContent = `${results.avgDecisionTime.toFixed(1)}s`;
             }
         }
+
+        async function saveHighScore() {
+            if (!currentResults || !clerk || !clerk.user) {
+                console.log('Cannot save high score: missing data or user not authenticated');
+                return;
+            }
+
+            try {
+                // Initialize high scores manager
+                await window.highScoresManager.initialize(clerk);
+
+                // Check if this is a new personal best
+                const personalBestCheck = await window.highScoresManager.isNewPersonalBest(currentResults);
+
+                // Save the test result
+                const saved = await window.highScoresManager.saveTestResult(currentResults);
+
+                if (saved) {
+                    console.log('High score saved successfully');
+                    
+                    // Show personal best alert if applicable
+                    if (personalBestCheck.isNewBest) {
+                        showPersonalBestAlert(personalBestCheck.improvements);
+                    }
+                } else {
+                    console.error('Failed to save high score');
+                }
+
+            } catch (error) {
+                console.error('Error saving high score:', error);
+            }
+        }
+
+        function showPersonalBestAlert(improvements) {
+            const alert = document.getElementById('personal-best-alert');
+            const improvementText = document.getElementById('best-improvements');
+            
+            const improvementMessages = {
+                firstTest: "Congratulations on completing your first performance test!",
+                overallScore: "🏆 New highest overall score!",
+                strategyAccuracy: "🎯 New best strategy accuracy!",
+                bettingAccuracy: "💰 New best betting accuracy!",
+                handsPlayed: "🃏 New record for most hands played!",
+                netGain: "💵 New highest profit!",
+                decisionTime: "⚡ New fastest decision time!"
+            };
+
+            let message = "You've achieved new personal bests:\n";
+            improvements.forEach(improvement => {
+                if (improvementMessages[improvement]) {
+                    message += `• ${improvementMessages[improvement]}\n`;
+                }
+            });
+
+            improvementText.textContent = message;
+            alert.style.display = 'block';
+
+            // Add event listener to close button
+            document.getElementById('close-alert').addEventListener('click', () => {
+                alert.style.display = 'none';
+            });
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 10000);
+        }
     </script>
     
     <!-- Clerk Integration -->
@@ -262,8 +355,6 @@
     </script>
     <script>
         // Clerk Integration
-        let clerk;
-
         window.addEventListener('load', async function () {
             try {
                 if (typeof window.Clerk === 'undefined') {
@@ -277,6 +368,8 @@
 
                 if (clerk.user) {
                     showUserButton();
+                    // Save high score after Clerk is initialized
+                    await saveHighScore();
                 } else {
                     window.location.href = '/index.html';
                 }
