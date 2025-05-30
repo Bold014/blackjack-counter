@@ -157,48 +157,48 @@
         </div>
     </div>
     
-    <div class="results-container">
-        <div class="results-header">
-            <h1>Speed Training Complete!</h1>
-            <div class="final-score-display" id="final-score">85%</div>
-            <p class="subtitle">Accuracy Score</p>
+    <div class="results-container" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+        <div class="results-header" style="display: block !important;">
+            <h1 style="color: white !important;">Speed Training Complete!</h1>
+            <div class="final-score-display" id="final-score" style="color: #4caf50 !important; font-size: 5rem !important;">85%</div>
+            <p class="subtitle" style="color: white !important;">Accuracy Score</p>
         </div>
 
-        <div class="performance-summary">
-            <p class="summary-text" id="performance-message">
+        <div class="performance-summary" style="display: block !important;">
+            <p class="summary-text" id="performance-message" style="color: white !important;">
                 Great job! You maintained good accuracy while making quick decisions.
             </p>
         </div>
 
-        <div class="results-grid">
-            <div class="result-card">
-                <h3>Decision Accuracy</h3>
-                <div class="metric-value" id="accuracy-rate">0%</div>
-                <div class="metric-label">Correct Decisions</div>
+        <div class="results-grid" style="display: grid !important;">
+            <div class="result-card" style="display: block !important;">
+                <h3 style="color: white !important;">Decision Accuracy</h3>
+                <div class="metric-value" id="accuracy-rate" style="color: #4caf50 !important; font-size: 2.5rem !important;">0%</div>
+                <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Correct Decisions</div>
             </div>
 
-            <div class="result-card">
-                <h3>Average Decision Time</h3>
-                <div class="metric-value" id="avg-time">0.0s</div>
-                <div class="metric-label">Per Decision</div>
+            <div class="result-card" style="display: block !important;">
+                <h3 style="color: white !important;">Average Decision Time</h3>
+                <div class="metric-value" id="avg-time" style="color: #4caf50 !important; font-size: 2.5rem !important;">0.0s</div>
+                <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Per Decision</div>
             </div>
 
-            <div class="result-card">
-                <h3>Fastest Decision</h3>
-                <div class="metric-value" id="fastest-time">0.0s</div>
-                <div class="metric-label">Best Time</div>
+            <div class="result-card" style="display: block !important;">
+                <h3 style="color: white !important;">Fastest Decision</h3>
+                <div class="metric-value" id="fastest-time" style="color: #4caf50 !important; font-size: 2.5rem !important;">0.0s</div>
+                <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Best Time</div>
             </div>
 
-            <div class="result-card">
-                <h3>Timeouts</h3>
-                <div class="metric-value danger-metric" id="timeout-count">0</div>
-                <div class="metric-label">Missed Decisions</div>
+            <div class="result-card" style="display: block !important;">
+                <h3 style="color: white !important;">Timeouts</h3>
+                <div class="metric-value danger-metric" id="timeout-count" style="color: #ff5252 !important; font-size: 2.5rem !important;">0</div>
+                <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Missed Decisions</div>
             </div>
 
-            <div class="result-card">
-                <h3>Wrong Decisions</h3>
-                <div class="metric-value warning-metric" id="wrong-count">0</div>
-                <div class="metric-label">Incorrect Choices</div>
+            <div class="result-card" style="display: block !important;">
+                <h3 style="color: white !important;">Wrong Decisions</h3>
+                <div class="metric-value warning-metric" id="wrong-count" style="color: #ffa726 !important; font-size: 2.5rem !important;">0</div>
+                <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Incorrect Choices</div>
             </div>
         </div>
 
@@ -241,6 +241,18 @@
     <script>
         // Load and display results from localStorage
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, starting to load speed results...');
+            
+            // Check if the results container is visible
+            const resultsContainer = document.querySelector('.results-container');
+            if (resultsContainer) {
+                console.log('Results container found, checking visibility...');
+                const styles = window.getComputedStyle(resultsContainer);
+                console.log('Container display:', styles.display, 'visibility:', styles.visibility, 'opacity:', styles.opacity);
+            } else {
+                console.error('Results container not found!');
+            }
+            
             const results = JSON.parse(localStorage.getItem('speedResults') || '{}');
             console.log('Loaded speed results:', results);
             
@@ -272,6 +284,11 @@
                 } else {
                     finalScoreEl.style.color = '#ff5252';
                 }
+            } else {
+                console.error('Final score element not found or results.finalScore is undefined', {
+                    element: finalScoreEl,
+                    finalScore: results.finalScore
+                });
             }
             
             // Display accuracy rate
@@ -279,15 +296,39 @@
             if (accuracyEl && results.totalDecisions > 0) {
                 const accuracy = (results.correctDecisions / results.totalDecisions) * 100;
                 accuracyEl.textContent = Math.round(accuracy) + '%';
+                console.log('Set accuracy rate to:', Math.round(accuracy) + '%');
+            } else {
+                console.error('Accuracy element not found or no decisions made', {
+                    element: accuracyEl,
+                    totalDecisions: results.totalDecisions
+                });
             }
             
             // Display timing metrics
-            document.getElementById('avg-time').textContent = results.avgDecisionTime?.toFixed(1) + 's' || '0.0s';
-            document.getElementById('fastest-time').textContent = results.fastestDecision?.toFixed(1) + 's' || '0.0s';
+            const avgTimeEl = document.getElementById('avg-time');
+            const fastestTimeEl = document.getElementById('fastest-time');
+            const timeoutEl = document.getElementById('timeout-count');
+            const wrongEl = document.getElementById('wrong-count');
             
-            // Display counts
-            document.getElementById('timeout-count').textContent = results.timeouts || '0';
-            document.getElementById('wrong-count').textContent = results.wrongDecisions || '0';
+            if (avgTimeEl) {
+                avgTimeEl.textContent = (results.avgDecisionTime?.toFixed(1) || '0.0') + 's';
+                console.log('Set avg time to:', avgTimeEl.textContent);
+            }
+            
+            if (fastestTimeEl) {
+                fastestTimeEl.textContent = (results.fastestDecision?.toFixed(1) || '0.0') + 's';
+                console.log('Set fastest time to:', fastestTimeEl.textContent);
+            }
+            
+            if (timeoutEl) {
+                timeoutEl.textContent = results.timeouts || '0';
+                console.log('Set timeouts to:', timeoutEl.textContent);
+            }
+            
+            if (wrongEl) {
+                wrongEl.textContent = results.wrongDecisions || '0';
+                console.log('Set wrong decisions to:', wrongEl.textContent);
+            }
             
             // Update performance message based on score
             const messageEl = document.getElementById('performance-message');
@@ -318,12 +359,12 @@
     <script>
         // Clerk Integration
         let clerk;
+        let authenticationComplete = false;
 
         window.addEventListener('load', async function () {
             try {
                 if (typeof window.Clerk === 'undefined') {
-                    console.error('Clerk is not loaded');
-                    window.location.href = '/index.html';
+                    console.warn('Clerk is not loaded, but showing results anyway');
                     return;
                 }
                 
@@ -333,12 +374,23 @@
                 if (clerk.user) {
                     showUserButton();
                 } else {
-                    window.location.href = '/index.html';
+                    console.warn('User not authenticated, but allowing results display');
+                    // Don't redirect immediately - let user see results
+                    setTimeout(() => {
+                        if (!authenticationComplete) {
+                            window.location.href = '/index.html';
+                        }
+                    }, 5000); // Give 5 seconds to see results
                 }
+                
+                authenticationComplete = true;
                 
             } catch (error) {
                 console.error('Error initializing Clerk:', error);
-                window.location.href = '/index.html';
+                // Don't redirect immediately on error - let user see results
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 5000);
             }
         });
 
