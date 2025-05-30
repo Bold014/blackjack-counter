@@ -145,18 +145,10 @@
                     <div class="setting">
                         <label for="speed-time-limit">Time Limit per Decision:</label>
                         <select id="speed-time-limit">
-                            <option value="3">3 seconds</option>
-                            <option value="5" selected>5 seconds</option>
-                            <option value="8">8 seconds</option>
-                            <option value="10">10 seconds</option>
-                        </select>
-                    </div>
-                    <div class="setting">
-                        <label for="speed-difficulty">Difficulty:</label>
-                        <select id="speed-difficulty">
-                            <option value="easy">Easy (10% penalty)</option>
-                            <option value="medium" selected>Medium (20% penalty)</option>
-                            <option value="hard">Hard (30% penalty)</option>
+                            <option value="3">3 seconds (Hard)</option>
+                            <option value="5" selected>5 seconds (Medium)</option>
+                            <option value="8">8 seconds (Easy)</option>
+                            <option value="10">10 seconds (Very Easy)</option>
                         </select>
                     </div>
                     <div class="setting">
@@ -186,12 +178,12 @@
                 
                 <div class="test-info">
                     <h3>Speed Training Overview</h3>
-                    <p>Test your decision-making speed under time pressure. You have limited time to make each decision!</p>
+                    <p>Test your decision-making speed under time pressure. Make correct decisions quickly!</p>
                     <ul>
                         <li>⏱️ Time limit for each decision</li>
-                        <li>❌ Wrong decisions reduce your score</li>
-                        <li>⚡ Faster correct decisions earn bonus points</li>
-                        <li>🎯 Perfect score requires both speed and accuracy</li>
+                        <li>🎯 Score based on correct decisions per hand</li>
+                        <li>⚡ Faster times = higher difficulty</li>
+                        <li>📊 Track your accuracy and speed progress</li>
                     </ul>
                 </div>
                 
@@ -216,8 +208,8 @@
                         <span id="hands-played">0</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Current Score:</span>
-                        <span id="current-score">100</span>
+                        <span class="stat-label">Accuracy:</span>
+                        <span id="current-accuracy">0%</span>
                     </div>
                     <div class="stat">
                         <span class="stat-label">Avg Decision Time:</span>

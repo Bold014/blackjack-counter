@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
             doubleAfterSplit: document.getElementById('speed-double-after-split')?.value === 'yes',
             resplitAces: false, // Always false for speed training
             timeLimit: parseInt(document.getElementById('speed-time-limit')?.value || 5),
-            difficulty: document.getElementById('speed-difficulty')?.value || 'medium',
             handsToPlay: parseInt(document.getElementById('speed-hands-to-play')?.value || 50)
         };
     }
@@ -148,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
             isSpeedMode: isSpeedMode,
             speedStartTime: isSpeedMode ? Date.now() : null,
             timeLimit: settings?.timeLimit || 5,
-            difficulty: settings?.difficulty || 'medium',
             handsToPlay: settings?.handsToPlay || 50,
             
             // Game state
@@ -156,12 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
             playerHands: [[]],
             dealerHand: [],
             currentHandIndex: 0,
-            gamePhase: 'waiting', // waiting, playerTurn, dealerTurn, evaluating, gameOver
+            gamePhase: 'gameOver', // Start with gameOver so deal button is enabled
             doubledHands: new Set(),
             splitHands: [],
             
             // Speed mode tracking
-            currentScore: 100,
             decisionStartTime: null,
             decisionTimer: null,
             currentTimeRemaining: 0,
@@ -173,16 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalDecisions: 0,
                 wrongDecisions: 0,
                 timeouts: 0,
-                decisionTimes: [],
-                penalties: []
+                decisionTimes: []
             } : null
-        };
-        
-        // Penalty rates based on difficulty
-        const penaltyRates = {
-            easy: 0.1,    // 10% penalty
-            medium: 0.2,  // 20% penalty
-            hard: 0.3     // 30% penalty
         };
         
         // Card image paths map
@@ -318,10 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.performance) {
                 state.performance.timeouts++;
                 state.performance.totalDecisions++;
+                state.performance.wrongDecisions++; // Count timeout as wrong decision
             }
             
-            // Apply penalty
-            applyPenalty('TIMEOUT');
+            updateSpeedProgress();
             
             // Auto-select the safest option (usually stand)
             playerStand();
@@ -336,59 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (isCorrect) {
                 state.performance.correctDecisions++;
-                // Bonus points for fast correct decisions
-                if (decisionTime < 2) {
-                    updateScore(2); // Small bonus
-                }
             } else {
                 state.performance.wrongDecisions++;
-                applyPenalty('WRONG DECISION');
             }
             
             updateSpeedProgress();
-        }
-        
-        function applyPenalty(reason) {
-            const penaltyAmount = Math.floor(100 * penaltyRates[state.difficulty]);
-            state.currentScore = Math.max(0, state.currentScore - penaltyAmount);
-            
-            if (state.performance) {
-                state.performance.penalties.push({
-                    reason,
-                    amount: penaltyAmount,
-                    timestamp: Date.now()
-                });
-            }
-            
-            // Show penalty animation
-            showPenaltyAnimation(`-${penaltyAmount}`);
-            updateSpeedProgress();
-        }
-        
-        function updateScore(points) {
-            state.currentScore = Math.min(100, state.currentScore + points);
-            updateSpeedProgress();
-        }
-        
-        function showPenaltyAnimation(text) {
-            const penalty = document.createElement('div');
-            penalty.className = 'penalty-animation';
-            penalty.textContent = text;
-            
-            // Position near the game controls
-            const controls = document.querySelector('.game-controls');
-            if (controls) {
-                const rect = controls.getBoundingClientRect();
-                penalty.style.left = rect.left + rect.width / 2 + 'px';
-                penalty.style.top = rect.top - 50 + 'px';
-            }
-            
-            document.body.appendChild(penalty);
-            
-            // Remove after animation
-            setTimeout(() => {
-                penalty.remove();
-            }, 2000);
         }
         
         function updateSpeedProgress() {
@@ -400,10 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 handsPlayedEl.textContent = state.performance.handsPlayed.toString();
             }
             
-            // Update current score
-            const currentScoreEl = document.getElementById('current-score');
-            if (currentScoreEl) {
-                currentScoreEl.textContent = state.currentScore.toString();
+            // Update current accuracy
+            const currentAccuracyEl = document.getElementById('current-accuracy');
+            if (currentAccuracyEl && state.performance && state.performance.totalDecisions > 0) {
+                const accuracy = (state.performance.correctDecisions / state.performance.totalDecisions) * 100;
+                currentAccuracyEl.textContent = Math.round(accuracy) + '%';
             }
             
             // Update average decision time
@@ -436,11 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const slowestDecision = performance.decisionTimes.length > 0 ?
                 Math.max(...performance.decisionTimes) : 0;
             
-            const totalPenalties = performance.penalties.reduce((sum, p) => sum + p.amount, 0);
+            // Calculate final score as accuracy percentage
+            const finalScore = performance.totalDecisions > 0 ? 
+                (performance.correctDecisions / performance.totalDecisions) * 100 : 0;
             
             // Store results globally for access
             window.speedPerformance = {
-                finalScore: state.currentScore,
+                finalScore: finalScore,
                 correctDecisions: performance.correctDecisions,
                 totalDecisions: performance.totalDecisions,
                 wrongDecisions: performance.wrongDecisions,
@@ -449,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fastestDecision,
                 slowestDecision,
                 totalHands: performance.handsPlayed,
-                penaltyPoints: totalPenalties
+                penaltyPoints: 0 // No longer using penalties
             };
         }
         

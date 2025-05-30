@@ -160,8 +160,8 @@
     <div class="results-container">
         <div class="results-header">
             <h1>Speed Training Complete!</h1>
-            <div class="final-score-display" id="final-score">85</div>
-            <p class="subtitle">Your Performance Score</p>
+            <div class="final-score-display" id="final-score">85%</div>
+            <p class="subtitle">Accuracy Score</p>
         </div>
 
         <div class="performance-summary">
@@ -199,12 +199,6 @@
                 <h3>Wrong Decisions</h3>
                 <div class="metric-value warning-metric" id="wrong-count">0</div>
                 <div class="metric-label">Incorrect Choices</div>
-            </div>
-
-            <div class="result-card">
-                <h3>Total Penalties</h3>
-                <div class="metric-value danger-metric" id="penalty-points">0</div>
-                <div class="metric-label">Points Deducted</div>
             </div>
         </div>
 
@@ -252,7 +246,7 @@
             // Display final score
             const finalScoreEl = document.getElementById('final-score');
             if (finalScoreEl && results.finalScore !== undefined) {
-                finalScoreEl.textContent = Math.round(results.finalScore);
+                finalScoreEl.textContent = Math.round(results.finalScore) + '%';
                 
                 // Color code based on score
                 if (results.finalScore >= 90) {
@@ -278,7 +272,6 @@
             // Display counts
             document.getElementById('timeout-count').textContent = results.timeouts || '0';
             document.getElementById('wrong-count').textContent = results.wrongDecisions || '0';
-            document.getElementById('penalty-points').textContent = results.penaltyPoints || '0';
             
             // Update performance message based on score
             const messageEl = document.getElementById('performance-message');
