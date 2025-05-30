@@ -237,6 +237,7 @@ class HighScoresManager {
             fastestAvgDecisionTime: Math.min(...speedScores.map(s => s.avgDecisionTime)),
             mostHandsPlayed: Math.max(...speedScores.map(s => s.totalHands)),
             fewestTimeouts: Math.min(...speedScores.map(s => s.timeouts)),
+            averageTimeouts: speedScores.reduce((sum, s) => sum + s.timeouts, 0) / speedScores.length,
             averageAccuracy: speedScores.reduce((sum, s) => sum + (s.finalAccuracy || s.overallScore), 0) / speedScores.length,
             totalSpeedTests: speedScores.length
         };

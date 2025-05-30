@@ -453,8 +453,8 @@
                                 <i class="fas fa-hourglass-half"></i>
                             </div>
                             <div class="mode-content">
-                                <h3>Fewest Timeouts</h3>
-                                <span class="best-value" id="speed-fewest-timeouts">0</span>
+                                <h3>Average Timeouts</h3>
+                                <span class="best-value" id="speed-avg-timeouts">0</span>
                             </div>
                         </div>
                         <div class="mode-card">
@@ -692,7 +692,7 @@
                 'speed-best-accuracy': `${Math.round(bests.bestAccuracy)}%`,
                 'speed-fastest-time': `${bests.fastestAvgDecisionTime.toFixed(1)}s`,
                 'speed-most-hands': bests.mostHandsPlayed.toString(),
-                'speed-fewest-timeouts': bests.fewestTimeouts.toString(),
+                'speed-avg-timeouts': bests.averageTimeouts.toFixed(1),
                 'speed-avg-accuracy': `${Math.round(bests.averageAccuracy)}%`,
                 'speed-total-tests': bests.totalSpeedTests.toString()
             };
