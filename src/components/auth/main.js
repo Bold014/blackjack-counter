@@ -169,7 +169,7 @@ function showSignUpModal() {
                 }
             }
         },
-        afterSignUpUrl: './trainer.html',
+        forceRedirectUrl: window.location.origin + window.location.pathname.replace('index.html', 'trainer.html'),
         signInUrl: '#'
     });
 
@@ -277,7 +277,7 @@ function showSignInModal() {
                 }
             }
         },
-        afterSignInUrl: './trainer.html',
+        forceRedirectUrl: window.location.origin + window.location.pathname.replace('index.html', 'trainer.html'),
         signUpUrl: '#'
     });
 
