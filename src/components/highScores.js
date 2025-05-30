@@ -91,6 +91,12 @@ class HighScoresManager {
 
         // Calculate personal bests
         const personalBests = {
+            // Averages for percentage-based metrics
+            averageOverallScore: Math.round(scores.reduce((sum, s) => sum + s.overallScore, 0) / scores.length),
+            averageStrategyAccuracy: Math.round(scores.reduce((sum, s) => sum + s.strategyAccuracy, 0) / scores.length),
+            averageBettingAccuracy: Math.round(scores.reduce((sum, s) => sum + s.bettingAccuracy, 0) / scores.length),
+            
+            // Keep personal bests for other metrics
             highestOverallScore: Math.max(...scores.map(s => s.overallScore)),
             highestStrategyAccuracy: Math.max(...scores.map(s => s.strategyAccuracy)),
             highestBettingAccuracy: Math.max(...scores.map(s => s.bettingAccuracy)),

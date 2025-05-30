@@ -76,15 +76,15 @@
 
             <!-- Personal Bests Section -->
             <section class="personal-bests">
-                <h2><i class="fas fa-trophy"></i> Personal Bests</h2>
+                <h2><i class="fas fa-chart-bar"></i> Performance Overview</h2>
                 <div class="bests-grid">
                     <div class="best-card">
                         <div class="best-icon">
-                            <i class="fas fa-star"></i>
+                            <i class="fas fa-chart-line"></i>
                         </div>
                         <div class="best-content">
                             <span class="best-value" id="best-overall">0%</span>
-                            <span class="best-label">Overall Score</span>
+                            <span class="best-label">Average Score</span>
                         </div>
                     </div>
                     <div class="best-card">
@@ -93,7 +93,7 @@
                         </div>
                         <div class="best-content">
                             <span class="best-value" id="best-strategy">0%</span>
-                            <span class="best-label">Strategy Accuracy</span>
+                            <span class="best-label">Average Strategy</span>
                         </div>
                     </div>
                     <div class="best-card">
@@ -102,7 +102,7 @@
                         </div>
                         <div class="best-content">
                             <span class="best-value" id="best-betting">0%</span>
-                            <span class="best-label">Betting Accuracy</span>
+                            <span class="best-label">Average Betting</span>
                         </div>
                     </div>
                     <div class="best-card">
@@ -111,21 +111,21 @@
                         </div>
                         <div class="best-content">
                             <span class="best-value" id="best-hands">0</span>
-                            <span class="best-label">Hands Played</span>
+                            <span class="best-label">Most Hands</span>
                         </div>
                     </div>
                     <div class="best-card">
                         <div class="best-icon">
-                            <i class="fas fa-dollar-sign"></i>
+                            <i class="fas fa-trophy"></i>
                         </div>
                         <div class="best-content">
                             <span class="best-value" id="best-profit">$0</span>
-                            <span class="best-label">Highest Profit</span>
+                            <span class="best-label">Best Profit</span>
                         </div>
                     </div>
                     <div class="best-card">
                         <div class="best-icon">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-stopwatch"></i>
                         </div>
                         <div class="best-content">
                             <span class="best-value" id="best-speed">0.0s</span>
@@ -318,9 +318,9 @@
         function updatePersonalBests(bests) {
             if (!bests) return;
 
-            document.getElementById('best-overall').textContent = `${bests.highestOverallScore}%`;
-            document.getElementById('best-strategy').textContent = `${bests.highestStrategyAccuracy}%`;
-            document.getElementById('best-betting').textContent = `${bests.highestBettingAccuracy}%`;
+            document.getElementById('best-overall').textContent = `${bests.averageOverallScore}%`;
+            document.getElementById('best-strategy').textContent = `${bests.averageStrategyAccuracy}%`;
+            document.getElementById('best-betting').textContent = `${bests.averageBettingAccuracy}%`;
             document.getElementById('best-hands').textContent = bests.mostHandsPlayed.toString();
             document.getElementById('best-profit').textContent = `$${bests.highestNetGain}`;
             document.getElementById('best-speed').textContent = `${bests.fastestAvgDecisionTime.toFixed(1)}s`;
