@@ -113,7 +113,6 @@
                 <div class="faq-item">
                     <div class="faq-question">
                         <h3>How does the trainer improve my blackjack skills?</h3>
-                        <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
                         <p>Our trainer uses mathematically optimal blackjack strategy to provide instant feedback on every decision you make. You'll learn when to hit, stand, double down, or split based on your cards and the dealer's up-card.</p>
@@ -123,7 +122,6 @@
                 <div class="faq-item">
                     <div class="faq-question">
                         <h3>Does the trainer help with bankroll management?</h3>
-                        <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
                         <p>Yes! Our trainer includes a bankroll management module that teaches you how to properly size your bets, manage your playing budget, and implement betting strategies that maximize your edge. You'll learn about the Kelly criterion, risk of ruin, and other essential concepts for long-term success.</p>
@@ -133,7 +131,6 @@
                 <div class="faq-item">
                     <div class="faq-question">
                         <h3>Will this work for any casino?</h3>
-                        <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
                         <p>Yes! You can customize the trainer to match the specific rules of any casino you plan to visit. This includes adjusting the number of decks, dealer rules (hit or stand on soft 17), and other game variations.</p>
@@ -209,42 +206,6 @@
 
     <!-- JavaScript -->
     <script>
-        // FAQ Toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const faqQuestions = document.querySelectorAll('.faq-question');
-            
-            faqQuestions.forEach(question => {
-                question.addEventListener('click', function() {
-                    const answer = this.nextElementSibling;
-                    const icon = this.querySelector('i');
-                    
-                    // Toggle active class
-                    this.parentElement.classList.toggle('faq-active');
-                    
-                    // Toggle icon rotation
-                    if (icon.classList.contains('fa-chevron-down')) {
-                        icon.classList.remove('fa-chevron-down');
-                        icon.classList.add('fa-chevron-up');
-                    } else {
-                        icon.classList.remove('fa-chevron-up');
-                        icon.classList.add('fa-chevron-down');
-                    }
-                    
-                    // Toggle answer visibility
-                    if (answer.style.maxHeight) {
-                        answer.style.maxHeight = null;
-                    } else {
-                        answer.style.maxHeight = answer.scrollHeight + 'px';
-                    }
-                });
-            });
-            
-            // Initially hide all answers
-            document.querySelectorAll('.faq-answer').forEach(answer => {
-                answer.style.maxHeight = null;
-            });
-        });
-        
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
