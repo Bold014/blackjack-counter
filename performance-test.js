@@ -696,6 +696,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode && state.performance) {
                 state.performance.handStartTimes.push(Date.now());
             }
+
+            // Track betting decision if betting is enabled and we're in test mode
+            if (state.isTestMode && state.bettingEnabled && state.performance) {
+                const { recommendedBet } = calculateRecommendedBet();
+                const actualBet = state.currentBet;
+                // Require exact match with recommended bet amount
+                const isCorrectBet = actualBet === recommendedBet;
+                trackBettingDecision(isCorrectBet);
+            }
             
             // Check if betting is enabled and valid bet is placed
             if (state.bettingEnabled) {
@@ -1219,15 +1228,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Track true count for this hand
                 const trueCount = parseFloat(calculateTrueCount());
                 state.performance.trueCountHistory.push(trueCount);
-                
-                // Track betting decision if betting is enabled
-                if (state.bettingEnabled) {
-                    const { recommendedBet } = calculateRecommendedBet();
-                    const actualBet = state.currentBet;
-                    // Require exact match with recommended bet amount (accounting for $10 minimum)
-                    const isCorrectBet = actualBet === recommendedBet;
-                    trackBettingDecision(isCorrectBet);
-                }
             }
             
             // Perform the winning animation if there are winnings
