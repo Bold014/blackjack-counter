@@ -172,6 +172,62 @@
                 height: 300px;
             }
         }
+
+        /* Action Buttons Styles */
+        .action-buttons-section {
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+            min-width: 150px;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-gold));
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -389,6 +445,18 @@
                             <span class="stat-value" id="total-time">0h 0m</span>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Action Buttons Section -->
+            <section class="action-buttons-section">
+                <div class="results-actions">
+                    <button class="action-btn primary" onclick="window.location.href='performance-test.html'">
+                        <i class="fas fa-redo"></i> Test Again
+                    </button>
+                    <button class="action-btn secondary" onclick="window.location.href='trainer.html'">
+                        <i class="fas fa-gamepad"></i> All Game Modes
+                    </button>
                 </div>
             </section>
         </div>
