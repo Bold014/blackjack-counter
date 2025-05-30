@@ -228,6 +228,9 @@
         </div>
     </footer>
     
+    <!-- Load subscription manager -->
+    <script src="../components/subscriptionManager.js"></script>
+    
     <script src="../../performance-test.js"></script>
     
     <!-- Clerk Integration -->
@@ -241,6 +244,7 @@
     <script>
         // Clerk Integration
         let clerk;
+        let subscriptionManager = window.subscriptionManager;
 
         window.addEventListener('load', async function () {
             try {
@@ -255,6 +259,13 @@
 
                 if (clerk.user) {
                     showUserButton();
+                    
+                    // Initialize subscription manager
+                    await subscriptionManager.initialize(clerk);
+                    
+                    // Display subscription status
+                    const status = await subscriptionManager.getSubscriptionStatus();
+                    displaySubscriptionStatus(status);
                 } else {
                     window.location.href = '../index.html';
                 }
@@ -264,6 +275,75 @@
                 window.location.href = '../index.html';
             }
         });
+        
+        function displaySubscriptionStatus(status) {
+            // Add subscription status to the settings panel
+            const settingsPanel = document.querySelector('.settings-panel');
+            if (settingsPanel) {
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'subscription-status-info';
+                
+                if (status.isSubscribed) {
+                    statusDiv.innerHTML = `
+                        <div class="status-badge premium">
+                            <i class="fas fa-crown"></i>
+                            <span>Premium Member - Unlimited Tests</span>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="status-badge free">
+                            <i class="fas fa-info-circle"></i>
+                            <span>${status.dailyTestsRemaining} free tests remaining today</span>
+                            <a href="pricing.html">Upgrade</a>
+                        </div>
+                    `;
+                }
+                
+                // Insert at the beginning of settings panel
+                settingsPanel.insertBefore(statusDiv, settingsPanel.firstChild);
+                
+                // Add styles
+                const style = document.createElement('style');
+                style.textContent = `
+                    .subscription-status-info {
+                        margin-bottom: 20px;
+                    }
+                    
+                    .status-badge {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 12px 20px;
+                        border-radius: 8px;
+                        font-size: 0.95rem;
+                    }
+                    
+                    .status-badge.premium {
+                        background: rgba(102, 126, 234, 0.2);
+                        border: 1px solid rgba(102, 126, 234, 0.4);
+                        color: #818cf8;
+                    }
+                    
+                    .status-badge.free {
+                        background: rgba(251, 191, 36, 0.1);
+                        border: 1px solid rgba(251, 191, 36, 0.3);
+                        color: #fbbf24;
+                    }
+                    
+                    .status-badge a {
+                        margin-left: auto;
+                        color: inherit;
+                        text-decoration: underline;
+                    }
+                    
+                    .status-badge a:hover {
+                        opacity: 0.8;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
 
         function showUserButton() {
             const userButton = document.getElementById('user-button');

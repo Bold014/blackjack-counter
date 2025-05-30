@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - HitOrStand</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/logosmall.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/logosmall.png">
+    <link rel="apple-touch-icon" href="../assets/images/logosmall.png">
+    <link rel="shortcut icon" href="../assets/images/logosmall.png">
+    
+    <link rel="stylesheet" href="../styles/pages/styles.css">
+    <link rel="stylesheet" href="../styles/pages/pricing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="home-button">
+        <a href="index.html" class="home-link">
+            <img src="../assets/images/logosmall.png" alt="HitOrStand" class="home-logo-image" style="height: 60px; width: auto; max-width: none;">
+        </a>
+    </div>
+    
+    <!-- User button for signed-in users -->
+    <div class="user-button" id="user-button" style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: none;">
+        <button id="user-menu-btn" class="user-menu-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 15px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user"></i>
+            <span id="user-name"></span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="user-dropdown" class="user-dropdown" style="position: absolute; top: 100%; right: 0; background: #0c1429; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; min-width: 150px; display: none;">
+            <button id="view-progress-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-trophy"></i> View Progress
+            </button>
+            <button id="sign-out-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </div>
+    </div>
+    
+    <div class="pricing-container">
+        <header class="pricing-header">
+            <h1>Choose Your Plan</h1>
+            <p>Start with our free plan and upgrade when you're ready</p>
+            
+            <!-- Current subscription status -->
+            <div id="subscription-status" class="subscription-status" style="display: none;">
+                <div class="status-badge">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="status-text"></span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="pricing-grid">
+            <!-- Free Plan -->
+            <div class="pricing-card free-plan">
+                <div class="plan-header">
+                    <h2>Free</h2>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">0</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                
+                <div class="plan-features">
+                    <h3>Perfect for Getting Started</h3>
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Basic Strategy Trainer</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Card Counter Trainer</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>3 Performance Tests per day</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Progress Tracking</span>
+                        </li>
+                        <li class="disabled">
+                            <i class="fas fa-times"></i>
+                            <span>Speed Training Mode</span>
+                        </li>
+                        <li class="disabled">
+                            <i class="fas fa-times"></i>
+                            <span>Advanced Analytics</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="plan-action">
+                    <button class="plan-button" id="free-plan-btn" disabled>Current Plan</button>
+                </div>
+            </div>
+            
+            <!-- Premium Plan -->
+            <div class="pricing-card premium-plan featured">
+                <div class="plan-badge">Most Popular</div>
+                <div class="plan-header">
+                    <h2>Premium</h2>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">9</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                
+                <div class="plan-features">
+                    <h3>Everything in Free, plus:</h3>
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Unlimited Performance Tests</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Speed Training Mode</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Advanced Analytics</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Detailed Performance Reports</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Custom Training Scenarios</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>Priority Support</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="plan-action">
+                    <button class="plan-button premium" id="premium-plan-btn">
+                        <span class="btn-text">Upgrade to Premium</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div class="faq-item">
+                <h3>What happens when I reach my daily test limit?</h3>
+                <p>Free users get 3 performance tests per day. Once you reach this limit, you'll need to wait until the next day or upgrade to Premium for unlimited tests.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What is Speed Training Mode?</h3>
+                <p>Speed Training is our advanced mode that helps you make faster, more accurate decisions. It's designed to simulate real casino conditions with time pressure.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Can I cancel my subscription anytime?</h3>
+                <p>Yes! You can cancel your subscription at any time. You'll continue to have access to Premium features until the end of your billing period.</p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is my payment information secure?</h3>
+                <p>Absolutely. We use Stripe for payment processing, which is PCI-compliant and uses industry-standard encryption.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html" class="logo-link">
+                    <img src="../assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="index.html#features">Features</a>
+                <a href="index.html#about">About</a>
+                <a href="trainer.html">Trainer</a>
+                <a href="pricing.html">Pricing</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://x.com/joethebrojoe" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: 24px; height: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 1200 1227" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 HitOrStand. For educational purposes only.</p>
+        </div>
+    </footer>
+    
+    <!-- Load subscription manager -->
+    <script src="../components/subscriptionManager.js"></script>
+    
+    <!-- Clerk Integration -->
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_live_Y2xlcmsuaGl0b3JzdGFuZHRyYWluZXIuY29tJA"
+        src="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript">
+    </script>
+    
+    <!-- Stripe Integration -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <script>
+        let clerk;
+        let subscriptionManager = window.subscriptionManager;
+
+        window.addEventListener('load', async function () {
+            try {
+                if (typeof window.Clerk === 'undefined') {
+                    console.error('Clerk is not loaded');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                clerk = window.Clerk;
+                await clerk.load();
+
+                if (clerk.user) {
+                    showUserButton();
+                    await initializePricing();
+                } else {
+                    window.location.href = 'index.html';
+                }
+                
+            } catch (error) {
+                console.error('Error initializing:', error);
+            }
+        });
+
+        async function initializePricing() {
+            // Initialize subscription manager
+            await subscriptionManager.initialize(clerk);
+            
+            // Get current subscription status
+            const status = await subscriptionManager.getSubscriptionStatus();
+            updateUI(status);
+            
+            // Add click handlers
+            const premiumBtn = document.getElementById('premium-plan-btn');
+            if (premiumBtn) {
+                premiumBtn.addEventListener('click', handlePremiumUpgrade);
+            }
+        }
+
+        function updateUI(status) {
+            const statusDiv = document.getElementById('subscription-status');
+            const statusText = document.getElementById('status-text');
+            const freeBtn = document.getElementById('free-plan-btn');
+            const premiumBtn = document.getElementById('premium-plan-btn');
+            
+            if (status.isSubscribed) {
+                // User is subscribed
+                statusDiv.style.display = 'block';
+                statusText.textContent = 'Premium Member';
+                
+                freeBtn.disabled = true;
+                freeBtn.textContent = 'Free Plan';
+                
+                premiumBtn.disabled = true;
+                premiumBtn.innerHTML = '<span class="btn-text">Current Plan</span>';
+                premiumBtn.classList.add('current');
+                
+                // Add cancel button
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-subscription-btn';
+                cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancel Subscription';
+                cancelBtn.onclick = handleCancelSubscription;
+                premiumBtn.parentNode.appendChild(cancelBtn);
+            } else {
+                // User is on free plan
+                statusDiv.style.display = 'block';
+                statusText.textContent = `Free Plan - ${status.dailyTestsRemaining} tests remaining today`;
+                
+                freeBtn.disabled = true;
+                freeBtn.textContent = 'Current Plan';
+                
+                premiumBtn.disabled = false;
+                premiumBtn.innerHTML = '<span class="btn-text">Upgrade to Premium</span><i class="fas fa-arrow-right"></i>';
+            }
+        }
+
+        async function handlePremiumUpgrade() {
+            try {
+                // Your actual Stripe price ID for $9/month subscription
+                const priceId = 'price_1RUXU4GVWYSvQ1J3o0OobHDG';
+                
+                await subscriptionManager.createCheckoutSession(priceId);
+            } catch (error) {
+                console.error('Error creating checkout session:', error);
+                alert('Sorry, there was an error processing your upgrade. Please try again.');
+            }
+        }
+
+        async function handleCancelSubscription() {
+            if (confirm('Are you sure you want to cancel your subscription? You will lose access to Premium features at the end of your billing period.')) {
+                try {
+                    await subscriptionManager.cancelSubscription();
+                    alert('Your subscription has been cancelled. You will continue to have access until the end of your billing period.');
+                    location.reload();
+                } catch (error) {
+                    console.error('Error cancelling subscription:', error);
+                    alert('Sorry, there was an error cancelling your subscription. Please try again.');
+                }
+            }
+        }
+
+        function showUserButton() {
+            const userButton = document.getElementById('user-button');
+            const userName = document.getElementById('user-name');
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            
+            if (clerk.user && userButton && userName) {
+                const firstName = clerk.user.firstName || clerk.user.emailAddresses[0].emailAddress.split('@')[0];
+                userName.textContent = firstName;
+                userButton.style.display = 'block';
+                
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userButton.contains(e.target)) {
+                        userDropdown.style.display = 'none';
+                    }
+                });
+                
+                signOutBtn.addEventListener('click', async () => {
+                    await clerk.signOut();
+                    window.location.href = 'index.html';
+                });
+
+                // Progress button functionality
+                const viewProgressBtn = document.getElementById('view-progress-btn');
+                if (viewProgressBtn) {
+                    viewProgressBtn.addEventListener('click', () => {
+                        window.location.href = 'progress.html';
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

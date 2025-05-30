@@ -51,16 +51,298 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Start a test run
-    function startTestRun() {
-        // Get settings
-        const settings = getTestSettings();
+    // Start a test run with subscription checking
+    async function startTestRun() {
+        try {
+            // Check if subscription manager is initialized
+            if (!window.subscriptionManager || !window.subscriptionManager.initialized) {
+                showSubscriptionError('Subscription service is not available. Please try again later.');
+                return;
+            }
+            
+            // Get subscription status
+            const status = await window.subscriptionManager.getSubscriptionStatus();
+            
+            // Check if user can run a test
+            if (!status.isSubscribed && status.dailyTestsRemaining <= 0) {
+                showUpgradeModal(status);
+                return;
+            }
+            
+            // Track the test usage for free users
+            if (!status.isSubscribed) {
+                const tracked = await window.subscriptionManager.trackPerformanceTest();
+                if (!tracked) {
+                    showSubscriptionError('Failed to track test usage. Please try again.');
+                    return;
+                }
+            }
+            
+            // Get settings
+            const settings = getTestSettings();
+            
+            // Initialize test run
+            initTestRun(settings);
+            
+            // Show game screen
+            showTestRunGame();
+            
+            // Update UI to show remaining tests
+            if (!status.isSubscribed) {
+                updateRemainingTestsDisplay(status.dailyTestsRemaining - 1);
+            }
+        } catch (error) {
+            console.error('Error starting test run:', error);
+            showSubscriptionError('An error occurred. Please try again.');
+        }
+    }
+    
+    // Show upgrade modal when daily limit is reached
+    function showUpgradeModal(status) {
+        const modal = document.createElement('div');
+        modal.className = 'subscription-modal';
+        modal.innerHTML = `
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <h2>Daily Limit Reached</h2>
+                <p>You've used all ${window.subscriptionManager.DAILY_FREE_LIMIT} of your free performance tests for today.</p>
+                <p>Upgrade to Premium for unlimited tests and access to Speed Training mode!</p>
+                <div class="modal-features">
+                    <div class="feature">
+                        <i class="fas fa-infinity"></i>
+                        <span>Unlimited Performance Tests</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Speed Training Mode</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Advanced Analytics</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeSubscriptionModal()">Maybe Later</button>
+                    <button class="btn-primary" onclick="window.location.href='pricing.html'">
+                        <i class="fas fa-crown"></i> Upgrade to Premium
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
         
-        // Initialize test run
-        initTestRun(settings);
+        // Add modal styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .subscription-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .modal-backdrop {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+            }
+            
+            .modal-content {
+                position: relative;
+                background: #1a1f2e;
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 500px;
+                width: 90%;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            }
+            
+            .modal-content h2 {
+                font-size: 2rem;
+                margin-bottom: 20px;
+                color: white;
+            }
+            
+            .modal-content p {
+                color: #94a3b8;
+                margin-bottom: 20px;
+                line-height: 1.6;
+            }
+            
+            .modal-features {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                margin: 30px 0;
+            }
+            
+            .modal-features .feature {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                color: white;
+            }
+            
+            .modal-features i {
+                font-size: 1.5rem;
+                color: #667eea;
+            }
+            
+            .modal-actions {
+                display: flex;
+                gap: 15px;
+                margin-top: 30px;
+            }
+            
+            .modal-actions button {
+                flex: 1;
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: none;
+            }
+            
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Close subscription modal
+    window.closeSubscriptionModal = function() {
+        const modal = document.querySelector('.subscription-modal');
+        if (modal) {
+            modal.remove();
+        }
+    };
+    
+    // Show subscription error
+    function showSubscriptionError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'subscription-error';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <span>${message}</span>
+        `;
         
-        // Show game screen
-        showTestRunGame();
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+    
+    // Update remaining tests display
+    function updateRemainingTestsDisplay(remainingTests) {
+        const existingDisplay = document.querySelector('.remaining-tests-display');
+        if (existingDisplay) {
+            existingDisplay.remove();
+        }
+        
+        const display = document.createElement('div');
+        display.className = 'remaining-tests-display';
+        display.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            <span>${remainingTests} free tests remaining today</span>
+            <a href="pricing.html">Upgrade for unlimited</a>
+        `;
+        
+        const container = document.querySelector('.test-progress');
+        if (container) {
+            container.appendChild(display);
+        }
+        
+        // Add styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .remaining-tests-display {
+                background: rgba(251, 191, 36, 0.1);
+                border: 1px solid rgba(251, 191, 36, 0.3);
+                color: #fbbf24;
+                padding: 10px 20px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 15px;
+                font-size: 0.9rem;
+            }
+            
+            .remaining-tests-display a {
+                color: #fbbf24;
+                text-decoration: underline;
+                margin-left: auto;
+            }
+            
+            .remaining-tests-display a:hover {
+                color: #f59e0b;
+            }
+            
+            .subscription-error {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(239, 68, 68, 0.1);
+                border: 1px solid rgba(239, 68, 68, 0.3);
+                color: #ef4444;
+                padding: 15px 20px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            }
+            
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        
+        if (!document.querySelector('style[data-subscription-styles]')) {
+            style.setAttribute('data-subscription-styles', 'true');
+            document.head.appendChild(style);
+        }
     }
     
     // Get test settings from the form

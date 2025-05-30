@@ -83,7 +83,7 @@
                     <div class="mode-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <h3>Speed Training</h3>
+                    <h3>Speed Training <span class="premium-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; margin-left: 8px; font-weight: 600;">PREMIUM</span></h3>
                     <p>Improve your decision-making speed under time pressure</p>
                     <div class="mode-features">
                         <span class="feature"><i class="fas fa-check"></i> Time Limits</span>
@@ -91,6 +91,17 @@
                         <span class="feature"><i class="fas fa-check"></i> Speed Bonus</span>
                     </div>
                     <button class="mode-btn primary-btn" onclick="window.location.href='speed-training.html'">Start Training</button>
+                </div>
+            </div>
+            
+            <!-- Subscription Banner -->
+            <div id="subscription-banner" class="subscription-banner" style="margin-top: 40px; display: none;">
+                <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 20px; text-align: center;">
+                    <p style="color: #fbbf24; margin: 0; font-size: 1.1rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        <span id="banner-text">You have 3 free performance tests remaining today.</span>
+                        <a href="pricing.html" style="color: #fbbf24; text-decoration: underline; margin-left: 10px;">Upgrade to Premium</a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -107,6 +118,7 @@
                 <a href="#features">Features</a>
                 <a href="#about">About</a>
                 <a href="trainer.html">Trainer</a>
+                <a href="pricing.html">Pricing</a>
             </div>
             <div class="footer-social">
                 <a href="https://x.com/joethebrojoe" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: 24px; height: 24px;">
@@ -121,6 +133,9 @@
         </div>
     </footer>
     
+    <!-- Load subscription manager -->
+    <script src="../components/subscriptionManager.js"></script>
+    
     <!-- Clerk Integration for Trainer -->
     <script 
         async
@@ -132,6 +147,7 @@
     <script>
         // Clerk Integration for Trainer Page
         let clerk;
+        let subscriptionManager = window.subscriptionManager;
 
         window.addEventListener('load', async function () {
             try {
@@ -146,6 +162,13 @@
 
                 if (clerk.user) {
                     showUserButton();
+                    
+                    // Initialize subscription manager
+                    await subscriptionManager.initialize(clerk);
+                    
+                    // Display subscription status
+                    const status = await subscriptionManager.getSubscriptionStatus();
+                    displaySubscriptionBanner(status);
                 } else {
                     // Redirect to home page if not signed in
                     window.location.href = '../index.html';
@@ -157,6 +180,20 @@
                 window.location.href = '../index.html';
             }
         });
+        
+        function displaySubscriptionBanner(status) {
+            const banner = document.getElementById('subscription-banner');
+            const bannerText = document.getElementById('banner-text');
+            
+            if (!status.isSubscribed && banner && bannerText) {
+                banner.style.display = 'block';
+                if (status.dailyTestsRemaining === 0) {
+                    bannerText.innerHTML = `You've used all your free performance tests for today.`;
+                } else {
+                    bannerText.innerHTML = `You have ${status.dailyTestsRemaining} free performance test${status.dailyTestsRemaining > 1 ? 's' : ''} remaining today.`;
+                }
+            }
+        }
 
         function showUserButton() {
             const userButton = document.getElementById('user-button');

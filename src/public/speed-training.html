@@ -338,6 +338,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="../components/subscriptionManager.js"></script>
     <script src="../components/highScores.js"></script>
     <script src="speed-training.js"></script>
     
@@ -352,6 +353,7 @@
     <script>
         // Clerk Integration
         let clerk;
+        let subscriptionManager = window.subscriptionManager;
 
         window.addEventListener('load', async function () {
             try {
@@ -367,6 +369,16 @@
                 if (clerk.user) {
                     showUserButton();
                     
+                    // Initialize subscription manager
+                    await subscriptionManager.initialize(clerk);
+                    
+                    // Check if user has access to speed training
+                    const canAccess = await subscriptionManager.canAccessSpeedTraining();
+                    if (!canAccess) {
+                        showPremiumRequired();
+                        return;
+                    }
+                    
                     // Initialize highScoresManager if available
                     if (window.highScoresManager) {
                         await window.highScoresManager.initialize(clerk);
@@ -381,6 +393,126 @@
                 window.location.href = '../index.html';
             }
         });
+        
+        function showPremiumRequired() {
+            // Replace the entire container with premium upgrade message
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="premium-required-container" style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 60vh;
+                    text-align: center;
+                    padding: 40px;
+                ">
+                    <div class="premium-icon" style="
+                        font-size: 80px;
+                        color: #667eea;
+                        margin-bottom: 30px;
+                    ">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    
+                    <h1 style="
+                        font-size: 2.5rem;
+                        margin-bottom: 20px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                    ">Speed Training is Premium Only</h1>
+                    
+                    <p style="
+                        font-size: 1.2rem;
+                        color: #94a3b8;
+                        margin-bottom: 40px;
+                        max-width: 600px;
+                    ">
+                        Upgrade to Premium to access Speed Training mode and improve your decision-making speed under pressure.
+                    </p>
+                    
+                    <div class="premium-features" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 30px;
+                        max-width: 800px;
+                        margin-bottom: 40px;
+                    ">
+                        <div class="feature-box" style="
+                            background: rgba(255,255,255,0.05);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            border-radius: 12px;
+                            padding: 20px;
+                        ">
+                            <i class="fas fa-bolt" style="font-size: 2rem; color: #fbbf24; margin-bottom: 10px;"></i>
+                            <h3 style="color: white; margin-bottom: 10px;">Speed Training</h3>
+                            <p style="color: #94a3b8; font-size: 0.9rem;">Practice making quick, accurate decisions</p>
+                        </div>
+                        
+                        <div class="feature-box" style="
+                            background: rgba(255,255,255,0.05);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            border-radius: 12px;
+                            padding: 20px;
+                        ">
+                            <i class="fas fa-infinity" style="font-size: 2rem; color: #22c55e; margin-bottom: 10px;"></i>
+                            <h3 style="color: white; margin-bottom: 10px;">Unlimited Tests</h3>
+                            <p style="color: #94a3b8; font-size: 0.9rem;">No daily limits on performance tests</p>
+                        </div>
+                        
+                        <div class="feature-box" style="
+                            background: rgba(255,255,255,0.05);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            border-radius: 12px;
+                            padding: 20px;
+                        ">
+                            <i class="fas fa-chart-line" style="font-size: 2rem; color: #667eea; margin-bottom: 10px;"></i>
+                            <h3 style="color: white; margin-bottom: 10px;">Advanced Analytics</h3>
+                            <p style="color: #94a3b8; font-size: 0.9rem;">Detailed performance insights</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons" style="
+                        display: flex;
+                        gap: 20px;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                    ">
+                        <button onclick="window.location.href='trainer.html'" style="
+                            padding: 16px 32px;
+                            background: rgba(255,255,255,0.1);
+                            border: 1px solid rgba(255,255,255,0.2);
+                            color: white;
+                            border-radius: 12px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            <i class="fas fa-arrow-left"></i> Back to Trainer
+                        </button>
+                        
+                        <button onclick="window.location.href='pricing.html'" style="
+                            padding: 16px 32px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border: none;
+                            color: white;
+                            border-radius: 12px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        ">
+                            <i class="fas fa-crown"></i> Upgrade to Premium
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
 
         function showUserButton() {
             const userButton = document.getElementById('user-button');
