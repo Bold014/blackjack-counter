@@ -1800,6 +1800,67 @@ select, button, .game-btn {
     color: var(--secondary-color);
 }
 
+/* Bet chip stack styling */
+.bet-chip-stack {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    min-height: 50px;
+}
+
+.stacked-chip {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.7rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.stacked-chip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.stacked-chip.white {
+    background: radial-gradient(circle at center, #f8f8f8 0%, #e0e0e0 100%);
+    color: #333;
+}
+
+.stacked-chip.red {
+    background: radial-gradient(circle at center, #ff4444 0%, #cc0000 100%);
+    color: white;
+}
+
+.stacked-chip.blue {
+    background: radial-gradient(circle at center, #4444ff 0%, #0000cc 100%);
+    color: white;
+}
+
+.stacked-chip.green {
+    background: radial-gradient(circle at center, #44ff44 0%, #00cc00 100%);
+    color: white;
+}
+
+.stacked-chip.black {
+    background: radial-gradient(circle at center, #444444 0%, #000000 100%);
+    color: white;
+}
+
 .bet-actions {
     display: flex;
     gap: 10px;
