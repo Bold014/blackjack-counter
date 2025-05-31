@@ -284,7 +284,32 @@
             const freeBtn = document.getElementById('free-plan-btn');
             const premiumBtn = document.getElementById('premium-plan-btn');
             
-            if (status.isSubscribed) {
+            if (status.isSubscribed && status.isCancelled) {
+                // User has cancelled subscription but still has access
+                statusDiv.style.display = 'block';
+                statusText.textContent = 'Premium Member (Cancelled - Active until ' + new Date(status.expiresAt).toLocaleDateString() + ')';
+                
+                freeBtn.disabled = true;
+                freeBtn.textContent = 'Free Plan';
+                
+                premiumBtn.disabled = false;
+                premiumBtn.innerHTML = '<span class="btn-text">Reactivate Premium</span><i class="fas fa-arrow-right"></i>';
+                premiumBtn.classList.remove('current');
+                
+                // Add informational notice
+                const noticeDiv = document.createElement('div');
+                noticeDiv.className = 'cancellation-notice';
+                noticeDiv.innerHTML = `
+                    <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 20px; margin-top: 20px; text-align: center;">
+                        <p style="color: #fbbf24; margin: 0; font-size: 1.1rem;">
+                            <i class="fas fa-info-circle"></i> 
+                            Your subscription has been cancelled but you'll continue to have Premium access until ${new Date(status.expiresAt).toLocaleDateString()}.
+                        </p>
+                    </div>
+                `;
+                premiumBtn.parentNode.appendChild(noticeDiv);
+                
+            } else if (status.isSubscribed) {
                 // User is subscribed
                 statusDiv.style.display = 'block';
                 statusText.textContent = 'Premium Member';

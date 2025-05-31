@@ -46,14 +46,24 @@ class SubscriptionManager {
             console.log('SubscriptionManager: User metadata:', metadata);
             console.log('SubscriptionManager: Subscription data:', subscription);
             
-            // Check if user has active subscription
-            if (subscription.status === 'active' && subscription.expiresAt > Date.now()) {
-                console.log('SubscriptionManager: User has active subscription');
+            // Check if user has subscription that's still valid (even if cancelled)
+            // A subscription is considered active if:
+            // 1. Status is 'active', OR
+            // 2. Status is 'cancelled' but hasn't expired yet (cancel at period end)
+            const now = Date.now();
+            const isStillValid = subscription.expiresAt && subscription.expiresAt > now;
+            const isActiveOrCancelledButValid = (subscription.status === 'active') || 
+                                               (subscription.status === 'cancelled' && isStillValid);
+            
+            if (isActiveOrCancelledButValid && isStillValid) {
+                console.log('SubscriptionManager: User has valid subscription (active or cancelled but not expired)');
                 return {
                     isSubscribed: true,
                     plan: subscription.plan || 'premium',
                     dailyTestsRemaining: -1, // Unlimited for subscribers
-                    expiresAt: subscription.expiresAt
+                    expiresAt: subscription.expiresAt,
+                    isCancelled: subscription.status === 'cancelled',
+                    cancelledAt: subscription.cancelledAt
                 };
             }
 
@@ -265,14 +275,19 @@ class SubscriptionManager {
             });
 
             if (response.ok) {
-                // Update user metadata
+                const cancelResult = await response.json();
+                
+                // Update user metadata with cancellation info but preserve access until period end
                 await this.clerk.user.update({
                     unsafeMetadata: {
                         ...metadata,
                         subscription: {
                             ...subscription,
                             status: 'cancelled',
-                            cancelledAt: Date.now()
+                            cancelledAt: Date.now(),
+                            cancel_at_period_end: cancelResult.subscription?.cancel_at_period_end || true,
+                            // Keep the same expiresAt so user retains access until then
+                            expiresAt: subscription.expiresAt
                         }
                     }
                 });
@@ -293,11 +308,19 @@ class SubscriptionManager {
     formatSubscriptionInfo(status) {
         if (status.isSubscribed) {
             const expiryDate = new Date(status.expiresAt);
-            return {
-                title: 'Premium Member',
-                description: 'Unlimited performance tests and speed training',
-                expiry: `Expires ${expiryDate.toLocaleDateString()}`
-            };
+            if (status.isCancelled) {
+                return {
+                    title: 'Premium Member (Cancelled)',
+                    description: 'Access continues until subscription expires',
+                    expiry: `Access expires ${expiryDate.toLocaleDateString()}`
+                };
+            } else {
+                return {
+                    title: 'Premium Member',
+                    description: 'Unlimited performance tests and speed training',
+                    expiry: `Next billing ${expiryDate.toLocaleDateString()}`
+                };
+            }
         } else {
             return {
                 title: 'Free Plan',

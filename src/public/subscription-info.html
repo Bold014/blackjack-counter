@@ -307,10 +307,6 @@
                     <span class="info-label">Member Since</span>
                     <span class="info-value" id="member-since">-</span>
                 </div>
-                <div class="info-item" id="customer-id-item" style="display: none;">
-                    <span class="info-label">Customer ID</span>
-                    <span class="info-value" id="customer-id">-</span>
-                </div>
             </div>
             
             <!-- Actions Section -->
@@ -418,13 +414,26 @@
         function updateSubscriptionInfo(status, speedAccess) {
             // Update plan information
             document.getElementById('plan-type').textContent = status.isSubscribed ? 'Premium' : 'Free';
-            document.getElementById('plan-status').textContent = status.isSubscribed ? 'Active' : 'Free Plan';
-            document.getElementById('plan-status').className = `info-value ${status.isSubscribed ? 'status-active' : 'status-inactive'}`;
+            
+            // Handle cancelled but still active subscriptions
+            if (status.isSubscribed && status.isCancelled) {
+                document.getElementById('plan-status').textContent = 'Cancelled (Active until expiry)';
+                document.getElementById('plan-status').className = 'info-value status-inactive';
+            } else if (status.isSubscribed) {
+                document.getElementById('plan-status').textContent = 'Active';
+                document.getElementById('plan-status').className = 'info-value status-active';
+            } else {
+                document.getElementById('plan-status').textContent = 'Free Plan';
+                document.getElementById('plan-status').className = 'info-value status-inactive';
+            }
             
             // Show expiry date for premium users
             if (status.isSubscribed && status.expiresAt) {
                 document.getElementById('expiry-item').style.display = 'flex';
-                document.getElementById('plan-expiry').textContent = new Date(status.expiresAt).toLocaleDateString();
+                const expiryDate = new Date(status.expiresAt);
+                const labelText = status.isCancelled ? 'Access Expires' : 'Next Billing Date';
+                document.querySelector('#expiry-item .info-label').textContent = labelText;
+                document.getElementById('plan-expiry').textContent = expiryDate.toLocaleDateString();
             }
             
             // Update plan features
@@ -437,7 +446,7 @@
             updateAccountInfo();
             
             // Update action buttons
-            updateActionButtons(status.isSubscribed);
+            updateActionButtons(status.isSubscribed, status.isCancelled);
         }
 
         function updatePlanFeatures(isSubscribed) {
@@ -499,19 +508,26 @@
             const user = clerk.user;
             document.getElementById('user-email').textContent = user.emailAddresses[0].emailAddress;
             document.getElementById('member-since').textContent = new Date(user.createdAt).toLocaleDateString();
-            
-            // Show customer ID if available
-            const subscription = user.unsafeMetadata?.subscription;
-            if (subscription?.stripeCustomerId && subscription.stripeCustomerId !== 'manual_fix') {
-                document.getElementById('customer-id-item').style.display = 'flex';
-                document.getElementById('customer-id').textContent = subscription.stripeCustomerId;
-            }
         }
 
-        function updateActionButtons(isSubscribed) {
+        function updateActionButtons(isSubscribed, isCancelled) {
             const actionsContainer = document.getElementById('subscription-actions');
             
-            if (isSubscribed) {
+            if (isSubscribed && isCancelled) {
+                // User has cancelled subscription but still has access
+                actionsContainer.innerHTML = `
+                    <a href="pricing.html" class="action-btn btn-primary">
+                        <i class="fas fa-crown"></i> Reactivate Subscription
+                    </a>
+                    <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 15px; margin-top: 15px;">
+                        <p style="color: #fbbf24; margin: 0; font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> 
+                            Your subscription has been cancelled but you'll continue to have Premium access until your current billing period ends.
+                        </p>
+                    </div>
+                `;
+            } else if (isSubscribed) {
+                // User has active subscription
                 actionsContainer.innerHTML = `
                     <a href="pricing.html" class="action-btn btn-secondary">
                         <i class="fas fa-eye"></i> View Plans
@@ -519,17 +535,12 @@
                     <button onclick="cancelSubscription()" class="action-btn btn-danger">
                         <i class="fas fa-times"></i> Cancel Subscription
                     </button>
-                    <a href="debug-subscription.html" class="action-btn btn-secondary">
-                        <i class="fas fa-tools"></i> Debug Info
-                    </a>
                 `;
             } else {
+                // User is on free plan
                 actionsContainer.innerHTML = `
                     <a href="pricing.html" class="action-btn btn-primary">
                         <i class="fas fa-crown"></i> Upgrade to Premium
-                    </a>
-                    <a href="debug-subscription.html" class="action-btn btn-secondary">
-                        <i class="fas fa-tools"></i> Debug Info
                     </a>
                 `;
             }
