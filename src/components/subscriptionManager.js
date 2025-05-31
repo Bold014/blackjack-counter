@@ -172,23 +172,31 @@ class SubscriptionManager {
     }
 
     // Create a checkout session for subscription
-    async createCheckoutSession(priceId) {
+    async createCheckoutSession(priceId, couponId = null) {
         if (!this.initialized || !this.clerk?.user || !this.stripe) {
             throw new Error('User not authenticated or Stripe not initialized');
         }
 
         try {
+            // Prepare request body
+            const requestBody = {
+                priceId: priceId,
+                userId: this.clerk.user.id,
+                userEmail: this.clerk.user.emailAddresses[0].emailAddress
+            };
+
+            // Add couponId if provided
+            if (couponId) {
+                requestBody.couponId = couponId;
+            }
+
             // Call the Heroku backend API
             const response = await fetch('https://blackjacc-counter-087b5c65a111.herokuapp.com/api/create-checkout-session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    priceId: priceId,
-                    userId: this.clerk.user.id,
-                    userEmail: this.clerk.user.emailAddresses[0].emailAddress
-                })
+                body: JSON.stringify(requestBody)
             });
 
             const session = await response.json();

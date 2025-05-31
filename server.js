@@ -45,9 +45,9 @@ app.use(express.static(path.join(__dirname, 'src')));
 // Create checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
     try {
-        const { priceId, userId, userEmail } = req.body;
+        const { priceId, userId, userEmail, couponId } = req.body;
 
-        console.log('Checkout session request:', { priceId, userId, userEmail });
+        console.log('Checkout session request:', { priceId, userId, userEmail, couponId });
 
         if (!priceId || !userId || !userEmail) {
             console.error('Missing required parameters:', { priceId: !!priceId, userId: !!userId, userEmail: !!userEmail });
@@ -56,7 +56,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
         console.log('Creating Stripe checkout session...');
         
-        const session = await stripe.checkout.sessions.create({
+        // Base session configuration
+        const sessionConfig = {
             mode: 'subscription',
             payment_method_types: ['card'],
             line_items: [
@@ -71,7 +72,19 @@ app.post('/api/create-checkout-session', async (req, res) => {
             },
             success_url: `${req.headers.origin}/src/public/pricing.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${req.headers.origin}/src/public/pricing.html?canceled=true`,
-        });
+        };
+
+        // Add discounts if couponId is provided
+        if (couponId) {
+            sessionConfig.discounts = [
+                {
+                    coupon: couponId,
+                }
+            ];
+            console.log('Adding coupon to session:', couponId);
+        }
+        
+        const session = await stripe.checkout.sessions.create(sessionConfig);
 
         console.log('Checkout session created successfully:', session.id);
         res.json({ id: session.id });
@@ -223,6 +236,56 @@ app.post('/api/sync-subscription', async (req, res) => {
     }
 });
 
+// Validate coupon endpoint
+app.post('/api/validate-coupon', async (req, res) => {
+    try {
+        const { couponId } = req.body;
+
+        if (!couponId) {
+            return res.status(400).json({ error: 'Coupon ID is required' });
+        }
+
+        console.log('Validating coupon:', couponId);
+
+        // Retrieve the coupon from Stripe
+        const coupon = await stripe.coupons.retrieve(couponId);
+
+        // Check if coupon is valid
+        if (!coupon.valid) {
+            return res.status(400).json({ error: 'Coupon is not valid' });
+        }
+
+        // Return coupon details
+        res.json({
+            valid: true,
+            coupon: {
+                id: coupon.id,
+                name: coupon.name,
+                percent_off: coupon.percent_off,
+                amount_off: coupon.amount_off,
+                currency: coupon.currency,
+                duration: coupon.duration,
+                duration_in_months: coupon.duration_in_months
+            }
+        });
+    } catch (error) {
+        console.error('Error validating coupon:', error);
+        
+        // Handle specific Stripe errors
+        if (error.type === 'StripeInvalidRequestError') {
+            return res.status(400).json({ 
+                error: 'Invalid coupon code',
+                valid: false 
+            });
+        }
+        
+        res.status(500).json({ 
+            error: 'Failed to validate coupon',
+            details: error.message 
+        });
+    }
+});
+
 // Test endpoint to verify server is working
 app.get('/api/test', (req, res) => {
     res.json({ 
@@ -232,7 +295,8 @@ app.get('/api/test', (req, res) => {
             '/api/create-checkout-session',
             '/api/verify-subscription', 
             '/api/cancel-subscription',
-            '/api/sync-subscription'
+            '/api/sync-subscription',
+            '/api/validate-coupon'
         ]
     });
 });

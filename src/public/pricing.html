@@ -148,6 +148,15 @@
                     </ul>
                 </div>
                 
+                <!-- Coupon Code Input -->
+                <div class="coupon-section" id="coupon-section">
+                    <div class="coupon-input-group">
+                        <input type="text" id="coupon-input" placeholder="Enter coupon code (optional)" class="coupon-input">
+                        <button type="button" id="apply-coupon-btn" class="apply-coupon-btn">Apply</button>
+                    </div>
+                    <div class="coupon-message" id="coupon-message"></div>
+                </div>
+                
                 <div class="plan-action">
                     <button class="plan-button premium" id="premium-plan-btn">
                         <span class="btn-text">Upgrade to Premium</span>
@@ -276,6 +285,134 @@
             if (premiumBtn) {
                 premiumBtn.addEventListener('click', handlePremiumUpgrade);
             }
+
+            // Initialize coupon functionality
+            initializeCouponSection();
+        }
+
+        function initializeCouponSection() {
+            const couponInput = document.getElementById('coupon-input');
+            const applyCouponBtn = document.getElementById('apply-coupon-btn');
+            const couponMessage = document.getElementById('coupon-message');
+
+            if (!couponInput || !applyCouponBtn || !couponMessage) return;
+
+            // Store applied coupon globally
+            window.appliedCoupon = null;
+
+            // Set initial onclick handler
+            applyCouponBtn.onclick = handleApplyCoupon;
+
+            // Handle Enter key in coupon input
+            couponInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (window.appliedCoupon) {
+                        removeCoupon();
+                    } else {
+                        handleApplyCoupon();
+                    }
+                }
+            });
+
+            // Clear coupon when input changes
+            couponInput.addEventListener('input', () => {
+                if (window.appliedCoupon) {
+                    window.appliedCoupon = null;
+                    couponMessage.textContent = '';
+                    couponMessage.className = 'coupon-message';
+                    applyCouponBtn.textContent = 'Apply';
+                    applyCouponBtn.onclick = handleApplyCoupon;
+                    couponInput.disabled = false;
+                }
+            });
+        }
+
+        async function handleApplyCoupon() {
+            const couponInput = document.getElementById('coupon-input');
+            const applyCouponBtn = document.getElementById('apply-coupon-btn');
+            const couponMessage = document.getElementById('coupon-message');
+            
+            const couponCode = couponInput.value.trim();
+            
+            if (!couponCode) {
+                showCouponMessage('Please enter a coupon code', 'error');
+                return;
+            }
+
+            // Disable button and show loading state
+            applyCouponBtn.disabled = true;
+            showCouponMessage('Validating coupon...', 'loading');
+
+            try {
+                // Validate coupon with backend API
+                const response = await fetch('https://blackjacc-counter-087b5c65a111.herokuapp.com/api/validate-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        couponId: couponCode
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.valid) {
+                    // Store the coupon for checkout
+                    window.appliedCoupon = couponCode;
+                    
+                    // Show success message with coupon details
+                    let message = `Coupon "${couponCode}" applied successfully!`;
+                    if (result.coupon.percent_off) {
+                        message = `${result.coupon.percent_off}% discount applied!`;
+                    } else if (result.coupon.amount_off) {
+                        const amount = (result.coupon.amount_off / 100).toFixed(2);
+                        message = `$${amount} discount applied!`;
+                    }
+                    
+                    showCouponMessage(message, 'success');
+                    couponInput.disabled = true;
+                    applyCouponBtn.textContent = 'Remove';
+                    applyCouponBtn.onclick = removeCoupon;
+                } else {
+                    throw new Error(result.error || 'Invalid coupon code');
+                }
+                
+            } catch (error) {
+                console.error('Error validating coupon:', error);
+                showCouponMessage('Invalid coupon code', 'error');
+                window.appliedCoupon = null;
+            } finally {
+                if (!window.appliedCoupon) {
+                    applyCouponBtn.disabled = false;
+                }
+            }
+        }
+
+        function showCouponMessage(message, type) {
+            const couponMessage = document.getElementById('coupon-message');
+            couponMessage.textContent = message;
+            couponMessage.className = `coupon-message ${type}`;
+        }
+
+        function removeCoupon() {
+            const couponInput = document.getElementById('coupon-input');
+            const applyCouponBtn = document.getElementById('apply-coupon-btn');
+            const couponMessage = document.getElementById('coupon-message');
+            
+            // Clear applied coupon
+            window.appliedCoupon = null;
+            
+            // Reset UI
+            couponInput.disabled = false;
+            couponInput.value = '';
+            applyCouponBtn.textContent = 'Apply';
+            applyCouponBtn.onclick = handleApplyCoupon;
+            
+            // Clear message
+            couponMessage.textContent = '';
+            couponMessage.className = 'coupon-message';
         }
 
         function updateUI(status) {
@@ -283,6 +420,14 @@
             const statusText = document.getElementById('status-text');
             const freeBtn = document.getElementById('free-plan-btn');
             const premiumBtn = document.getElementById('premium-plan-btn');
+            const couponSection = document.getElementById('coupon-section');
+            
+            // Hide coupon section for already subscribed users
+            if (status.isSubscribed) {
+                couponSection.classList.add('hidden');
+            } else {
+                couponSection.classList.remove('hidden');
+            }
             
             if (status.isSubscribed && status.isCancelled) {
                 // User has cancelled subscription but still has access
@@ -345,7 +490,10 @@
                 // Your actual Stripe price ID for $9/month subscription
                 const priceId = 'price_1RUXU4GVWYSvQ1J3o0OobHDG';
                 
-                await subscriptionManager.createCheckoutSession(priceId);
+                // Get applied coupon if any
+                const couponId = window.appliedCoupon || null;
+                
+                await subscriptionManager.createCheckoutSession(priceId, couponId);
             } catch (error) {
                 console.error('Error creating checkout session:', error);
                 alert('Sorry, there was an error processing your upgrade. Please try again.');
