@@ -14,13 +14,19 @@ app.use((req, res, next) => {
     const allowedOrigins = ['https://hitorstandtrainer.com', 'http://localhost:3000'];
     const origin = req.headers.origin;
     
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-    
+    // Always set CORS headers
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, stripe-signature');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    // Set origin header if allowed
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        // For debugging - still set a header but log the issue
+        console.log('Origin not allowed:', origin);
+        res.setHeader('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
+    }
     
     // Handle preflight
     if (req.method === 'OPTIONS') {
