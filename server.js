@@ -69,6 +69,24 @@ app.use(cors(corsOptions));
 
 // Parse JSON bodies for all routes except webhook
 app.use(express.json());
+
+// Handle preflight requests for specific API routes BEFORE other routes
+app.options('/api/create-checkout-session', (req, res) => {
+    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.status(204).send();
+});
+
+app.options('/api/*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.status(204).send();
+});
+
 app.use(express.static('src'));
 
 // Serve static files from src directory
@@ -111,15 +129,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
         console.error('Error creating checkout session:', error);
         res.status(500).json({ error: 'Failed to create checkout session' });
     }
-});
-
-// Handle preflight requests for API routes
-app.options('/api/*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.status(204).send();
 });
 
 // Verify subscription after successful payment
@@ -191,7 +200,16 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
 });
 
-app.get('*', (req, res) => {
+app.all('*', (req, res) => {
+    // Handle OPTIONS requests that might have slipped through
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        return res.status(204).send();
+    }
+    
     // Check if it's an API route that doesn't exist
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'API endpoint not found' });
