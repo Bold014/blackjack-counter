@@ -285,4 +285,167 @@
     .amount {
         font-size: 3rem;
     }
+    
+    .home-button {
+        top: 15px;
+        left: 15px;
+        padding: 6px;
+    }
+    
+    .home-logo-image {
+        height: 45px;
+    }
+}
+
+/* CSS Variables to match trainer page */
+:root {
+    --primary-color: #0c1429;
+    --secondary-color: #feb750;
+    --accent-color: #2ecc71;
+    --accent-red: #e74c3c;
+    --accent-gold: #feb750;
+    --dark-color: #1a1a2e;
+    --light-color: #f4f4f4;
+    --felt-dark: #0a3d1b;
+    --felt-light: #0d4a24;
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --gradient-dark: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
+    --gradient-gold: linear-gradient(135deg, #feb750 0%, #ffc566 100%);
+    --gradient-green: linear-gradient(135deg, var(--felt-dark) 0%, var(--felt-light) 50%, var(--felt-dark) 100%);
+    --transition: all 0.3s ease;
+    --border-radius: 18px;
+    --glass-blur: 12px;
+}
+
+/* Home button styling - matches trainer page */
+.home-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(12, 20, 41, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(254, 183, 80, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.home-button:hover {
+    transform: translateY(-2px);
+    background: rgba(12, 20, 41, 0.9);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border-color: rgba(254, 183, 80, 0.6);
+}
+
+.home-link {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.home-link:hover {
+    transform: scale(1.05);
+}
+
+.home-logo-image {
+    display: block;
+    height: 60px;
+    width: auto;
+    max-width: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.home-logo-image:hover {
+    transform: scale(1.05);
+}
+
+/* Footer styling - matches trainer page */
+footer {
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    padding: 4rem 5% 2rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: radial-gradient(circle at 30% 30%, #ffd78a 0%, #feb750 60%, #f5a423 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: var(--light-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.footer-links a:hover {
+    opacity: 1;
+    background: radial-gradient(circle at 30% 30%, #ffd78a 0%, #feb750 60%, #f5a423 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-social a {
+    font-size: 1.3rem;
+    opacity: 0.8;
+    transition: var(--transition);
+    color: #ffffff;
+}
+
+.footer-social a:hover {
+    opacity: 1;
+    color: var(--secondary-color);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(254, 183, 80, 0.2);
+}
+
+.footer-bottom p {
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.footer-logo-image {
+    max-height: 40px;
+    transition: transform 0.3s ease;
+}
+
+.footer-logo-image:hover {
+    transform: scale(1.05);
 } 
