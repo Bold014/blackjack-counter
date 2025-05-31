@@ -6,7 +6,18 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Debug logging for environment variables
+console.log('Environment check:');
+console.log('STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
+console.log('STRIPE_SECRET_KEY length:', process.env.STRIPE_SECRET_KEY?.length);
+console.log('STRIPE_SECRET_KEY starts with sk_:', process.env.STRIPE_SECRET_KEY?.startsWith('sk_'));
+
 // Initialize Stripe with your secret key
+if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('STRIPE_SECRET_KEY environment variable is not set!');
+    process.exit(1);
+}
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Configure CORS to allow requests from your frontend domain
@@ -36,10 +47,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
     try {
         const { priceId, userId, userEmail } = req.body;
 
+        console.log('Checkout session request:', { priceId, userId, userEmail });
+
         if (!priceId || !userId || !userEmail) {
+            console.error('Missing required parameters:', { priceId: !!priceId, userId: !!userId, userEmail: !!userEmail });
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
+        console.log('Creating Stripe checkout session...');
+        
         const session = await stripe.checkout.sessions.create({
             mode: 'subscription',
             payment_method_types: ['card'],
@@ -57,10 +73,20 @@ app.post('/api/create-checkout-session', async (req, res) => {
             cancel_url: `${req.headers.origin}/src/public/pricing.html?canceled=true`,
         });
 
+        console.log('Checkout session created successfully:', session.id);
         res.json({ id: session.id });
     } catch (error) {
-        console.error('Error creating checkout session:', error);
-        res.status(500).json({ error: 'Failed to create checkout session' });
+        console.error('Detailed error creating checkout session:', {
+            message: error.message,
+            type: error.type,
+            code: error.code,
+            statusCode: error.statusCode,
+            requestId: error.requestId
+        });
+        res.status(500).json({ 
+            error: 'Failed to create checkout session',
+            details: error.message 
+        });
     }
 });
 
