@@ -598,20 +598,27 @@ footer {
 
 /* Trainer Mode Styles */
 .trainer-container {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: row;
     gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 /* Blackjack Table Styles */
 .blackjack-table {
     background: var(--gradient-light);
-    padding: 25px;
+    padding: 20px;
     border-radius: 12px;
     margin-bottom: 20px;
     box-shadow: var(--shadow);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    flex: 1;
+    max-width: 700px;
+    min-width: 500px;
 }
 
 .table-felt {
@@ -620,25 +627,26 @@ footer {
         radial-gradient(circle at center, rgba(13, 87, 42, 0.8) 0%, rgba(9, 55, 26, 0.8) 90%),
         url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm20 0a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM10 37a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm10-17h20v20H20V20zm10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14z' fill='%230a3d1b' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
     border-radius: 16px;
-    border: 12px solid var(--table-border);
+    border: 8px solid var(--table-border);
     box-shadow: 
-        inset 0 0 40px rgba(0, 0, 0, 0.5),
-        0 0 15px rgba(0, 0, 0, 0.4);
+        inset 0 0 30px rgba(0, 0, 0, 0.4),
+        0 0 10px rgba(0, 0, 0, 0.3);
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    min-height: 500px;
-    padding: 30px;
+    gap: 20px;
+    min-height: 350px;
+    padding: 20px;
+    aspect-ratio: 4/3;
     
     /* Add decorative trim */
     &:before {
         content: '';
         position: absolute;
-        top: -8px;
-        left: -8px;
-        right: -8px;
-        bottom: -8px;
+        top: -6px;
+        left: -6px;
+        right: -6px;
+        bottom: -6px;
         border: 2px solid rgba(255, 215, 0, 0.3);
         border-radius: 12px;
         pointer-events: none;
@@ -649,8 +657,9 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     position: relative;
+    flex: 1;
 }
 
 .dealer-area:after, .player-area:before {
@@ -663,38 +672,40 @@ footer {
 }
 
 .dealer-area:after {
-    bottom: -20px;
+    bottom: -10px;
 }
 
 .player-area:before {
-    top: -20px;
+    top: -10px;
 }
 
 .dealer-area h3, .player-area h3 {
     color: rgba(255, 255, 255, 0.9);
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 600;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
     letter-spacing: 1px;
+    margin: 0;
 }
 
 .dealer-cards, .player-cards {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px;
-    min-height: 150px;
-    margin: 15px 0;
+    gap: 8px;
+    min-height: 100px;
+    margin: 5px 0;
+    align-items: center;
 }
 
 .card {
-    width: 100px;
-    height: 140px;
+    width: 80px;
+    height: 112px;
     border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -702,7 +713,7 @@ footer {
     will-change: transform;
     background: transparent;
     perspective: 1000px;
-    margin: 0 5px;
+    margin: 0 3px;
 }
 
 .card-img {
@@ -797,37 +808,52 @@ footer {
 
 /* Betting Area Styles */
 .betting-area {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    backdrop-filter: blur(5px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-    margin: 20px 0;
-    width: 100%;
-    max-width: 500px;
+    gap: 10px;
+}
+
+.deck-info {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+    padding: 8px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .balance-display {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--light-color);
-    margin-bottom: 15px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 #balance {
-    color: var(--secondary-color);
-    font-size: 1.4rem;
-    font-weight: 700;
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1.1rem;
 }
 
 .bet-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 8px;
     width: 100%;
-    gap: 15px;
 }
 
 .bet-input {
@@ -837,45 +863,30 @@ footer {
 .chip-rack {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin: 10px 0;
     flex-wrap: wrap;
 }
 
 .chip {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: white;
+    justify-content: center;
+    font-size: 0.75rem;
     font-weight: bold;
-    font-size: 1rem;
     cursor: pointer;
-    border: 4px dashed rgba(255, 255, 255, 0.5);
-    box-shadow: 
-        inset 0 0 10px rgba(0, 0, 0, 0.3),
-        0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     position: relative;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    user-select: none;
-}
-
-.chip:before {
-    content: '';
-    position: absolute;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .chip:hover {
     transform: translateY(-3px);
-    box-shadow: 
-        inset 0 0 10px rgba(0, 0, 0, 0.3),
-        0 6px 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
 }
 
 .chip:active {
@@ -904,14 +915,13 @@ footer {
 }
 
 .current-bet-display {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 12px 20px;
-    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 10px;
-    width: 100%;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px;
+    border-radius: 8px;
 }
 
 .bet-label {
@@ -929,19 +939,19 @@ footer {
 
 .bet-actions {
     display: flex;
-    gap: 10px;
-    width: 100%;
+    gap: 8px;
+    margin-top: 5px;
 }
 
 .bet-action-btn {
-    flex: 1;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 6px 12px;
     border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    min-width: 50px;
 }
 
 .bet-action-btn:hover {
@@ -984,24 +994,22 @@ footer {
 /* Game Controls Styles */
 .game-controls {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     gap: 10px;
-    margin-top: 10px;
-    width: 100%;
-    max-width: 500px;
+    margin: 10px 0;
+    flex-wrap: wrap;
 }
 
 .game-btn {
-    flex: 1;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    min-width: 100px;
+    padding: 10px 20px;
     border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
     transition: all 0.3s ease;
-    background-color: var(--secondary-color);
-    color: var(--dark-color);
+    min-width: 70px;
 }
 
 .game-btn:hover:not(:disabled) {
@@ -1806,4 +1814,155 @@ footer {
 
 .split-hand.outcome-blackjack {
     box-shadow: 0 0 25px rgba(241, 196, 15, 0.9);
+}
+
+@media (max-width: 768px) {
+    .trainer-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .blackjack-table {
+        min-width: 300px;
+        max-width: 100%;
+        padding: 15px;
+    }
+    
+    .table-felt {
+        min-height: 280px;
+        padding: 15px;
+        gap: 15px;
+        border: 6px solid var(--table-border);
+    }
+    
+    .card {
+        width: 60px;
+        height: 84px;
+        margin: 0 2px;
+    }
+    
+    .dealer-cards, .player-cards {
+        gap: 6px;
+        min-height: 80px;
+    }
+    
+    .game-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        min-width: 60px;
+    }
+    
+    .betting-area {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .chip {
+        width: 35px;
+        height: 35px;
+        font-size: 0.7rem;
+    }
+    
+    .chip-rack {
+        gap: 6px;
+    }
+    
+    .bet-action-btn {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        min-width: 45px;
+    }
+    
+    .deck-info {
+        gap: 15px;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    
+    .balance-display {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+    
+    #balance {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .blackjack-table {
+        min-width: 280px;
+        padding: 10px;
+    }
+    
+    .table-felt {
+        min-height: 240px;
+        padding: 10px;
+        gap: 10px;
+        border: 4px solid var(--table-border);
+    }
+    
+    .card {
+        width: 50px;
+        height: 70px;
+        margin: 0 1px;
+    }
+    
+    .dealer-cards, .player-cards {
+        gap: 4px;
+        min-height: 60px;
+    }
+    
+    .dealer-area h3, .player-area h3 {
+        font-size: 1rem;
+    }
+    
+    .game-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        min-width: 50px;
+    }
+    
+    .game-controls {
+        gap: 6px;
+    }
+    
+    .chip {
+        width: 30px;
+        height: 30px;
+        font-size: 0.6rem;
+    }
+    
+    .chip-rack {
+        gap: 4px;
+    }
+    
+    .bet-action-btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-width: 40px;
+    }
+    
+    .betting-area {
+        padding: 8px;
+        gap: 6px;
+    }
+    
+    .deck-info {
+        gap: 10px;
+        font-size: 0.75rem;
+        padding: 5px 10px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .balance-display {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    #balance {
+        font-size: 0.95rem;
+    }
 }
