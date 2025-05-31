@@ -9,9 +9,31 @@ const PORT = process.env.PORT || 3000;
 // Initialize Stripe with your secret key
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Handle OPTIONS requests FIRST before anything else
+app.options('*', (req, res) => {
+    console.log('OPTIONS request for:', req.path);
+    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.status(204).end();
+});
+
 // Debug logging middleware
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path} from ${req.headers.origin}`);
+    next();
+});
+
+// CORS headers for all non-OPTIONS requests
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin === 'https://hitorstandtrainer.com' || origin === 'http://localhost:3000') {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.header('Access-Control-Allow-Credentials', 'true');
+    }
     next();
 });
 
@@ -44,24 +66,6 @@ app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
     }
 
     res.json({received: true});
-});
-
-// Simple CORS for all routes
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (origin === 'https://hitorstandtrainer.com' || origin === 'http://localhost:3000') {
-        res.header('Access-Control-Allow-Origin', origin);
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        res.header('Access-Control-Allow-Credentials', 'true');
-    }
-    
-    if (req.method === 'OPTIONS') {
-        console.log('Handling OPTIONS request for:', req.path);
-        return res.status(204).end();
-    }
-    
-    next();
 });
 
 // Parse JSON bodies
