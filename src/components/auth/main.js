@@ -1,6 +1,8 @@
 // Clerk Integration - Using your publishable key
 let clerk;
-
+import { inject } from '@vercel/analytics';
+ 
+inject();
 window.addEventListener('load', async function () {
     try {
         // Wait for Clerk to be available

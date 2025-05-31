@@ -27,10 +27,11 @@
   "dependencies": {
     "@clerk/clerk-js": "^5.67.4",
     "@stripe/stripe-js": "^2.2.0",
-    "express": "^4.18.2",
+    "@vercel/analytics": "^1.5.0",
     "cors": "^2.8.5",
-    "stripe": "^14.14.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "stripe": "^14.14.0"
   },
   "engines": {
     "node": ">=18.0.0"
