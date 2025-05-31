@@ -97,7 +97,7 @@
             <p>Master the Hi-Lo card counting system with real-time guidance</p>
         </header>
         
-        <div class="trainer-container" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; max-width: 1400px; margin: 0 auto; position: relative;">
+        <div class="trainer-container" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; max-width: 1400px; margin: 0 auto;">
             <!-- Game Interface -->
             <div class="game-section" style="display: flex; gap: 20px; flex: 1;">
                 <!-- Blackjack table on the left -->
@@ -157,105 +157,102 @@
                         <button id="double-button" class="game-btn" disabled>Double</button>
                         <button id="split-button" class="game-btn" disabled>Split</button>
                     </div>
-                    
-                    <!-- Count Tracker in controls panel -->
-                    <div class="count-display-compact" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="color: #FFD700; font-size: 0.9rem; margin-bottom: 10px; text-align: center;">COUNT TRACKER</h4>
-                        <div style="display: flex; gap: 15px; justify-content: space-around;">
-                            <div style="text-align: center;">
-                                <span style="font-size: 0.75rem; color: #888; display: block;">Running:</span>
-                                <span id="help-running-count" style="font-size: 1.5rem; font-weight: bold; color: #fff;">0</span>
+                </div>
+            </div>
+            
+            <!-- Help Panel - Always visible in card counter trainer -->
+            <div class="help-container" style="width: 380px; flex-shrink: 0;">
+                <div class="help-panel open" id="help-panel" style="display: block; background: linear-gradient(135deg, #1a2437 0%, #0c1429 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); height: fit-content;">
+                    <div class="help-section" style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Count Tracker</h3>
+                        <div class="count-display" style="display: flex; gap: 20px; justify-content: space-around; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                            <div class="count-item" style="text-align: center;">
+                                <span class="count-label" style="font-size: 0.85em; color: #888; display: block; margin-bottom: 5px;">Running Count:</span>
+                                <span class="count-value" id="help-running-count" style="font-size: 2em; font-weight: bold; color: #fff;">0</span>
                             </div>
-                            <div style="text-align: center;">
-                                <span style="font-size: 0.75rem; color: #888; display: block;">True:</span>
-                                <span id="help-true-count" style="font-size: 1.5rem; font-weight: bold; color: #fff;">0.0</span>
+                            <div class="count-item" style="text-align: center;">
+                                <span class="count-label" style="font-size: 0.85em; color: #888; display: block; margin-bottom: 5px;">True Count:</span>
+                                <span class="count-value" id="help-true-count" style="font-size: 2em; font-weight: bold; color: #fff;">0.0</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Strategy Advice in controls panel -->
-                    <div class="strategy-advice-compact" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="color: #FFD700; font-size: 0.9rem; margin-bottom: 8px; text-align: center;">STRATEGY</h4>
-                        <div id="help-advice" style="text-align: center; font-size: 0.9rem; font-weight: 600; color: #fff;">
+                    <div class="help-section" style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Strategy Advice</h3>
+                        <div id="help-advice" class="help-advice" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: center; font-size: 1.1em; font-weight: 600; color: #fff; min-height: 50px; display: flex; align-items: center; justify-content: center;">
                             Waiting for next hand...
                         </div>
                     </div>
                     
-                    <!-- Help Toggle Button -->
-                    <button id="help-toggle-btn" class="help-toggle-btn" style="width: 100%; padding: 10px; background: rgba(255, 215, 0, 0.2); border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 8px; color: #FFD700; font-weight: 600; cursor: pointer; margin-bottom: 10px;">
-                        <i class="fas fa-question-circle"></i> Show Help Guide
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Collapsible Help Panel -->
-            <div id="help-sidebar" class="help-sidebar" style="position: fixed; top: 0; right: -400px; width: 380px; height: 100vh; background: linear-gradient(135deg, #1a2437 0%, #0c1429 100%); border-left: 2px solid rgba(255, 215, 0, 0.3); box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5); z-index: 1000; transition: right 0.3s ease; overflow-y: auto;">
-                <div style="padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="color: #FFD700; margin: 0;">Card Counting Guide</h3>
-                        <button id="close-help-btn" style="background: none; border: none; color: #FFD700; font-size: 1.5rem; cursor: pointer;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
                     <div class="help-section" style="margin-bottom: 20px;">
-                        <h4 style="color: #FFD700; font-size: 1rem; margin-bottom: 10px;">Bet Recommendation</h4>
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Bet Recommendation</h3>
                         <div class="bet-recommendation" style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid rgba(76, 175, 80, 0.3);">
-                            <span class="bet-label" style="font-size: 0.9rem; color: #aaa;">Suggested Bet:</span>
-                            <span class="bet-value" id="suggested-bet" style="font-size: 1.5rem; font-weight: bold; color: #4CAF50; display: block; margin-top: 5px;">$10</span>
+                            <span class="bet-label" style="font-size: 0.9em; color: #aaa;">Suggested Bet:</span>
+                            <span class="bet-value" id="suggested-bet" style="font-size: 1.8em; font-weight: bold; color: #4CAF50; display: block; margin-top: 5px;">$10</span>
                         </div>
                     </div>
                     
                     <div class="help-section" style="margin-bottom: 20px;">
-                        <h4 style="color: #FFD700; font-size: 1rem; margin-bottom: 10px;">Card History</h4>
-                        <div id="help-history-list" class="help-history-list" style="background: rgba(0,0,0,0.3); border-radius: 8px; max-height: 150px; overflow-y: auto; padding: 5px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Card History</h3>
+                        <div id="help-history-list" class="help-history-list" style="background: rgba(0,0,0,0.3); border-radius: 8px; max-height: 200px; overflow-y: auto; padding: 5px;">
                             <!-- Card history will be populated here -->
                         </div>
                     </div>
                     
                     <!-- Hi-Lo System Guide -->
                     <div class="help-section">
-                        <h4 style="color: #FFD700; font-size: 1rem; margin-bottom: 10px;">Hi-Lo System Guide</h4>
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Hi-Lo System Guide</h3>
                         <div class="hi-lo-guide">
-                            <h5 style="font-size: 0.9rem; margin-bottom: 8px; color: #ddd;">Card Values:</h5>
-                            <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 12px;">
-                                <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(76, 175, 80, 0.2); border-radius: 4px; margin: 3px 0;">
-                                    <span style="color: #4CAF50; font-weight: 600;">2-6</span>
-                                    <span style="color: #4CAF50; font-weight: 600;">+1</span>
+                            <h4 style="font-size: 0.95em; margin-bottom: 10px; color: #ddd;">Card Counting Values:</h4>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                                <div class="card-value-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin: 4px 0; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span class="card-range positive" style="color: #4CAF50; font-weight: 600; font-size: 1.1em;">2-6</span>
+                                    <span class="value" style="font-weight: 600; font-size: 1.2em; color: #4CAF50;">+1</span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(33, 150, 243, 0.2); border-radius: 4px; margin: 3px 0;">
-                                    <span style="color: #2196F3; font-weight: 600;">7-9</span>
-                                    <span style="color: #2196F3; font-weight: 600;">0</span>
+                                <div class="card-value-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin: 4px 0; background: rgba(33, 150, 243, 0.2); border-radius: 6px;">
+                                    <span class="card-range neutral" style="color: #2196F3; font-weight: 600; font-size: 1.1em;">7-9</span>
+                                    <span class="value" style="font-weight: 600; font-size: 1.2em; color: #2196F3;">0</span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(244, 67, 54, 0.2); border-radius: 4px; margin: 3px 0;">
-                                    <span style="color: #f44336; font-weight: 600;">10-A</span>
-                                    <span style="color: #f44336; font-weight: 600;">-1</span>
+                                <div class="card-value-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin: 4px 0; background: rgba(244, 67, 54, 0.2); border-radius: 6px;">
+                                    <span class="card-range negative" style="color: #f44336; font-weight: 600; font-size: 1.1em;">10-A</span>
+                                    <span class="value" style="font-weight: 600; font-size: 1.2em; color: #f44336;">-1</span>
                                 </div>
                             </div>
                             
-                            <h5 style="font-size: 0.9rem; margin-bottom: 8px; color: #ddd;">Betting Strategy:</h5>
-                            <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: 6px; border: 1px solid rgba(76, 175, 80, 0.3);">
-                                <p style="font-size: 0.85rem; margin-bottom: 10px; color: #bbb; text-align: center;">Bet based on True Count:</p>
-                                <div style="background: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px;">
-                                    <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem;">
-                                        <span style="color: #999;">TC ≤ 1</span>
-                                        <span style="color: #fff;">1 unit</span>
+                            <h4 style="font-size: 0.95em; margin-bottom: 10px; color: #ddd;">Betting Strategy:</h4>
+                            <div class="betting-guide" style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                <p style="font-size: 0.9em; margin-bottom: 12px; color: #bbb; text-align: center;">Adjust your bet based on the True Count:</p>
+                                <div class="bet-spread-table" style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px;">
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #999; font-size: 0.9em;">TC ≤ 1</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">1 unit (min bet)</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem;">
-                                        <span style="color: #2196F3;">TC = 2</span>
-                                        <span style="color: #fff;">2 units</span>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #2196F3; font-size: 0.9em;">TC = 2</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">2 units</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem;">
-                                        <span style="color: #4CAF50;">TC = 3</span>
-                                        <span style="color: #fff;">4 units</span>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #4CAF50; font-size: 0.9em;">TC = 3</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">4 units</span>
                                     </div>
-                                    <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem;">
-                                        <span style="color: #4CAF50;">TC ≥ 4</span>
-                                        <span style="color: #FFC107;">8+ units</span>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #4CAF50; font-size: 0.9em;">TC = 4</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">8 units</span>
+                                    </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #66BB6A; font-size: 0.9em;">TC = 5</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">12 units</span>
+                                    </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px;">
+                                        <span class="true-count" style="color: #81C784; font-size: 0.9em;">TC ≥ 6</span>
+                                        <span class="bet-units" style="color: #FFC107; font-weight: 600; font-size: 0.9em;">15 units (max)</span>
                                     </div>
                                 </div>
-                                <p style="font-size: 0.75rem; margin-top: 8px; color: #888; text-align: center;">
-                                    Higher True Count = Bigger Advantage
+                                <p style="font-size: 0.8em; margin-top: 12px; color: #888; text-align: center;">
+                                    <strong style="color: #aaa;">Example:</strong> If your unit is $10, bet $10 at TC≤1, $20 at TC=2, $40 at TC=3, etc.
+                                </p>
+                                <p style="font-size: 0.8em; margin-top: 8px; color: #888; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; text-align: center;">
+                                    <strong style="color: #aaa;">Key:</strong> Higher true counts = more high cards remain = bigger edge!
                                 </p>
                             </div>
                         </div>
@@ -326,47 +323,6 @@
                 console.error('Error initializing Clerk:', error);
                 window.location.href = '../index.html';
             }
-        });
-
-        // Help sidebar functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const helpToggleBtn = document.getElementById('help-toggle-btn');
-            const helpSidebar = document.getElementById('help-sidebar');
-            const closeHelpBtn = document.getElementById('close-help-btn');
-
-            function openHelpSidebar() {
-                helpSidebar.style.right = '0px';
-                helpToggleBtn.innerHTML = '<i class="fas fa-question-circle"></i> Hide Help Guide';
-            }
-
-            function closeHelpSidebar() {
-                helpSidebar.style.right = '-400px';
-                helpToggleBtn.innerHTML = '<i class="fas fa-question-circle"></i> Show Help Guide';
-            }
-
-            helpToggleBtn.addEventListener('click', function() {
-                if (helpSidebar.style.right === '0px') {
-                    closeHelpSidebar();
-                } else {
-                    openHelpSidebar();
-                }
-            });
-
-            closeHelpBtn.addEventListener('click', closeHelpSidebar);
-
-            // Close sidebar when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!helpSidebar.contains(e.target) && !helpToggleBtn.contains(e.target) && helpSidebar.style.right === '0px') {
-                    closeHelpSidebar();
-                }
-            });
-
-            // Close sidebar on escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && helpSidebar.style.right === '0px') {
-                    closeHelpSidebar();
-                }
-            });
         });
 
         function showUserButton() {
