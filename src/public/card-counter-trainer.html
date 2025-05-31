@@ -38,23 +38,6 @@
             background: rgba(255, 215, 0, 0.5);
         }
         
-        /* Card counter specific layout */
-        .trainer-container.card-counter-layout {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            justify-content: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .help-container.card-counter-help {
-            width: 350px;
-            flex-shrink: 0;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
         /* Ensure help panel is sticky when scrolling */
         .help-panel {
             position: sticky;
@@ -74,43 +57,6 @@
             to {
                 opacity: 1;
                 transform: translateX(0);
-            }
-        }
-        
-        /* Responsive design for card counter */
-        @media (max-width: 1200px) {
-            .help-container.card-counter-help {
-                width: 300px;
-            }
-            
-            .trainer-container.card-counter-layout {
-                max-width: 100%;
-                gap: 15px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .trainer-container.card-counter-layout {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-            
-            .help-container.card-counter-help {
-                width: 100%;
-                max-width: 500px;
-                max-height: none;
-                order: 2;
-            }
-            
-            .blackjack-table {
-                order: 1;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .help-container.card-counter-help {
-                max-width: 100%;
             }
         }
     </style>
@@ -151,9 +97,9 @@
             <p>Master the Hi-Lo card counting system with real-time guidance</p>
         </header>
         
-        <div class="trainer-container card-counter-layout">
+        <div class="trainer-container" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; max-width: 1400px; margin: 0 auto;">
             <!-- Game Interface -->
-            <div class="blackjack-table">
+            <div class="blackjack-table" style="flex: 1;">
                 <div class="table-felt">
                     <div class="dealer-area">
                         <h3>Dealer's Hand</h3>
@@ -211,7 +157,7 @@
             </div>
             
             <!-- Help Panel - Always visible in card counter trainer -->
-            <div class="help-container card-counter-help">
+            <div class="help-container" style="width: 380px; flex-shrink: 0;">
                 <div class="help-panel open" id="help-panel" style="display: block; background: linear-gradient(135deg, #1a2437 0%, #0c1429 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); height: fit-content;">
                     <div class="help-section" style="margin-bottom: 20px;">
                         <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Count Tracker</h3>
