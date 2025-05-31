@@ -19,6 +19,23 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
+
+// Add explicit CORS headers for all requests
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-stripe-signature');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+    
+    next();
+});
+
 app.use(express.json());
 app.use(express.static('src'));
 
