@@ -97,9 +97,9 @@
             <p>Master the Hi-Lo card counting system with real-time guidance</p>
         </header>
         
-        <div class="trainer-container" style="display: flex; gap: 25px; align-items: flex-start; justify-content: center; max-width: 1600px; margin: 0 auto; padding: 0 20px;">
+        <div class="trainer-container" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; max-width: 1400px; margin: 0 auto;">
             <!-- Game Interface -->
-            <div class="blackjack-table" style="flex: 1; max-width: 900px;">
+            <div class="blackjack-table" style="flex: 1;">
                 <div class="table-felt">
                     <div class="dealer-area">
                         <h3>Dealer's Hand</h3>
@@ -157,95 +157,98 @@
             </div>
             
             <!-- Help Panel - Always visible in card counter trainer -->
-            <div class="help-container" style="width: 420px; flex-shrink: 0; max-height: 85vh; overflow-y: auto;">
+            <div class="help-container" style="width: 380px; flex-shrink: 0;">
                 <div class="help-panel open" id="help-panel" style="display: block; background: linear-gradient(135deg, #1a2437 0%, #0c1429 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); height: fit-content;">
-                    <div class="help-section" style="margin-bottom: 18px;">
-                        <h3 style="color: #FFD700; font-size: 1em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Count Tracker</h3>
-                        <div class="count-display" style="display: flex; gap: 15px; justify-content: space-around; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+                    <div class="help-section" style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Count Tracker</h3>
+                        <div class="count-display" style="display: flex; gap: 20px; justify-content: space-around; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
                             <div class="count-item" style="text-align: center;">
-                                <span class="count-label" style="font-size: 0.8em; color: #888; display: block; margin-bottom: 3px;">Running Count:</span>
-                                <span class="count-value" id="help-running-count" style="font-size: 1.6em; font-weight: bold; color: #fff;">0</span>
+                                <span class="count-label" style="font-size: 0.85em; color: #888; display: block; margin-bottom: 5px;">Running Count:</span>
+                                <span class="count-value" id="help-running-count" style="font-size: 2em; font-weight: bold; color: #fff;">0</span>
                             </div>
                             <div class="count-item" style="text-align: center;">
-                                <span class="count-label" style="font-size: 0.8em; color: #888; display: block; margin-bottom: 3px;">True Count:</span>
-                                <span class="count-value" id="help-true-count" style="font-size: 1.6em; font-weight: bold; color: #fff;">0.0</span>
+                                <span class="count-label" style="font-size: 0.85em; color: #888; display: block; margin-bottom: 5px;">True Count:</span>
+                                <span class="count-value" id="help-true-count" style="font-size: 2em; font-weight: bold; color: #fff;">0.0</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="help-section" style="margin-bottom: 18px;">
-                        <h3 style="color: #FFD700; font-size: 1em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Strategy Advice</h3>
-                        <div id="help-advice" class="help-advice" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; text-align: center; font-size: 1em; font-weight: 600; color: #fff; min-height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <div class="help-section" style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Strategy Advice</h3>
+                        <div id="help-advice" class="help-advice" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: center; font-size: 1.1em; font-weight: 600; color: #fff; min-height: 50px; display: flex; align-items: center; justify-content: center;">
                             Waiting for next hand...
                         </div>
                     </div>
                     
-                    <div class="help-section" style="margin-bottom: 18px;">
-                        <h3 style="color: #FFD700; font-size: 1em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Bet Recommendation</h3>
-                        <div class="bet-recommendation" style="background: rgba(76, 175, 80, 0.2); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(76, 175, 80, 0.3);">
-                            <span class="bet-label" style="font-size: 0.85em; color: #aaa;">Suggested Bet:</span>
-                            <span class="bet-value" id="suggested-bet" style="font-size: 1.5em; font-weight: bold; color: #4CAF50; display: block; margin-top: 3px;">$10</span>
+                    <div class="help-section" style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Bet Recommendation</h3>
+                        <div class="bet-recommendation" style="background: rgba(76, 175, 80, 0.2); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid rgba(76, 175, 80, 0.3);">
+                            <span class="bet-label" style="font-size: 0.9em; color: #aaa;">Suggested Bet:</span>
+                            <span class="bet-value" id="suggested-bet" style="font-size: 1.8em; font-weight: bold; color: #4CAF50; display: block; margin-top: 5px;">$10</span>
                         </div>
                     </div>
                     
-                    <div class="help-section" style="margin-bottom: 18px;">
-                        <h3 style="color: #FFD700; font-size: 1em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Card History</h3>
-                        <div id="help-history-list" class="help-history-list" style="background: rgba(0,0,0,0.3); border-radius: 8px; max-height: 150px; overflow-y: auto; padding: 5px;">
+                    <div class="help-section" style="margin-bottom: 20px;">
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Card History</h3>
+                        <div id="help-history-list" class="help-history-list" style="background: rgba(0,0,0,0.3); border-radius: 8px; max-height: 200px; overflow-y: auto; padding: 5px;">
                             <!-- Card history will be populated here -->
                         </div>
                     </div>
                     
-                    <!-- Hi-Lo System Guide - Collapsible -->
+                    <!-- Hi-Lo System Guide -->
                     <div class="help-section">
-                        <h3 style="color: #FFD700; font-size: 1em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;" onclick="toggleHiLoGuide()">
-                            Hi-Lo System Guide 
-                            <i class="fas fa-chevron-down" id="hiLoToggleIcon" style="font-size: 0.8em; transition: transform 0.3s ease;"></i>
-                        </h3>
-                        <div class="hi-lo-guide" id="hiLoGuide" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease;">
-                            <div style="padding-top: 8px;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                                    <div>
-                                        <h4 style="font-size: 0.85em; margin-bottom: 6px; color: #ddd;">Card Values:</h4>
-                                        <div style="background: rgba(0,0,0,0.3); padding: 6px; border-radius: 4px; font-size: 0.8em;">
-                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; margin: 2px 0; background: rgba(76, 175, 80, 0.2); border-radius: 3px;">
-                                                <span style="color: #4CAF50; font-weight: 600;">2-6</span>
-                                                <span style="font-weight: 600; color: #4CAF50;">+1</span>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; margin: 2px 0; background: rgba(33, 150, 243, 0.2); border-radius: 3px;">
-                                                <span style="color: #2196F3; font-weight: 600;">7-9</span>
-                                                <span style="font-weight: 600; color: #2196F3;">0</span>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; margin: 2px 0; background: rgba(244, 67, 54, 0.2); border-radius: 3px;">
-                                                <span style="color: #f44336; font-weight: 600;">10-A</span>
-                                                <span style="font-weight: 600; color: #f44336;">-1</span>
-                                            </div>
-                                        </div>
+                        <h3 style="color: #FFD700; font-size: 1.1em; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Hi-Lo System Guide</h3>
+                        <div class="hi-lo-guide">
+                            <h4 style="font-size: 0.95em; margin-bottom: 10px; color: #ddd;">Card Counting Values:</h4>
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                                <div class="card-value-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin: 4px 0; background: rgba(76, 175, 80, 0.2); border-radius: 6px;">
+                                    <span class="card-range positive" style="color: #4CAF50; font-weight: 600; font-size: 1.1em;">2-6</span>
+                                    <span class="value" style="font-weight: 600; font-size: 1.2em; color: #4CAF50;">+1</span>
+                                </div>
+                                <div class="card-value-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin: 4px 0; background: rgba(33, 150, 243, 0.2); border-radius: 6px;">
+                                    <span class="card-range neutral" style="color: #2196F3; font-weight: 600; font-size: 1.1em;">7-9</span>
+                                    <span class="value" style="font-weight: 600; font-size: 1.2em; color: #2196F3;">0</span>
+                                </div>
+                                <div class="card-value-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin: 4px 0; background: rgba(244, 67, 54, 0.2); border-radius: 6px;">
+                                    <span class="card-range negative" style="color: #f44336; font-weight: 600; font-size: 1.1em;">10-A</span>
+                                    <span class="value" style="font-weight: 600; font-size: 1.2em; color: #f44336;">-1</span>
+                                </div>
+                            </div>
+                            
+                            <h4 style="font-size: 0.95em; margin-bottom: 10px; color: #ddd;">Betting Strategy:</h4>
+                            <div class="betting-guide" style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                <p style="font-size: 0.9em; margin-bottom: 12px; color: #bbb; text-align: center;">Adjust your bet based on the True Count:</p>
+                                <div class="bet-spread-table" style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px;">
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #999; font-size: 0.9em;">TC ≤ 1</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">1 unit (min bet)</span>
                                     </div>
-                                    
-                                    <div>
-                                        <h4 style="font-size: 0.85em; margin-bottom: 6px; color: #ddd;">Betting:</h4>
-                                        <div style="background: rgba(76, 175, 80, 0.1); padding: 6px; border-radius: 4px; border: 1px solid rgba(76, 175, 80, 0.3); font-size: 0.75em;">
-                                            <div style="display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                                <span style="color: #999;">TC ≤ 1</span>
-                                                <span style="color: #fff; font-weight: 600;">1u</span>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                                <span style="color: #2196F3;">TC 2</span>
-                                                <span style="color: #fff; font-weight: 600;">2u</span>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; padding: 2px 4px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                                <span style="color: #4CAF50;">TC 3</span>
-                                                <span style="color: #fff; font-weight: 600;">4u</span>
-                                            </div>
-                                            <div style="display: flex; justify-content: space-between; padding: 2px 4px;">
-                                                <span style="color: #4CAF50;">TC ≥ 4</span>
-                                                <span style="color: #FFC107; font-weight: 600;">8u+</span>
-                                            </div>
-                                        </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #2196F3; font-size: 0.9em;">TC = 2</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">2 units</span>
+                                    </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #4CAF50; font-size: 0.9em;">TC = 3</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">4 units</span>
+                                    </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #4CAF50; font-size: 0.9em;">TC = 4</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">8 units</span>
+                                    </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <span class="true-count" style="color: #66BB6A; font-size: 0.9em;">TC = 5</span>
+                                        <span class="bet-units" style="color: #fff; font-weight: 600; font-size: 0.9em;">12 units</span>
+                                    </div>
+                                    <div class="bet-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px;">
+                                        <span class="true-count" style="color: #81C784; font-size: 0.9em;">TC ≥ 6</span>
+                                        <span class="bet-units" style="color: #FFC107; font-weight: 600; font-size: 0.9em;">15 units (max)</span>
                                     </div>
                                 </div>
-                                <p style="font-size: 0.7em; margin: 0; color: #888; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
-                                    Higher TC = more high cards = bigger edge!
+                                <p style="font-size: 0.8em; margin-top: 12px; color: #888; text-align: center;">
+                                    <strong style="color: #aaa;">Example:</strong> If your unit is $10, bet $10 at TC≤1, $20 at TC=2, $40 at TC=3, etc.
+                                </p>
+                                <p style="font-size: 0.8em; margin-top: 8px; color: #888; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; text-align: center;">
+                                    <strong style="color: #aaa;">Key:</strong> Higher true counts = more high cards remain = bigger edge!
                                 </p>
                             </div>
                         </div>
@@ -282,30 +285,6 @@
     </footer>
     
     <script src="../../card-counter-trainer.js"></script>
-    
-    <script>
-        // Hi-Lo guide toggle functionality
-        function toggleHiLoGuide() {
-            const guide = document.getElementById('hiLoGuide');
-            const icon = document.getElementById('hiLoToggleIcon');
-            
-            if (guide.style.maxHeight && guide.style.maxHeight !== '0px') {
-                guide.style.maxHeight = '0px';
-                icon.style.transform = 'rotate(0deg)';
-            } else {
-                guide.style.maxHeight = guide.scrollHeight + 'px';
-                icon.style.transform = 'rotate(180deg)';
-            }
-        }
-        
-        // Initialize Hi-Lo guide as collapsed
-        document.addEventListener('DOMContentLoaded', function() {
-            const guide = document.getElementById('hiLoGuide');
-            if (guide) {
-                guide.style.maxHeight = '0px';
-            }
-        });
-    </script>
     
     <!-- Clerk Integration -->
     <script 

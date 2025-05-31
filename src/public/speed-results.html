@@ -19,53 +19,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         .results-container {
-            max-width: 1400px;
+            max-width: 1000px;
             margin: 80px auto 40px;
             padding: 0 20px;
         }
 
         .results-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .results-header h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: #fff;
             margin-bottom: 10px;
         }
 
         .final-score-display {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: bold;
             color: #4caf50;
             text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-            margin: 15px 0;
+            margin: 20px 0;
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .result-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             text-align: center;
         }
 
         .result-card h3 {
             color: #fff;
-            font-size: 1.1rem;
-            margin-bottom: 12px;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
         }
 
         .metric-value {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: #4caf50;
             margin-bottom: 5px;
@@ -73,7 +73,7 @@
 
         .metric-label {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
 
         .warning-metric {
@@ -86,24 +86,23 @@
 
         .action-buttons {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            margin-top: 40px;
         }
 
         .action-btn {
-            padding: 12px 25px;
+            padding: 15px 30px;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .primary-action {
@@ -129,40 +128,15 @@
         .performance-summary {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
+            padding: 30px;
+            margin-bottom: 30px;
             text-align: center;
         }
 
         .summary-text {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.6;
-        }
-
-        @media (max-width: 768px) {
-            .results-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 12px;
-            }
-            
-            .final-score-display {
-                font-size: 3rem;
-            }
-            
-            .results-header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .action-btn {
-                min-width: 200px;
-                justify-content: center;
-            }
         }
     </style>
 </head>
@@ -193,7 +167,7 @@
     <div class="results-container" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
         <div class="results-header" style="display: block !important;">
             <h1 style="color: white !important;">Speed Training Complete!</h1>
-            <div class="final-score-display" id="final-score" style="color: #4caf50 !important; font-size: 4rem !important;">85%</div>
+            <div class="final-score-display" id="final-score" style="color: #4caf50 !important; font-size: 5rem !important;">85%</div>
             <p class="subtitle" style="color: white !important;">Accuracy Score</p>
         </div>
 
@@ -206,31 +180,31 @@
         <div class="results-grid" style="display: grid !important;">
             <div class="result-card" style="display: block !important;">
                 <h3 style="color: white !important;">Decision Accuracy</h3>
-                <div class="metric-value" id="accuracy-rate" style="color: #4caf50 !important; font-size: 2rem !important;">0%</div>
+                <div class="metric-value" id="accuracy-rate" style="color: #4caf50 !important; font-size: 2.5rem !important;">0%</div>
                 <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Correct Decisions</div>
             </div>
 
             <div class="result-card" style="display: block !important;">
                 <h3 style="color: white !important;">Average Decision Time</h3>
-                <div class="metric-value" id="avg-time" style="color: #4caf50 !important; font-size: 2rem !important;">0.0s</div>
+                <div class="metric-value" id="avg-time" style="color: #4caf50 !important; font-size: 2.5rem !important;">0.0s</div>
                 <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Per Decision</div>
             </div>
 
             <div class="result-card" style="display: block !important;">
                 <h3 style="color: white !important;">Fastest Decision</h3>
-                <div class="metric-value" id="fastest-time" style="color: #4caf50 !important; font-size: 2rem !important;">0.0s</div>
+                <div class="metric-value" id="fastest-time" style="color: #4caf50 !important; font-size: 2.5rem !important;">0.0s</div>
                 <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Best Time</div>
             </div>
 
             <div class="result-card" style="display: block !important;">
                 <h3 style="color: white !important;">Timeouts</h3>
-                <div class="metric-value danger-metric" id="timeout-count" style="color: #ff5252 !important; font-size: 2rem !important;">0</div>
+                <div class="metric-value danger-metric" id="timeout-count" style="color: #ff5252 !important; font-size: 2.5rem !important;">0</div>
                 <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Missed Decisions</div>
             </div>
 
             <div class="result-card" style="display: block !important;">
                 <h3 style="color: white !important;">Wrong Decisions</h3>
-                <div class="metric-value warning-metric" id="wrong-count" style="color: #ffa726 !important; font-size: 2rem !important;">0</div>
+                <div class="metric-value warning-metric" id="wrong-count" style="color: #ffa726 !important; font-size: 2.5rem !important;">0</div>
                 <div class="metric-label" style="color: rgba(255, 255, 255, 0.7) !important;">Incorrect Choices</div>
             </div>
         </div>

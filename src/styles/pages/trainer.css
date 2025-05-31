@@ -513,55 +513,13 @@ footer {
 }
 
 /* Responsive adjustments */
-@media (min-width: 1400px) {
-    /* Optimize for large screens - more horizontal space usage */
-    .trainer-container {
-        max-width: 1800px;
-        gap: 30px;
-    }
-    
-    .help-container {
-        width: 450px;
-    }
-    
-    .blackjack-table {
-        max-width: 1100px;
-    }
-}
-
 @media (max-width: 1024px) {
     .settings-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .training-modes {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* Card counter trainer responsive adjustments */
-    .trainer-container {
-        flex-direction: column;
-        gap: 20px;
-        max-width: 100%;
-        padding: 0 15px;
-    }
-    
-    .help-container {
-        width: 100% !important;
-        max-height: none !important;
-        order: -1; /* Move help panel to top on mobile */
-    }
-    
-    .help-panel {
-        padding: 15px !important;
-    }
-    
-    .help-section {
-        margin-bottom: 15px !important;
-    }
-    
-    .blackjack-table {
-        max-width: 100% !important;
     }
 }
 
@@ -1490,37 +1448,11 @@ select, button, .game-btn {
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .settings-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .training-modes {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* Card counter trainer responsive adjustments */
-    .trainer-container {
-        flex-direction: column;
-        gap: 20px;
-        max-width: 100%;
-        padding: 0 15px;
-    }
-    
-    .help-container {
-        width: 100% !important;
-        max-height: none !important;
-        order: -1; /* Move help panel to top on mobile */
-    }
-    
-    .help-panel {
-        padding: 15px !important;
-    }
-    
-    .help-section {
-        margin-bottom: 15px !important;
-    }
-    
-    .blackjack-table {
-        max-width: 100% !important;
     }
 }
 

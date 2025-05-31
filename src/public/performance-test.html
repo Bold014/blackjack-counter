@@ -149,19 +149,25 @@
                 </div>
             </div>
             
-            <div class="trainer-container" style="max-width: 1600px; margin: 0 auto; padding: 0 20px;">
-                <div class="blackjack-table" style="margin: 0 auto; max-width: 1000px;">
-                    <div class="table-felt">
-                        <div class="dealer-area" style="padding: 15px 0;">
-                            <h3>Dealer's Hand</h3>
-                            <div id="dealer-cards" class="dealer-cards"></div>
+            <div class="trainer-container">
+                <div class="blackjack-table">
+                    <div class="table-felt" style="display: flex; gap: 30px; align-items: flex-start; justify-content: center; max-width: 1200px; margin: 0 auto;">
+                        <!-- Game Area -->
+                        <div class="game-area" style="flex: 1; max-width: 600px;">
+                            <div class="dealer-area">
+                                <h3>Dealer's Hand</h3>
+                                <div id="dealer-cards" class="dealer-cards"></div>
+                            </div>
+                            
+                            <div class="player-area">
+                                <h3>Your Hand</h3>
+                                <div id="player-cards" class="player-cards"></div>
+                            </div>
                         </div>
                         
-                        <div class="player-area" style="padding: 15px 0;">
-                            <h3>Your Hand</h3>
-                            <div id="player-cards" class="player-cards"></div>
-                            
-                            <div class="betting-area" style="max-width: 500px; margin: 20px auto; padding: 20px;">
+                        <!-- Controls Area -->
+                        <div class="controls-area" style="width: 350px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px;">
+                            <div class="betting-area">
                                 <div class="balance-display">
                                     <span>Balance: $</span>
                                     <span id="balance">1000</span>
@@ -191,7 +197,7 @@
                                 </div>
                             </div>
                             
-                            <div class="game-controls" style="max-width: 500px; margin: 10px auto;">
+                            <div class="game-controls">
                                 <button id="deal-button" class="game-btn">Deal</button>
                                 <button id="hit-button" class="game-btn" disabled>Hit</button>
                                 <button id="stand-button" class="game-btn" disabled>Stand</button>
