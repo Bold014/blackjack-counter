@@ -8,7 +8,6 @@ class SubscriptionManager {
         this.initialized = false;
         this.DAILY_FREE_LIMIT = 3; // Number of free performance tests per day
         this.STRIPE_PUBLISHABLE_KEY = 'pk_live_51RUXJLGVWYSvQ1J3i7wpOacw7RSedlO2Kx0Gn7I8PL2ItX3N1gtvRfKrLpVHm0DlGVrFYkGE0oNrYu8elxiiAbFi00tgeaVgsJ';
-        this.API_BASE_URL = 'https://blackjacc-counter.herokuapp.com'; // Backend API URL
     }
 
     async initialize(clerkInstance) {
@@ -158,8 +157,8 @@ class SubscriptionManager {
         }
 
         try {
-            // Call your Heroku backend API
-            const response = await fetch(`${this.API_BASE_URL}/api/create-checkout-session`, {
+            // In production, this should call your backend API
+            const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -195,7 +194,7 @@ class SubscriptionManager {
 
         try {
             // Verify the session with your backend
-            const response = await fetch(`${this.API_BASE_URL}/api/verify-subscription`, {
+            const response = await fetch('/api/verify-subscription', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -243,7 +242,7 @@ class SubscriptionManager {
             }
 
             // Call your backend to cancel the subscription
-            const response = await fetch(`${this.API_BASE_URL}/api/cancel-subscription`, {
+            const response = await fetch('/api/cancel-subscription', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
