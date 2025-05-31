@@ -372,12 +372,21 @@
                     // Initialize subscription manager
                     await subscriptionManager.initialize(clerk);
                     
+                    // Get detailed subscription status for debugging
+                    const status = await subscriptionManager.getSubscriptionStatus();
+                    console.log('Subscription status for speed training:', status);
+                    
                     // Check if user has access to speed training
                     const canAccess = await subscriptionManager.canAccessSpeedTraining();
+                    console.log('Can access speed training:', canAccess);
+                    
                     if (!canAccess) {
+                        console.log('User denied access to speed training, showing premium required');
                         showPremiumRequired();
                         return;
                     }
+                    
+                    console.log('User has access to speed training, proceeding with initialization');
                     
                     // Initialize highScoresManager if available
                     if (window.highScoresManager) {

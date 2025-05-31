@@ -106,8 +106,8 @@ app.post('/api/verify-subscription', async (req, res) => {
             // Get the subscription
             const subscription = await stripe.subscriptions.retrieve(session.subscription);
             
-            // Calculate expiry date (30 days from now for monthly subscription)
-            const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000);
+            // Use Stripe's actual subscription period end (in milliseconds)
+            const expiresAt = subscription.current_period_end * 1000;
 
             res.json({
                 plan: 'premium',

@@ -239,6 +239,17 @@
 
                 if (clerk.user) {
                     showUserButton();
+                    
+                    // Check for success parameters from Stripe
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const success = urlParams.get('success');
+                    const sessionId = urlParams.get('session_id');
+                    
+                    if (success === 'true' && sessionId) {
+                        // Handle successful subscription
+                        await handleSuccessfulPayment(sessionId);
+                    }
+                    
                     await initializePricing();
                 } else {
                     window.location.href = 'index.html';
@@ -361,6 +372,201 @@
                     });
                 }
             }
+        }
+
+        async function handleSuccessfulPayment(sessionId) {
+            try {
+                // Initialize subscription manager first
+                await subscriptionManager.initialize(clerk);
+                
+                // Handle the successful subscription
+                await subscriptionManager.handleSubscriptionSuccess(sessionId);
+                
+                // Show success message
+                showPaymentSuccessMessage();
+                
+                // Clean up the URL (remove success parameters)
+                const url = new URL(window.location);
+                url.searchParams.delete('success');
+                url.searchParams.delete('session_id');
+                window.history.replaceState({}, document.title, url);
+                
+            } catch (error) {
+                console.error('Error handling successful payment:', error);
+                showPaymentErrorMessage();
+            }
+        }
+
+        function showPaymentSuccessMessage() {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'payment-success-message';
+            successDiv.innerHTML = `
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Welcome to Premium!</h3>
+                <p>Your subscription has been activated successfully. You now have unlimited performance tests and access to Speed Training!</p>
+                <button onclick="this.parentElement.remove()" class="close-success-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(successDiv);
+            
+            // Add styles for success message
+            const style = document.createElement('style');
+            style.textContent = `
+                .payment-success-message {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #22c55e, #16a34a);
+                    color: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+                    z-index: 10000;
+                    max-width: 350px;
+                    animation: slideInSuccess 0.5s ease;
+                }
+                
+                .payment-success-message .success-icon {
+                    font-size: 2rem;
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+                
+                .payment-success-message h3 {
+                    margin: 0 0 10px 0;
+                    font-size: 1.3rem;
+                }
+                
+                .payment-success-message p {
+                    margin: 0 0 15px 0;
+                    opacity: 0.9;
+                }
+                
+                .close-success-btn {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                @keyframes slideInSuccess {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+                if (successDiv.parentElement) {
+                    successDiv.remove();
+                }
+            }, 8000);
+        }
+
+        function showPaymentErrorMessage() {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'payment-error-message';
+            errorDiv.innerHTML = `
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Payment Processing Error</h3>
+                <p>There was an issue activating your subscription. Please contact support if the problem persists.</p>
+                <button onclick="this.parentElement.remove()" class="close-error-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(errorDiv);
+            
+            // Add styles for error message
+            const style = document.createElement('style');
+            style.textContent = `
+                .payment-error-message {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #ef4444, #dc2626);
+                    color: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+                    z-index: 10000;
+                    max-width: 350px;
+                    animation: slideInError 0.5s ease;
+                }
+                
+                .payment-error-message .error-icon {
+                    font-size: 2rem;
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+                
+                .payment-error-message h3 {
+                    margin: 0 0 10px 0;
+                    font-size: 1.3rem;
+                }
+                
+                .payment-error-message p {
+                    margin: 0 0 15px 0;
+                    opacity: 0.9;
+                }
+                
+                .close-error-btn {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                @keyframes slideInError {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+                if (errorDiv.parentElement) {
+                    errorDiv.remove();
+                }
+            }, 8000);
         }
     </script>
 </body>

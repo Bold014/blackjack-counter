@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Debug - HitOrStand</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .debug-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .debug-section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .status-item {
+            background: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .status-item strong {
+            color: #818cf8;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .success {
+            color: #22c55e;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .warning {
+            color: #fbbf24;
+        }
+        pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Subscription Status Debug</h1>
+        
+        <div class="debug-section">
+            <h2>User Information</h2>
+            <div id="user-info">Loading...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>Subscription Status</h2>
+            <div id="subscription-status">Loading...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>Speed Training Access</h2>
+            <div id="speed-access">Loading...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>Raw User Metadata</h2>
+            <pre id="raw-metadata">Loading...</pre>
+        </div>
+        
+        <div class="debug-section">
+            <h2>Actions</h2>
+            <button class="btn" onclick="refreshStatus()">Refresh Status</button>
+            <button class="btn" onclick="clearUserData()">Clear User Data</button>
+            <button class="btn" onclick="window.location.href='pricing.html'">Go to Pricing</button>
+            <button class="btn" onclick="window.location.href='trainer.html'">Go to Trainer</button>
+        </div>
+    </div>
+
+    <!-- Load subscription manager -->
+    <script src="../components/subscriptionManager.js"></script>
+    
+    <!-- Clerk Integration -->
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_live_Y2xlcmsuaGl0b3JzdGFuZHRyYWluZXIuY29tJA"
+        src="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript">
+    </script>
+    
+    <script>
+        let clerk;
+        let subscriptionManager = window.subscriptionManager;
+
+        window.addEventListener('load', async function () {
+            try {
+                if (typeof window.Clerk === 'undefined') {
+                    document.getElementById('user-info').innerHTML = '<span class="error">Clerk is not loaded</span>';
+                    return;
+                }
+                
+                clerk = window.Clerk;
+                await clerk.load();
+
+                if (clerk.user) {
+                    await initializeDebug();
+                } else {
+                    document.getElementById('user-info').innerHTML = '<span class="warning">User not signed in</span>';
+                }
+                
+            } catch (error) {
+                console.error('Error initializing:', error);
+                document.getElementById('user-info').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        });
+
+        async function initializeDebug() {
+            try {
+                // Display user info
+                const userInfo = document.getElementById('user-info');
+                userInfo.innerHTML = `
+                    <div class="status-item">
+                        <strong>User ID:</strong> ${clerk.user.id}
+                    </div>
+                    <div class="status-item">
+                        <strong>Email:</strong> ${clerk.user.emailAddresses[0].emailAddress}
+                    </div>
+                    <div class="status-item">
+                        <strong>First Name:</strong> ${clerk.user.firstName || 'Not set'}
+                    </div>
+                `;
+
+                // Initialize subscription manager
+                await subscriptionManager.initialize(clerk);
+                
+                // Get subscription status
+                await refreshStatus();
+                
+            } catch (error) {
+                console.error('Error in initializeDebug:', error);
+                document.getElementById('subscription-status').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        async function refreshStatus() {
+            try {
+                console.log('=== REFRESHING SUBSCRIPTION STATUS ===');
+                
+                // Get subscription status
+                const status = await subscriptionManager.getSubscriptionStatus();
+                console.log('Subscription status result:', status);
+                
+                // Display subscription status
+                const subscriptionDiv = document.getElementById('subscription-status');
+                subscriptionDiv.innerHTML = `
+                    <div class="status-item">
+                        <strong>Is Subscribed:</strong> <span class="${status.isSubscribed ? 'success' : 'warning'}">${status.isSubscribed}</span>
+                    </div>
+                    <div class="status-item">
+                        <strong>Plan:</strong> ${status.plan}
+                    </div>
+                    <div class="status-item">
+                        <strong>Daily Tests Remaining:</strong> ${status.dailyTestsRemaining === -1 ? 'Unlimited' : status.dailyTestsRemaining}
+                    </div>
+                    ${status.expiresAt ? `<div class="status-item"><strong>Expires At:</strong> ${new Date(status.expiresAt).toLocaleString()}</div>` : ''}
+                    ${status.testsUsedToday !== undefined ? `<div class="status-item"><strong>Tests Used Today:</strong> ${status.testsUsedToday}</div>` : ''}
+                `;
+                
+                // Check speed training access
+                const canAccessSpeed = await subscriptionManager.canAccessSpeedTraining();
+                console.log('Can access speed training:', canAccessSpeed);
+                
+                const speedDiv = document.getElementById('speed-access');
+                speedDiv.innerHTML = `
+                    <div class="status-item">
+                        <strong>Speed Training Access:</strong> <span class="${canAccessSpeed ? 'success' : 'error'}">${canAccessSpeed ? 'ALLOWED' : 'DENIED'}</span>
+                    </div>
+                `;
+                
+                // Display raw metadata
+                const rawMetadata = document.getElementById('raw-metadata');
+                rawMetadata.textContent = JSON.stringify(clerk.user.unsafeMetadata, null, 2);
+                
+            } catch (error) {
+                console.error('Error refreshing status:', error);
+                document.getElementById('subscription-status').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        async function clearUserData() {
+            if (confirm('This will clear all user metadata. Are you sure?')) {
+                try {
+                    await clerk.user.update({
+                        unsafeMetadata: {}
+                    });
+                    alert('User data cleared. Refreshing status...');
+                    await refreshStatus();
+                } catch (error) {
+                    console.error('Error clearing user data:', error);
+                    alert('Error clearing user data: ' + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

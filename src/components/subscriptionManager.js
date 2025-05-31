@@ -31,6 +31,7 @@ class SubscriptionManager {
     // Get the current user's subscription status
     async getSubscriptionStatus() {
         if (!this.initialized || !this.clerk?.user) {
+            console.log('SubscriptionManager: Not initialized or no user');
             return {
                 isSubscribed: false,
                 plan: 'free',
@@ -42,8 +43,12 @@ class SubscriptionManager {
             const metadata = this.clerk.user.unsafeMetadata;
             const subscription = metadata?.subscription || {};
             
+            console.log('SubscriptionManager: User metadata:', metadata);
+            console.log('SubscriptionManager: Subscription data:', subscription);
+            
             // Check if user has active subscription
             if (subscription.status === 'active' && subscription.expiresAt > Date.now()) {
+                console.log('SubscriptionManager: User has active subscription');
                 return {
                     isSubscribed: true,
                     plan: subscription.plan || 'premium',
@@ -52,12 +57,15 @@ class SubscriptionManager {
                 };
             }
 
+            console.log('SubscriptionManager: User does not have active subscription, checking daily usage');
+            
             // For free users, check daily usage
             const today = new Date().toDateString();
             const dailyUsage = metadata?.dailyUsage || {};
             
             if (dailyUsage.date !== today) {
                 // Reset daily usage for new day
+                console.log('SubscriptionManager: Resetting daily usage for new day');
                 await this.resetDailyUsage();
                 return {
                     isSubscribed: false,
@@ -67,10 +75,13 @@ class SubscriptionManager {
             }
 
             const testsUsed = dailyUsage.performanceTests || 0;
+            const remainingTests = Math.max(0, this.DAILY_FREE_LIMIT - testsUsed);
+            console.log(`SubscriptionManager: Free user has ${remainingTests} tests remaining`);
+            
             return {
                 isSubscribed: false,
                 plan: 'free',
-                dailyTestsRemaining: Math.max(0, this.DAILY_FREE_LIMIT - testsUsed),
+                dailyTestsRemaining: remainingTests,
                 testsUsedToday: testsUsed
             };
         } catch (error) {

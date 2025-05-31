@@ -76,6 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     showSubscriptionError('Failed to track test usage. Please try again.');
                     return;
                 }
+                
+                // Update UI to show remaining tests for free users
+                updateRemainingTestsDisplay(status.dailyTestsRemaining - 1, false);
+            } else {
+                // Update UI to show premium status
+                updateRemainingTestsDisplay(0, true);
             }
             
             // Get settings
@@ -87,10 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show game screen
             showTestRunGame();
             
-            // Update UI to show remaining tests
-            if (!status.isSubscribed) {
-                updateRemainingTestsDisplay(status.dailyTestsRemaining - 1);
-            }
         } catch (error) {
             console.error('Error starting test run:', error);
             showSubscriptionError('An error occurred. Please try again.');
@@ -266,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Update remaining tests display
-    function updateRemainingTestsDisplay(remainingTests) {
+    function updateRemainingTestsDisplay(remainingTests, isPremium = false) {
         const existingDisplay = document.querySelector('.remaining-tests-display');
         if (existingDisplay) {
             existingDisplay.remove();
@@ -274,11 +276,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const display = document.createElement('div');
         display.className = 'remaining-tests-display';
-        display.innerHTML = `
-            <i class="fas fa-info-circle"></i>
-            <span>${remainingTests} free tests remaining today</span>
-            <a href="pricing.html">Upgrade for unlimited</a>
-        `;
+        
+        if (isPremium) {
+            display.innerHTML = `
+                <i class="fas fa-crown"></i>
+                <span>Premium Member - Unlimited Tests</span>
+            `;
+            display.style.background = 'rgba(102, 126, 234, 0.1)';
+            display.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+            display.style.color = '#818cf8';
+        } else {
+            display.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                <span>${remainingTests} free tests remaining today</span>
+                <a href="pricing.html">Upgrade for unlimited</a>
+            `;
+        }
         
         const container = document.querySelector('.test-progress');
         if (container) {
