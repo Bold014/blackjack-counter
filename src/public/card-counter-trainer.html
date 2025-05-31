@@ -101,18 +101,20 @@
             <!-- Game Interface -->
             <div class="blackjack-table" style="flex: 1; display: flex; gap: 20px;">
                 <!-- Main Game Area -->
-                <div class="game-area" style="flex: 1;">
-                    <div class="table-felt">
-                        <div class="dealer-area">
+                <div class="game-area" style="flex: 1; min-height: 600px; max-height: 700px;">
+                    <div class="table-felt" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="dealer-area" style="flex: 0 0 auto; min-height: 150px;">
                             <h3>Dealer's Hand</h3>
                             <div id="dealer-cards" class="dealer-cards"></div>
                         </div>
                         
-                        <div class="player-area">
-                            <h3>Your Hand</h3>
-                            <div id="player-cards" class="player-cards"></div>
+                        <div class="player-area" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="flex: 0 0 auto;">
+                                <h3>Your Hand</h3>
+                                <div id="player-cards" class="player-cards"></div>
+                            </div>
                             
-                            <div class="betting-area">
+                            <div class="betting-area" style="flex: 0 0 auto; margin-top: 20px;">
                                 <div class="balance-display">
                                     <span>Balance: $</span>
                                     <span id="balance">1000</span>
@@ -143,7 +145,7 @@
                             </div>
                         </div>
                         
-                        <div class="deck-info">
+                        <div class="deck-info" style="flex: 0 0 auto; margin-top: 10px;">
                             <span>Cards Remaining: <span id="cards-remaining">312</span></span>
                             <span>Decks: <span id="deck-count">6</span></span>
                         </div>
