@@ -27,13 +27,6 @@ window.addEventListener('load', async function () {
             showSignedInState();
             showTrainerNavButton();
             showProgressNavButton();
-            
-            // Track user sign in event
-            if (window.trackEvent) {
-                window.trackEvent('user_signed_in', {
-                    method: 'existing_session'
-                });
-            }
         } else {
             console.log('User is not signed in');
             showAuthOptions();
@@ -71,18 +64,8 @@ function showAuthOptions() {
     `;
 
     // Add event listeners
-    document.getElementById('signup-btn').addEventListener('click', () => {
-        if (window.trackEvent) {
-            window.trackEvent('auth_button_clicked', { type: 'signup' });
-        }
-        showSignUpModal();
-    });
-    document.getElementById('signin-btn').addEventListener('click', () => {
-        if (window.trackEvent) {
-            window.trackEvent('auth_button_clicked', { type: 'signin' });
-        }
-        showSignInModal();
-    });
+    document.getElementById('signup-btn').addEventListener('click', () => showSignUpModal());
+    document.getElementById('signin-btn').addEventListener('click', () => showSignInModal());
 }
 
 function showSignUpModal() {
@@ -188,15 +171,6 @@ function showSignUpModal() {
         },
         afterSignUpUrl: 'trainer.html',
         signInUrl: '#'
-    });
-
-    // Track successful sign up
-    clerk.addListener('user', (user) => {
-        if (user && window.trackEvent) {
-            window.trackEvent('user_signed_up', {
-                method: 'clerk_signup'
-            });
-        }
     });
 
     addBackButton();
@@ -345,9 +319,6 @@ function showSignedInState() {
     `;
 
     document.getElementById('sign-out-btn').addEventListener('click', async () => {
-        if (window.trackEvent) {
-            window.trackEvent('user_signed_out');
-        }
         await clerk.signOut();
         hideTrainerNavButton();
         showAuthOptions();
