@@ -267,35 +267,6 @@
                 </div>
             </div>
             
-            <!-- Usage Statistics Section -->
-            <div class="info-section">
-                <h2><i class="fas fa-chart-bar"></i> Usage Statistics</h2>
-                <div class="info-item">
-                    <span class="info-label">Performance Tests Today</span>
-                    <div style="flex: 1; margin-left: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="info-value" id="tests-used">0</span>
-                            <span class="info-value" id="tests-limit">/ 3</span>
-                        </div>
-                        <div class="usage-bar">
-                            <div class="usage-fill" id="usage-progress"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Total Tests Completed</span>
-                    <span class="info-value" id="total-tests">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Average Score</span>
-                    <span class="info-value" id="average-score">-</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Speed Training Access</span>
-                    <span class="info-value" id="speed-access">Checking...</span>
-                </div>
-            </div>
-            
             <!-- Account Information Section -->
             <div class="info-section">
                 <h2><i class="fas fa-user"></i> Account Information</h2>
@@ -396,10 +367,9 @@
                 
                 // Get subscription status
                 const status = await subscriptionManager.getSubscriptionStatus();
-                const speedAccess = await subscriptionManager.canAccessSpeedTraining();
                 
                 // Populate the page with subscription info
-                updateSubscriptionInfo(status, speedAccess);
+                updateSubscriptionInfo(status);
                 
                 // Hide loading and show content
                 document.getElementById('loading').style.display = 'none';
@@ -411,7 +381,7 @@
             }
         }
 
-        function updateSubscriptionInfo(status, speedAccess) {
+        function updateSubscriptionInfo(status) {
             // Update plan information
             document.getElementById('plan-type').textContent = status.isSubscribed ? 'Premium' : 'Free';
             
@@ -439,9 +409,6 @@
             // Update plan features
             updatePlanFeatures(status.isSubscribed);
             
-            // Update usage statistics
-            updateUsageStats(status, speedAccess);
-            
             // Update account information
             updateAccountInfo();
             
@@ -468,40 +435,6 @@
             featureList.innerHTML = features.map(feature => 
                 `<li><i class="fas fa-check"></i> ${feature}</li>`
             ).join('');
-        }
-
-        function updateUsageStats(status, speedAccess) {
-            // Performance tests usage
-            const testsUsed = status.testsUsedToday || 0;
-            const testsLimit = status.isSubscribed ? 'Unlimited' : 3;
-            const remainingTests = status.dailyTestsRemaining;
-            
-            document.getElementById('tests-used').textContent = testsUsed;
-            document.getElementById('tests-limit').textContent = status.isSubscribed ? '' : `/ ${testsLimit}`;
-            
-            // Update usage bar
-            if (!status.isSubscribed) {
-                const percentage = (testsUsed / 3) * 100;
-                document.getElementById('usage-progress').style.width = `${Math.min(percentage, 100)}%`;
-            } else {
-                document.getElementById('usage-progress').style.width = '100%';
-                document.getElementById('usage-progress').style.background = 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
-            }
-            
-            // Speed training access
-            document.getElementById('speed-access').textContent = speedAccess ? 'Granted' : 'Premium Required';
-            document.getElementById('speed-access').className = `info-value ${speedAccess ? 'status-active' : 'status-inactive'}`;
-            
-            // Calculate total tests and average score from high scores
-            const metadata = clerk.user.unsafeMetadata;
-            const highScores = metadata?.highScores || [];
-            
-            document.getElementById('total-tests').textContent = highScores.length;
-            
-            if (highScores.length > 0) {
-                const avgScore = highScores.reduce((sum, score) => sum + (score.overallScore || 0), 0) / highScores.length;
-                document.getElementById('average-score').textContent = `${avgScore.toFixed(1)}%`;
-            }
         }
 
         function updateAccountInfo() {
