@@ -1579,8 +1579,12 @@ select, button, .game-btn {
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
-    padding: 20px;
+    padding: 16px;
     box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    max-height: fit-content;
 }
 
 /* Updated betting area for side panel */
@@ -1589,8 +1593,8 @@ select, button, .game-btn {
     backdrop-filter: blur(5px);
     border-radius: 12px;
     border: 1px solid var(--glass-border);
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
     width: 100%;
     box-shadow: var(--shadow-light);
 }
@@ -1599,10 +1603,10 @@ select, button, .game-btn {
 .controls-panel .game-controls {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
-    padding: 15px;
+    padding: 12px;
     border: 1px solid var(--glass-border);
     margin: 0 !important;
 }
@@ -1610,20 +1614,24 @@ select, button, .game-btn {
 .controls-panel .game-btn {
     width: 100%;
     margin: 0;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    min-height: auto;
 }
 
-/* Chip rack adjustments for smaller width */
+/* Chip rack adjustments for smaller width - only 3 chips now */
 .controls-panel .chip-rack {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 10px;
     margin: 15px 0;
+    justify-items: center;
 }
 
 .controls-panel .chip {
-    width: 100%;
-    aspect-ratio: 1;
-    font-size: 0.9rem;
+    width: 45px;
+    height: 45px;
+    font-size: 0.85rem;
 }
 
 /* Responsive adjustments for horizontal layout */
@@ -1660,11 +1668,18 @@ select, button, .game-btn {
     }
     
     .controls-panel {
-        padding: 15px;
+        padding: 12px;
     }
     
     .controls-panel .chip-rack {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .controls-panel .chip {
+        width: 40px;
+        height: 40px;
+        font-size: 0.8rem;
     }
 }
 
