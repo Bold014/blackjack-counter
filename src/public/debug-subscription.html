@@ -81,7 +81,10 @@
         
         <div class="debug-section">
             <h2>Speed Training Access</h2>
-            <div id="speed-access">Loading...</div>
+            <div class="status-item">
+                <span class="status-label">Speed Training Access:</span>
+                <span id="speed-training-access">Loading...</span>
+            </div>
         </div>
         
         <div class="debug-section">
@@ -92,6 +95,7 @@
         <div class="debug-section">
             <h2>Actions</h2>
             <button class="btn" onclick="refreshStatus()">Refresh Status</button>
+            <button class="btn" onclick="forceRefreshAndTest()" style="background: #8b5cf6;">Force Refresh & Test</button>
             <button class="btn" onclick="testServer()" style="background: #3b82f6;">Test Server</button>
             <button class="btn" onclick="manualSyncSubscription()" style="background: #22c55e;">Manual Sync Subscription</button>
             <button class="btn" onclick="manuallyFixSubscription()" style="background: #f59e0b;">Manual Fix (Client-Side)</button>
@@ -168,47 +172,68 @@
         }
 
         async function refreshStatus() {
+            if (!clerk?.user) {
+                document.getElementById('subscription-status').innerHTML = '<span style="color: #ef4444;">No user logged in</span>';
+                return;
+            }
+
             try {
-                console.log('=== REFRESHING SUBSCRIPTION STATUS ===');
+                // Force reinitialize the subscription manager
+                await subscriptionManager.initialize(clerk);
                 
-                // Get subscription status
+                // Get fresh subscription status
                 const status = await subscriptionManager.getSubscriptionStatus();
-                console.log('Subscription status result:', status);
+                const speedAccess = await subscriptionManager.canAccessSpeedTraining();
                 
-                // Display subscription status
-                const subscriptionDiv = document.getElementById('subscription-status');
-                subscriptionDiv.innerHTML = `
-                    <div class="status-item">
-                        <strong>Is Subscribed:</strong> <span class="${status.isSubscribed ? 'success' : 'warning'}">${status.isSubscribed}</span>
-                    </div>
-                    <div class="status-item">
-                        <strong>Plan:</strong> ${status.plan}
-                    </div>
-                    <div class="status-item">
-                        <strong>Daily Tests Remaining:</strong> ${status.dailyTestsRemaining === -1 ? 'Unlimited' : status.dailyTestsRemaining}
-                    </div>
-                    ${status.expiresAt ? `<div class="status-item"><strong>Expires At:</strong> ${new Date(status.expiresAt).toLocaleString()}</div>` : ''}
-                    ${status.testsUsedToday !== undefined ? `<div class="status-item"><strong>Tests Used Today:</strong> ${status.testsUsedToday}</div>` : ''}
-                `;
+                console.log('Fresh status check:', { status, speedAccess });
                 
-                // Check speed training access
-                const canAccessSpeed = await subscriptionManager.canAccessSpeedTraining();
-                console.log('Can access speed training:', canAccessSpeed);
+                document.getElementById('subscription-status').innerHTML = status.isSubscribed ? 
+                    '<span style="color: #22c55e;">Premium Member</span>' : 
+                    '<span style="color: #ef4444;">Free Plan</span>';
                 
-                const speedDiv = document.getElementById('speed-access');
-                speedDiv.innerHTML = `
-                    <div class="status-item">
-                        <strong>Speed Training Access:</strong> <span class="${canAccessSpeed ? 'success' : 'error'}">${canAccessSpeed ? 'ALLOWED' : 'DENIED'}</span>
-                    </div>
-                `;
+                document.getElementById('speed-training-access').innerHTML = speedAccess ? 
+                    '<span style="color: #22c55e;">GRANTED</span>' : 
+                    '<span style="color: #ef4444;">DENIED</span>';
                 
-                // Display raw metadata
-                const rawMetadata = document.getElementById('raw-metadata');
-                rawMetadata.textContent = JSON.stringify(clerk.user.unsafeMetadata, null, 2);
+                // Display the subscription data in detail
+                displaySubscriptionDetails(status, speedAccess);
                 
             } catch (error) {
                 console.error('Error refreshing status:', error);
-                document.getElementById('subscription-status').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                document.getElementById('subscription-status').innerHTML = '<span style="color: #ef4444;">Error loading status</span>';
+            }
+        }
+
+        async function forceRefreshAndTest() {
+            if (!clerk?.user) {
+                alert('No user found. Please make sure you are signed in.');
+                return;
+            }
+
+            try {
+                // Force reload the user data from Clerk
+                await clerk.user.reload();
+                
+                // Reinitialize subscription manager
+                await subscriptionManager.initialize(clerk);
+                
+                // Get fresh status
+                const status = await subscriptionManager.getSubscriptionStatus();
+                const speedAccess = await subscriptionManager.canAccessSpeedTraining();
+                
+                console.log('Force refresh results:', { 
+                    metadata: clerk.user.unsafeMetadata,
+                    status, 
+                    speedAccess 
+                });
+                
+                alert(`Force refresh complete!\nSubscribed: ${status.isSubscribed}\nSpeed Training: ${speedAccess}\nDaily Tests: ${status.dailyTestsRemaining === -1 ? 'Unlimited' : status.dailyTestsRemaining}`);
+                
+                await refreshStatus();
+                
+            } catch (error) {
+                console.error('Error in force refresh:', error);
+                alert('Error in force refresh: ' + error.message);
             }
         }
 
@@ -333,6 +358,30 @@
                     console.error('Error manually fixing subscription:', error);
                     alert('Error fixing subscription: ' + error.message);
                 }
+            }
+        }
+
+        function displaySubscriptionDetails(status, speedAccess) {
+            // Update the subscription status section with detailed info
+            const subscriptionDiv = document.getElementById('subscription-status');
+            subscriptionDiv.innerHTML = `
+                <div class="status-item">
+                    <strong>Is Subscribed:</strong> <span class="${status.isSubscribed ? 'success' : 'warning'}">${status.isSubscribed}</span>
+                </div>
+                <div class="status-item">
+                    <strong>Plan:</strong> ${status.plan}
+                </div>
+                <div class="status-item">
+                    <strong>Daily Tests Remaining:</strong> ${status.dailyTestsRemaining === -1 ? 'Unlimited' : status.dailyTestsRemaining}
+                </div>
+                ${status.expiresAt ? `<div class="status-item"><strong>Expires At:</strong> ${new Date(status.expiresAt).toLocaleString()}</div>` : ''}
+                ${status.testsUsedToday !== undefined ? `<div class="status-item"><strong>Tests Used Today:</strong> ${status.testsUsedToday}</div>` : ''}
+            `;
+            
+            // Display raw metadata
+            const rawMetadata = document.getElementById('raw-metadata');
+            if (rawMetadata && clerk?.user) {
+                rawMetadata.textContent = JSON.stringify(clerk.user.unsafeMetadata, null, 2);
             }
         }
     </script>
