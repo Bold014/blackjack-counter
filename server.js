@@ -154,6 +154,75 @@ app.post('/api/cancel-subscription', async (req, res) => {
     }
 });
 
+// Manual subscription sync endpoint
+app.post('/api/sync-subscription', async (req, res) => {
+    try {
+        const { userId, userEmail } = req.body;
+
+        if (!userId || !userEmail) {
+            return res.status(400).json({ error: 'Missing required parameters' });
+        }
+
+        console.log('Syncing subscription for user:', { userId, userEmail });
+
+        // Find customer by email
+        const customers = await stripe.customers.list({
+            email: userEmail,
+            limit: 1
+        });
+
+        if (customers.data.length === 0) {
+            console.log('No Stripe customer found for email:', userEmail);
+            return res.json({ 
+                success: false, 
+                message: 'No Stripe customer found for this email' 
+            });
+        }
+
+        const customer = customers.data[0];
+        console.log('Found Stripe customer:', customer.id);
+
+        // Get active subscriptions for this customer
+        const subscriptions = await stripe.subscriptions.list({
+            customer: customer.id,
+            status: 'active',
+            limit: 1
+        });
+
+        if (subscriptions.data.length === 0) {
+            console.log('No active subscriptions found for customer:', customer.id);
+            return res.json({ 
+                success: false, 
+                message: 'No active subscriptions found for this customer' 
+            });
+        }
+
+        const subscription = subscriptions.data[0];
+        console.log('Found active subscription:', subscription.id);
+
+        // Use Stripe's actual subscription period end (in milliseconds)
+        const expiresAt = subscription.current_period_end * 1000;
+
+        res.json({
+            success: true,
+            subscription: {
+                plan: 'premium',
+                expiresAt: expiresAt,
+                customerId: customer.id,
+                subscriptionId: subscription.id,
+                status: subscription.status
+            }
+        });
+
+    } catch (error) {
+        console.error('Error syncing subscription:', error);
+        res.status(500).json({ 
+            error: 'Failed to sync subscription',
+            details: error.message 
+        });
+    }
+});
+
 // Stripe webhook endpoint (for handling subscription events)
 app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
     const sig = req.headers['stripe-signature'];

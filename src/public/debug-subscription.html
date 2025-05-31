@@ -92,6 +92,7 @@
         <div class="debug-section">
             <h2>Actions</h2>
             <button class="btn" onclick="refreshStatus()">Refresh Status</button>
+            <button class="btn" onclick="manualSyncSubscription()" style="background: #22c55e;">Manual Sync Subscription</button>
             <button class="btn" onclick="clearUserData()">Clear User Data</button>
             <button class="btn" onclick="window.location.href='pricing.html'">Go to Pricing</button>
             <button class="btn" onclick="window.location.href='trainer.html'">Go to Trainer</button>
@@ -220,6 +221,66 @@
                 } catch (error) {
                     console.error('Error clearing user data:', error);
                     alert('Error clearing user data: ' + error.message);
+                }
+            }
+        }
+
+        async function manualSyncSubscription() {
+            if (!clerk?.user) {
+                alert('No user found. Please make sure you are signed in.');
+                return;
+            }
+
+            const userEmail = clerk.user.emailAddresses[0].emailAddress;
+            
+            if (confirm(`This will check Stripe for any active subscriptions for ${userEmail} and sync them to your account. Continue?`)) {
+                try {
+                    document.getElementById('subscription-status').innerHTML = '<span style="color: #fbbf24;">Syncing subscription status...</span>';
+                    
+                    // Call the backend to manually sync subscription
+                    const response = await fetch('https://blackjacc-counter-087b5c65a111.herokuapp.com/api/sync-subscription', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userId: clerk.user.id,
+                            userEmail: userEmail
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.success && result.subscription) {
+                        // Update user metadata with the found subscription
+                        const metadata = clerk.user.unsafeMetadata;
+                        
+                        await clerk.user.update({
+                            unsafeMetadata: {
+                                ...metadata,
+                                subscription: {
+                                    status: 'active',
+                                    plan: result.subscription.plan,
+                                    expiresAt: result.subscription.expiresAt,
+                                    stripeCustomerId: result.subscription.customerId,
+                                    stripeSubscriptionId: result.subscription.subscriptionId
+                                }
+                            }
+                        });
+                        
+                        alert('Subscription synced successfully! You now have premium access.');
+                        await refreshStatus();
+                    } else {
+                        alert('No active subscription found in Stripe for your email address. If you believe this is an error, please contact support.');
+                    }
+                } catch (error) {
+                    console.error('Error syncing subscription:', error);
+                    alert('Error syncing subscription: ' + error.message);
+                    await refreshStatus();
                 }
             }
         }
