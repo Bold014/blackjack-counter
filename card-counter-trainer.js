@@ -2060,6 +2060,50 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // Initialize help panel tab functionality
+        function initHelpPanelTabs() {
+            const tabButtons = document.querySelectorAll('.help-tab-btn');
+            const tabPanels = document.querySelectorAll('.help-tab-panel');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons and panels
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.background = 'transparent';
+                        btn.style.color = '#aaa';
+                    });
+                    
+                    tabPanels.forEach(panel => {
+                        panel.classList.remove('active');
+                        panel.style.display = 'none';
+                    });
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    button.style.background = 'rgba(255,215,0,0.2)';
+                    button.style.color = '#FFD700';
+                    
+                    // Show corresponding panel
+                    const targetPanel = document.getElementById(`${targetTab}-tab`);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                        targetPanel.style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        // Initialize everything
+        createDeck();
+        shuffleDeck();
+        updateGameDisplay();
+        updateControls();
+        updateHelpPanel();
+        initHelpPanelTabs(); // Initialize the new tab functionality
+        
         // Initialize the app
         init();
     }

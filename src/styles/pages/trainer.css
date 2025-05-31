@@ -1890,4 +1890,96 @@ select, button, .game-btn {
 .bet-action-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== HELP PANEL TAB STYLES ===== */
+.help-tabs {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.help-tab-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.help-tab-btn.active {
+    background: rgba(255,215,0,0.2);
+    color: #FFD700;
+}
+
+.help-tab-btn:hover {
+    background: rgba(255,215,0,0.1);
+    color: #FFD700;
+}
+
+.help-tab-panel {
+    display: none;
+}
+
+.help-tab-panel.active {
+    display: block;
+}
+
+/* Compact help panel styles */
+.help-container .help-panel {
+    padding: 16px;
+}
+
+.help-container .count-display {
+    padding: 12px;
+    gap: 15px;
+}
+
+.help-container .count-item .count-label {
+    font-size: 0.8em;
+    margin-bottom: 3px;
+}
+
+.help-container .count-item .count-value {
+    font-size: 1.6em;
+}
+
+.hi-lo-guide-compact {
+    max-height: 150px;
+}
+
+.hi-lo-guide-compact .grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+/* Responsive adjustments for help panel */
+@media (max-width: 1200px) {
+    .help-container {
+        width: 100% !important;
+        margin-top: 20px;
+    }
+    
+    .help-tabs {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .help-container {
+        width: 100% !important;
+    }
+    
+    .help-tab-btn {
+        padding: 6px 8px;
+        font-size: 0.8em;
+    }
 } 
