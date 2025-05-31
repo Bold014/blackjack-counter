@@ -9,72 +9,18 @@ const PORT = process.env.PORT || 3000;
 // Initialize Stripe with your secret key
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-// Configure CORS - simplified approach
-app.use((req, res, next) => {
-    const allowedOrigins = ['https://hitorstandtrainer.com', 'http://localhost:3000'];
-    const origin = req.headers.origin;
-    
-    // Always set CORS headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, stripe-signature');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
-    // Set origin header if allowed
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    } else {
-        // For debugging - still set a header but log the issue
-        console.log('Origin not allowed:', origin);
-        res.setHeader('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    }
-    
-    // Handle preflight
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    
-    next();
-});
-
-// Stripe webhook endpoint (MUST be before express.json() middleware)
-app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    let event;
-
-    try {
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    } catch (err) {
-        console.log(`Webhook signature verification failed.`, err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    // Handle the event
-    switch (event.type) {
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
-        case 'customer.subscription.deleted':
-            console.log('Subscription event:', event.type, event.data.object);
-            break;
-        case 'invoice.payment_succeeded':
-            console.log('Payment succeeded:', event.data.object);
-            break;
-        default:
-            console.log(`Unhandled event type ${event.type}`);
-    }
-
-    res.json({received: true});
-});
-
-// Apply JSON middleware after webhook route
+// Middleware
+app.use(cors());
 app.use(express.json());
+app.use(express.static('src'));
 
-// API Routes for Stripe integration (BEFORE static files)
+// Serve static files from src directory
+app.use(express.static(path.join(__dirname, 'src')));
+
+// API Routes for Stripe integration
 
 // Create checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
-    console.log('Create checkout session endpoint hit');
     try {
         const { priceId, userId, userEmail } = req.body;
 
@@ -95,8 +41,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
             metadata: {
                 userId: userId,
             },
-            success_url: `${req.headers.origin || 'https://hitorstandtrainer.com'}/src/public/pricing.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${req.headers.origin || 'https://hitorstandtrainer.com'}/src/public/pricing.html?canceled=true`,
+            success_url: `${req.headers.origin}/src/public/pricing.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.headers.origin}/src/public/pricing.html?canceled=true`,
         });
 
         res.json({ id: session.id });
@@ -108,7 +54,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
 // Verify subscription after successful payment
 app.post('/api/verify-subscription', async (req, res) => {
-    console.log('Verify subscription endpoint hit');
     try {
         const { sessionId, userId } = req.body;
 
@@ -144,7 +89,6 @@ app.post('/api/verify-subscription', async (req, res) => {
 
 // Cancel subscription
 app.post('/api/cancel-subscription', async (req, res) => {
-    console.log('Cancel subscription endpoint hit');
     try {
         const { subscriptionId, userId } = req.body;
 
@@ -172,9 +116,36 @@ app.post('/api/cancel-subscription', async (req, res) => {
     }
 });
 
-// Serve static files AFTER API routes
-app.use(express.static('src'));
-app.use(express.static(path.join(__dirname, 'src')));
+// Stripe webhook endpoint (for handling subscription events)
+app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (err) {
+        console.log(`Webhook signature verification failed.`, err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
+            console.log('Subscription event:', event.type, event.data.object);
+            break;
+        case 'invoice.payment_succeeded':
+            console.log('Payment succeeded:', event.data.object);
+            break;
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({received: true});
+});
 
 // Serve HTML files
 app.get('/', (req, res) => {
