@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Info - HitOrStand</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/logosmall.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/logosmall.png">
+    <link rel="apple-touch-icon" href="../assets/images/logosmall.png">
+    <link rel="shortcut icon" href="../assets/images/logosmall.png">
+    
+    <link rel="stylesheet" href="../styles/pages/styles.css">
+    <link rel="stylesheet" href="../styles/pages/pricing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .subscription-info-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+            min-height: 100vh;
+        }
+        
+        .info-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .info-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .info-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .info-section:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .info-section h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            color: #22c55e;
+        }
+        
+        .status-inactive {
+            color: #ef4444;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .usage-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .usage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .plan-features {
+            margin-top: 20px;
+        }
+        
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            color: #e2e8f0;
+        }
+        
+        .plan-features li i {
+            color: #22c55e;
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home-button">
+        <a href="index.html" class="home-link">
+            <img src="../assets/images/logosmall.png" alt="HitOrStand" class="home-logo-image" style="height: 60px; width: auto; max-width: none;">
+        </a>
+    </div>
+    
+    <!-- User button for signed-in users -->
+    <div class="user-button" id="user-button" style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: none;">
+        <button id="user-menu-btn" class="user-menu-btn" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 10px 15px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user"></i>
+            <span id="user-name"></span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="user-dropdown" class="user-dropdown" style="position: absolute; top: 100%; right: 0; background: #0c1429; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; min-width: 150px; display: none;">
+            <button id="subscription-info-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-credit-card"></i> Subscription Info
+            </button>
+            <button id="view-progress-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-trophy"></i> View Progress
+            </button>
+            <button id="sign-out-btn" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; color: white; padding: 8px 12px; cursor: pointer; border-radius: 4px;">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </div>
+    </div>
+    
+    <div class="subscription-info-container">
+        <header class="info-header">
+            <h1>Subscription Information</h1>
+            <p style="color: #94a3b8;">Manage your subscription and view usage details</p>
+        </header>
+        
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p>Loading subscription information...</p>
+        </div>
+        
+        <div id="subscription-content" style="display: none;">
+            <!-- Current Plan Section -->
+            <div class="info-section">
+                <h2><i class="fas fa-star"></i> Current Plan</h2>
+                <div class="info-item">
+                    <span class="info-label">Plan Type</span>
+                    <span class="info-value" id="plan-type">Free</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Status</span>
+                    <span class="info-value status-active" id="plan-status">Active</span>
+                </div>
+                <div class="info-item" id="expiry-item" style="display: none;">
+                    <span class="info-label">Next Billing Date</span>
+                    <span class="info-value" id="plan-expiry">-</span>
+                </div>
+                <div class="plan-features" id="plan-features">
+                    <h4 style="color: #94a3b8; margin-bottom: 10px;">Plan Features:</h4>
+                    <ul id="feature-list">
+                        <!-- Features will be populated here -->
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Usage Statistics Section -->
+            <div class="info-section">
+                <h2><i class="fas fa-chart-bar"></i> Usage Statistics</h2>
+                <div class="info-item">
+                    <span class="info-label">Performance Tests Today</span>
+                    <div style="flex: 1; margin-left: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="info-value" id="tests-used">0</span>
+                            <span class="info-value" id="tests-limit">/ 3</span>
+                        </div>
+                        <div class="usage-bar">
+                            <div class="usage-fill" id="usage-progress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total Tests Completed</span>
+                    <span class="info-value" id="total-tests">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Average Score</span>
+                    <span class="info-value" id="average-score">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Speed Training Access</span>
+                    <span class="info-value" id="speed-access">Checking...</span>
+                </div>
+            </div>
+            
+            <!-- Account Information Section -->
+            <div class="info-section">
+                <h2><i class="fas fa-user"></i> Account Information</h2>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" id="user-email">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Member Since</span>
+                    <span class="info-value" id="member-since">-</span>
+                </div>
+                <div class="info-item" id="customer-id-item" style="display: none;">
+                    <span class="info-label">Customer ID</span>
+                    <span class="info-value" id="customer-id">-</span>
+                </div>
+            </div>
+            
+            <!-- Actions Section -->
+            <div class="info-section">
+                <h2><i class="fas fa-cog"></i> Manage Subscription</h2>
+                <div class="action-buttons" id="subscription-actions">
+                    <!-- Action buttons will be populated based on subscription status -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html" class="logo-link">
+                    <img src="../assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="index.html#features">Features</a>
+                <a href="index.html#about">About</a>
+                <a href="trainer.html">Trainer</a>
+                <a href="pricing.html">Pricing</a>
+            </div>
+            <div class="footer-social">
+                <a href="https://x.com/joethebrojoe" target="_blank" rel="noopener noreferrer" style="display: inline-block; width: 24px; height: 24px;">
+                    <svg width="24" height="24" viewBox="0 0 1200 1227" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 HitOrStand. For educational purposes only.</p>
+        </div>
+    </footer>
+    
+    <!-- Load subscription manager -->
+    <script src="../components/subscriptionManager.js"></script>
+    
+    <!-- Stripe Integration -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Clerk Integration -->
+    <script 
+        async
+        crossorigin="anonymous"
+        data-clerk-publishable-key="pk_live_Y2xlcmsuaGl0b3JzdGFuZHRyYWluZXIuY29tJA"
+        src="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+        type="text/javascript">
+    </script>
+    
+    <script>
+        let clerk;
+        let subscriptionManager = window.subscriptionManager;
+
+        window.addEventListener('load', async function () {
+            try {
+                if (typeof window.Clerk === 'undefined') {
+                    console.error('Clerk is not loaded');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                clerk = window.Clerk;
+                await clerk.load();
+
+                if (clerk.user) {
+                    showUserButton();
+                    await loadSubscriptionInfo();
+                } else {
+                    window.location.href = 'index.html';
+                }
+                
+            } catch (error) {
+                console.error('Error initializing:', error);
+                showError('Failed to load subscription information. Please try again later.');
+            }
+        });
+
+        async function loadSubscriptionInfo() {
+            try {
+                // Initialize subscription manager
+                await subscriptionManager.initialize(clerk);
+                
+                // Get subscription status
+                const status = await subscriptionManager.getSubscriptionStatus();
+                const speedAccess = await subscriptionManager.canAccessSpeedTraining();
+                
+                // Populate the page with subscription info
+                updateSubscriptionInfo(status, speedAccess);
+                
+                // Hide loading and show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('subscription-content').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading subscription info:', error);
+                showError('Failed to load subscription information.');
+            }
+        }
+
+        function updateSubscriptionInfo(status, speedAccess) {
+            // Update plan information
+            document.getElementById('plan-type').textContent = status.isSubscribed ? 'Premium' : 'Free';
+            document.getElementById('plan-status').textContent = status.isSubscribed ? 'Active' : 'Free Plan';
+            document.getElementById('plan-status').className = `info-value ${status.isSubscribed ? 'status-active' : 'status-inactive'}`;
+            
+            // Show expiry date for premium users
+            if (status.isSubscribed && status.expiresAt) {
+                document.getElementById('expiry-item').style.display = 'flex';
+                document.getElementById('plan-expiry').textContent = new Date(status.expiresAt).toLocaleDateString();
+            }
+            
+            // Update plan features
+            updatePlanFeatures(status.isSubscribed);
+            
+            // Update usage statistics
+            updateUsageStats(status, speedAccess);
+            
+            // Update account information
+            updateAccountInfo();
+            
+            // Update action buttons
+            updateActionButtons(status.isSubscribed);
+        }
+
+        function updatePlanFeatures(isSubscribed) {
+            const featureList = document.getElementById('feature-list');
+            const features = isSubscribed ? [
+                'Unlimited Performance Tests',
+                'Speed Training Mode',
+                'Advanced Analytics',
+                'Detailed Performance Reports',
+                'Custom Training Scenarios',
+                'Priority Support'
+            ] : [
+                'Basic Strategy Trainer',
+                'Card Counter Trainer',
+                '3 Performance Tests per day',
+                'Progress Tracking'
+            ];
+            
+            featureList.innerHTML = features.map(feature => 
+                `<li><i class="fas fa-check"></i> ${feature}</li>`
+            ).join('');
+        }
+
+        function updateUsageStats(status, speedAccess) {
+            // Performance tests usage
+            const testsUsed = status.testsUsedToday || 0;
+            const testsLimit = status.isSubscribed ? 'Unlimited' : 3;
+            const remainingTests = status.dailyTestsRemaining;
+            
+            document.getElementById('tests-used').textContent = testsUsed;
+            document.getElementById('tests-limit').textContent = status.isSubscribed ? '' : `/ ${testsLimit}`;
+            
+            // Update usage bar
+            if (!status.isSubscribed) {
+                const percentage = (testsUsed / 3) * 100;
+                document.getElementById('usage-progress').style.width = `${Math.min(percentage, 100)}%`;
+            } else {
+                document.getElementById('usage-progress').style.width = '100%';
+                document.getElementById('usage-progress').style.background = 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
+            }
+            
+            // Speed training access
+            document.getElementById('speed-access').textContent = speedAccess ? 'Granted' : 'Premium Required';
+            document.getElementById('speed-access').className = `info-value ${speedAccess ? 'status-active' : 'status-inactive'}`;
+            
+            // Calculate total tests and average score from high scores
+            const metadata = clerk.user.unsafeMetadata;
+            const highScores = metadata?.highScores || [];
+            
+            document.getElementById('total-tests').textContent = highScores.length;
+            
+            if (highScores.length > 0) {
+                const avgScore = highScores.reduce((sum, score) => sum + (score.overallScore || 0), 0) / highScores.length;
+                document.getElementById('average-score').textContent = `${avgScore.toFixed(1)}%`;
+            }
+        }
+
+        function updateAccountInfo() {
+            const user = clerk.user;
+            document.getElementById('user-email').textContent = user.emailAddresses[0].emailAddress;
+            document.getElementById('member-since').textContent = new Date(user.createdAt).toLocaleDateString();
+            
+            // Show customer ID if available
+            const subscription = user.unsafeMetadata?.subscription;
+            if (subscription?.stripeCustomerId && subscription.stripeCustomerId !== 'manual_fix') {
+                document.getElementById('customer-id-item').style.display = 'flex';
+                document.getElementById('customer-id').textContent = subscription.stripeCustomerId;
+            }
+        }
+
+        function updateActionButtons(isSubscribed) {
+            const actionsContainer = document.getElementById('subscription-actions');
+            
+            if (isSubscribed) {
+                actionsContainer.innerHTML = `
+                    <a href="pricing.html" class="action-btn btn-secondary">
+                        <i class="fas fa-eye"></i> View Plans
+                    </a>
+                    <button onclick="cancelSubscription()" class="action-btn btn-danger">
+                        <i class="fas fa-times"></i> Cancel Subscription
+                    </button>
+                    <a href="debug-subscription.html" class="action-btn btn-secondary">
+                        <i class="fas fa-tools"></i> Debug Info
+                    </a>
+                `;
+            } else {
+                actionsContainer.innerHTML = `
+                    <a href="pricing.html" class="action-btn btn-primary">
+                        <i class="fas fa-crown"></i> Upgrade to Premium
+                    </a>
+                    <a href="debug-subscription.html" class="action-btn btn-secondary">
+                        <i class="fas fa-tools"></i> Debug Info
+                    </a>
+                `;
+            }
+        }
+
+        async function cancelSubscription() {
+            if (confirm('Are you sure you want to cancel your subscription? You will lose access to Premium features at the end of your billing period.')) {
+                try {
+                    await subscriptionManager.cancelSubscription();
+                    alert('Your subscription has been cancelled. You will continue to have access until the end of your billing period.');
+                    location.reload();
+                } catch (error) {
+                    console.error('Error cancelling subscription:', error);
+                    alert('Sorry, there was an error cancelling your subscription. Please try again.');
+                }
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loading').innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px; color: #ef4444;"></i>
+                <p>${message}</p>
+            `;
+        }
+
+        function showUserButton() {
+            const userButton = document.getElementById('user-button');
+            const userName = document.getElementById('user-name');
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            const signOutBtn = document.getElementById('sign-out-btn');
+            
+            if (clerk.user && userButton && userName) {
+                const firstName = clerk.user.firstName || clerk.user.emailAddresses[0].emailAddress.split('@')[0];
+                userName.textContent = firstName;
+                userButton.style.display = 'block';
+                
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userButton.contains(e.target)) {
+                        userDropdown.style.display = 'none';
+                    }
+                });
+                
+                signOutBtn.addEventListener('click', async () => {
+                    await clerk.signOut();
+                    window.location.href = 'index.html';
+                });
+
+                // Progress button functionality
+                const viewProgressBtn = document.getElementById('view-progress-btn');
+                if (viewProgressBtn) {
+                    viewProgressBtn.addEventListener('click', () => {
+                        window.location.href = 'progress.html';
+                    });
+                }
+
+                // Subscription info button (current page)
+                const subscriptionInfoBtn = document.getElementById('subscription-info-btn');
+                if (subscriptionInfoBtn) {
+                    subscriptionInfoBtn.style.background = 'rgba(102, 126, 234, 0.2)';
+                    subscriptionInfoBtn.style.color = '#667eea';
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
