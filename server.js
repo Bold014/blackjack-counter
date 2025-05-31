@@ -9,6 +9,12 @@ const PORT = process.env.PORT || 3000;
 // Initialize Stripe with your secret key
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Debug logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path} from ${req.headers.origin}`);
+    next();
+});
+
 // Stripe webhook endpoint MUST come before body parsing middleware
 app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
     const sig = req.headers['stripe-signature'];
@@ -40,65 +46,35 @@ app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
     res.json({received: true});
 });
 
-// CORS configuration - more permissive for troubleshooting
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        const allowedOrigins = [
-            'https://hitorstandtrainer.com',
-            'http://localhost:3000',
-            'http://127.0.0.1:5500'
-        ];
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(null, true); // Temporarily allow all origins for debugging
-        }
-    },
-    credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-};
+// Simple CORS for all routes
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin === 'https://hitorstandtrainer.com' || origin === 'http://localhost:3000') {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.header('Access-Control-Allow-Credentials', 'true');
+    }
+    
+    if (req.method === 'OPTIONS') {
+        console.log('Handling OPTIONS request for:', req.path);
+        return res.status(204).end();
+    }
+    
+    next();
+});
 
-// Apply CORS
-app.use(cors(corsOptions));
-
-// Parse JSON bodies for all routes except webhook
+// Parse JSON bodies
 app.use(express.json());
-
-// Handle preflight requests for specific API routes BEFORE other routes
-app.options('/api/create-checkout-session', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.status(204).send();
-});
-
-app.options('/api/*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.status(204).send();
-});
-
-app.use(express.static('src'));
 
 // Serve static files from src directory
 app.use(express.static(path.join(__dirname, 'src')));
 
 // API Routes for Stripe integration
 
-// Create checkout session with explicit CORS headers
+// Create checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
-    // Set CORS headers explicitly
-    res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-    res.header('Access-Control-Allow-Credentials', 'true');
+    console.log('CREATE CHECKOUT SESSION called with:', req.body);
     
     try {
         const { priceId, userId, userEmail } = req.body;
@@ -124,10 +100,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
             cancel_url: `https://hitorstandtrainer.com/src/public/pricing.html?canceled=true`,
         });
 
+        console.log('Checkout session created:', session.id);
         res.json({ id: session.id });
     } catch (error) {
         console.error('Error creating checkout session:', error);
-        res.status(500).json({ error: 'Failed to create checkout session' });
+        res.status(500).json({ error: 'Failed to create checkout session', details: error.message });
     }
 });
 
@@ -200,18 +177,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
 });
 
-app.all('*', (req, res) => {
-    // Handle OPTIONS requests that might have slipped through
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Origin', 'https://hitorstandtrainer.com');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        return res.status(204).send();
-    }
-    
+// Catch all other routes
+app.get('*', (req, res) => {
     // Check if it's an API route that doesn't exist
     if (req.path.startsWith('/api/')) {
+        console.log('404 for API route:', req.path);
         return res.status(404).json({ error: 'API endpoint not found' });
     }
     
