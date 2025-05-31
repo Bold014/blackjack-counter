@@ -149,55 +149,62 @@
                 </div>
             </div>
             
-            <div class="trainer-container">
-                <div class="blackjack-table">
-                    <div class="table-felt">
-                        <div class="dealer-area">
-                            <h3>Dealer's Hand</h3>
-                            <div id="dealer-cards" class="dealer-cards"></div>
-                        </div>
-                        
-                        <div class="player-area">
-                            <h3>Your Hand</h3>
-                            <div id="player-cards" class="player-cards"></div>
+            <div class="trainer-container" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; max-width: 1400px; margin: 0 auto;">
+                <div class="blackjack-table" style="flex: 1; display: flex; gap: 20px;">
+                    <!-- Main Game Area -->
+                    <div class="game-area" style="flex: 1;">
+                        <div class="table-felt">
+                            <div class="dealer-area">
+                                <h3>Dealer's Hand</h3>
+                                <div id="dealer-cards" class="dealer-cards"></div>
+                            </div>
                             
-                            <div class="betting-area">
-                                <div class="balance-display">
-                                    <span>Balance: $</span>
-                                    <span id="balance">1000</span>
-                                </div>
+                            <div class="player-area">
+                                <h3>Your Hand</h3>
+                                <div id="player-cards" class="player-cards"></div>
                                 
-                                <div class="bet-controls">
-                                    <input type="hidden" id="bet-amount" min="1" value="10" class="bet-input">
-                                    
-                                    <div class="current-bet-display">
-                                        <div class="bet-label">Current Bet</div>
-                                        <div class="bet-amount-display">$<span id="bet-amount-display">10</span></div>
-                                        <div class="bet-chip-stack" id="bet-chip-stack"></div>
+                                <div class="betting-area">
+                                    <div class="balance-display">
+                                        <span>Balance: $</span>
+                                        <span id="balance">1000</span>
                                     </div>
                                     
-                                    <div class="chip-rack">
-                                        <div class="chip white" data-value="1">$1</div>
-                                        <div class="chip red" data-value="5">$5</div>
-                                        <div class="chip blue" data-value="10">$10</div>
-                                        <div class="chip green" data-value="25">$25</div>
-                                        <div class="chip black" data-value="100">$100</div>
-                                    </div>
-                                    
-                                    <div class="bet-actions">
-                                        <button class="bet-action-btn clear-btn" id="clear-bet-btn">Clear</button>
-                                        <button class="bet-action-btn confirm-btn" id="confirm-bet-btn">Confirm</button>
+                                    <div class="bet-controls">
+                                        <input type="hidden" id="bet-amount" min="1" value="10" class="bet-input">
+                                        
+                                        <div class="current-bet-display">
+                                            <div class="bet-label">Current Bet</div>
+                                            <div class="bet-amount-display">$<span id="bet-amount-display">10</span></div>
+                                            <div class="bet-chip-stack" id="bet-chip-stack"></div>
+                                        </div>
+                                        
+                                        <div class="chip-rack">
+                                            <div class="chip white" data-value="1">$1</div>
+                                            <div class="chip red" data-value="5">$5</div>
+                                            <div class="chip blue" data-value="10">$10</div>
+                                            <div class="chip green" data-value="25">$25</div>
+                                            <div class="chip black" data-value="100">$100</div>
+                                        </div>
+                                        
+                                        <div class="bet-actions">
+                                            <button class="bet-action-btn clear-btn" id="clear-bet-btn">Clear</button>
+                                            <button class="bet-action-btn confirm-btn" id="confirm-bet-btn">Confirm</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="game-controls">
-                                <button id="deal-button" class="game-btn">Deal</button>
-                                <button id="hit-button" class="game-btn" disabled>Hit</button>
-                                <button id="stand-button" class="game-btn" disabled>Stand</button>
-                                <button id="double-button" class="game-btn" disabled>Double</button>
-                                <button id="split-button" class="game-btn" disabled>Split</button>
-                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game Controls Panel -->
+                    <div class="game-controls-panel" style="width: 280px; flex-shrink: 0;">
+                        <div class="game-controls" style="display: flex; flex-direction: column; gap: 15px; background: linear-gradient(135deg, #1a2437 0%, #0c1429 100%); border-radius: 15px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1);">
+                            <h3 style="color: #FFD700; font-size: 1.1em; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; text-align: center;">Game Actions</h3>
+                            <button id="deal-button" class="game-btn" style="width: 100%; padding: 15px; font-size: 16px;">Deal</button>
+                            <button id="hit-button" class="game-btn" style="width: 100%; padding: 15px; font-size: 16px;" disabled>Hit</button>
+                            <button id="stand-button" class="game-btn" style="width: 100%; padding: 15px; font-size: 16px;" disabled>Stand</button>
+                            <button id="double-button" class="game-btn" style="width: 100%; padding: 15px; font-size: 16px;" disabled>Double</button>
+                            <button id="split-button" class="game-btn" style="width: 100%; padding: 15px; font-size: 16px;" disabled>Split</button>
                         </div>
                     </div>
                 </div>
