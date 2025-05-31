@@ -22,6 +22,8 @@
     --transition: all 0.3s ease;
     --border-radius: 18px;
     --glass-blur: 12px;
+    --warning-color: #e74c3c;
+    --success-color: #2ecc71;
 }
 
 /* Circle navigation styling - matches index.css */
@@ -1560,4 +1562,256 @@ select, button, .game-btn {
 
 .home-logo-image:hover {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)) brightness(1.1);
+}
+
+/* ===== HORIZONTAL LAYOUT STYLES ===== */
+.game-section {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.controls-panel {
+    background: rgba(12, 20, 41, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+/* Updated betting area for side panel */
+.controls-panel .betting-area {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: var(--shadow-light);
+}
+
+/* Updated game controls for vertical stacking */
+.controls-panel .game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid var(--glass-border);
+    margin: 0 !important;
+}
+
+.controls-panel .game-btn {
+    width: 100%;
+    margin: 0;
+}
+
+/* Chip rack adjustments for smaller width */
+.controls-panel .chip-rack {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.controls-panel .chip {
+    width: 100%;
+    aspect-ratio: 1;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments for horizontal layout */
+@media (max-width: 1200px) {
+    .game-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .controls-panel {
+        width: 100% !important;
+        max-width: 500px;
+    }
+    
+    .controls-panel .game-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .controls-panel .game-btn {
+        width: auto;
+        min-width: 100px;
+    }
+    
+    .blackjack-table {
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .trainer-container {
+        padding: 10px;
+    }
+    
+    .controls-panel {
+        padding: 15px;
+    }
+    
+    .controls-panel .chip-rack {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* Card display improvements */
+.dealer-cards, .player-cards {
+    min-height: 140px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+/* Ensure help panel works with new layout */
+.help-container {
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+/* Updated trainer container for better spacing */
+.trainer-container {
+    padding: 0 20px;
+}
+
+/* Deck info styling */
+.deck-info {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+    color: var(--light-color);
+    opacity: 0.8;
+}
+
+/* ===== CHIP STYLING ===== */
+.chip {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.chip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.chip:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.chip.white {
+    background: radial-gradient(circle at center, #f8f8f8 0%, #e0e0e0 100%);
+    color: #333;
+}
+
+.chip.red {
+    background: radial-gradient(circle at center, #ff4444 0%, #cc0000 100%);
+    color: white;
+}
+
+.chip.blue {
+    background: radial-gradient(circle at center, #4444ff 0%, #0000cc 100%);
+    color: white;
+}
+
+.chip.green {
+    background: radial-gradient(circle at center, #44ff44 0%, #00cc00 100%);
+    color: white;
+}
+
+.chip.black {
+    background: radial-gradient(circle at center, #444444 0%, #000000 100%);
+    color: white;
+}
+
+/* Bet controls styling */
+.bet-controls {
+    text-align: center;
+}
+
+.current-bet-display {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.bet-label {
+    font-size: 0.9rem;
+    color: var(--light-color);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.bet-amount-display {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.bet-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.bet-action-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-btn {
+    background: var(--warning-color);
+    color: white;
+}
+
+.confirm-btn {
+    background: var(--success-color);
+    color: white;
+}
+
+.bet-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 } 
