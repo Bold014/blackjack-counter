@@ -33,10 +33,46 @@ body {
     background: -webkit-linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%);
     background: linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%);
     background: var(--gradient-green);
-    background-attachment: fixed;
+    /* Remove fixed attachment for mobile compatibility */
     position: relative;
     font-size: 16px;
     overflow-x: hidden;
+}
+
+/* Mobile-specific universal background fix */
+html, body {
+    background-color: #0a3d1b !important;
+}
+
+/* Add mobile-specific background fixes */
+@media screen and (max-width: 1024px) {
+    html, body {
+        /* Force the background on mobile with !important */
+        background: #0a3d1b !important;
+        background: -webkit-linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%) !important;
+        background: linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%) !important;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        min-height: 100vh;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    html, body {
+        background: #0a3d1b !important;
+        background: -webkit-linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%) !important;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+    }
+}
+
+/* Android Chrome/WebView specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+    html, body {
+        background: #0a3d1b !important;
+        background: -webkit-linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%) !important;
+    }
 }
 
 .container {
