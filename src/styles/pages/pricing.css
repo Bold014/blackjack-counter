@@ -537,4 +537,26 @@ footer {
 
 .footer-logo-image:hover {
     transform: scale(1.05);
+}
+
+/* Base styling - ensure consistent background across all pages */
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.7;
+    color: var(--light-color);
+    background: var(--gradient-green);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    position: relative;
+    font-size: 16px;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Mobile-specific background fix */
+@supports (-webkit-touch-callout: none) {
+    body {
+        background-attachment: scroll;
+        background-size: cover;
+    }
 } 

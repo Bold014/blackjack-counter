@@ -24,9 +24,19 @@
 body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #0c1429 0%, #1a2545 100%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     color: var(--light-color);
     min-height: 100vh;
     line-height: 1.6;
+}
+
+/* Mobile-specific background fix */
+@supports (-webkit-touch-callout: none) {
+    body {
+        background-attachment: scroll;
+        background-size: cover;
+    }
 }
 
 /* Navigation Styles */
