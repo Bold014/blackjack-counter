@@ -174,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
             createDeck();
             shuffleDeck();
             updateBalanceDisplay();
-            updateBetDisplay();
             bindEvents();
             updateControls();
             updateHelpPanel();
