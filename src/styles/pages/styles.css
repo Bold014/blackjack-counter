@@ -1,35 +1,69 @@
 :root {
     --primary-color: #0c1429;
     --secondary-color: #feb750;
-    --light-color: #f4f4f4;
+    --accent-color: #2ecc71;
+    --accent-red: #e74c3c;
+    --accent-gold: #feb750;
     --dark-color: #1a1a2e;
+    --light-color: #f4f4f4;
+    --felt-dark: #0a3d1b;
+    --felt-light: #0d4a24;
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --gradient-dark: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
+    --gradient-gold: linear-gradient(135deg, #feb750 0%, #ffc566 100%);
+    --gradient-green: linear-gradient(135deg, var(--felt-dark) 0%, var(--felt-light) 50%, var(--felt-dark) 100%);
+    --transition: all 0.3s ease;
+    --border-radius: 18px;
+    --glass-blur: 12px;
+    /* Legacy variables for compatibility */
     --success-color: #2ecc71;
     --warning-color: #e74c3c;
     --card-color: #fff;
-    --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    --gradient-light: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
-    --gradient-green: linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%);
     --table-felt: #0d4a24;
     --table-border: #8a6d3b;
     --card-back: #191970;
-    --glass-blur: 10px;
-    --glass-border: rgba(254, 183, 80, 0.2);
-    --transition: all 0.3s ease;
+    /* Update gradient-light to maintain compatibility while matching new style */
+    --gradient-light: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
 }
 
+/* Reset & Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--light-color);
     background: var(--gradient-green);
+    background-attachment: fixed;
     position: relative;
+    font-size: 16px;
+    overflow-x: hidden;
+}
+
+/* Add felt texture overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zm-24.596 0l-5.485 5.486 1.414 1.414 7.9-7.9h-2.83zm16.97 0l-1.414 1.414L42.485 0h-2.828zm-10.657 0l1.415 1.414L20.172 0h-2.83zM29.9 0L8.486 21.414l1.414 1.414L31.313 0H29.9zm-8.485 0L.686 20.828l1.415 1.415L24.828 0h-3.414zM48.373 0L28.544 19.828l-1.414-1.414L45.544 0h2.83zm-14.485 0h-3.414l10.313 10.313 1.414-1.414L33.887 0z' fill='%23196d3d' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.3;
+    z-index: -1;
+    pointer-events: none;
 }
 
 .container {
@@ -1806,4 +1840,505 @@ footer {
 
 .split-hand.outcome-blackjack {
     box-shadow: 0 0 25px rgba(241, 196, 15, 0.9);
+}
+
+/* Comprehensive Mobile Responsive Styles */
+@media (max-width: 1200px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 992px) {
+    header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .settings-panel {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    
+    header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .mode-toggle {
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 15px;
+    }
+    
+    .mode-button {
+        padding: 8px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .count-display {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .count-box {
+        width: 100%;
+        padding: 20px;
+    }
+    
+    .count-box h2 {
+        font-size: 1.3rem;
+    }
+    
+    #running-count, #true-count {
+        font-size: 2.5rem;
+    }
+    
+    .strategy-advisor, .card-history {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .strategy-advisor h2, .card-history h2 {
+        font-size: 1.5rem;
+    }
+    
+    .player-hand h3, .dealer-hand h3 {
+        font-size: 1.2rem;
+    }
+    
+    .card-select {
+        padding: 10px;
+        font-size: 1rem;
+    }
+    
+    .card-display {
+        width: 40px;
+        height: 55px;
+        font-size: 1.1rem;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .action-buttons .btn {
+        padding: 12px;
+        font-size: 1rem;
+    }
+    
+    #advice {
+        font-size: 1.5rem;
+    }
+    
+    .bet-recommendation-value {
+        font-size: 2.2rem;
+        width: 80px;
+        height: 80px;
+    }
+    
+    .outcome-message {
+        font-size: 2rem;
+        padding: 15px 30px;
+    }
+    
+    .outcome-message.blackjack {
+        font-size: 2.5rem;
+    }
+    
+    .footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .footer-logo {
+        font-size: 1.3rem;
+    }
+    
+    /* Mobile-specific game controls */
+    .game-controls {
+        flex-wrap: wrap;
+    }
+    
+    .game-btn {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .help-container {
+        width: 100% !important;
+        position: relative !important;
+        margin-top: 20px;
+    }
+    
+    .help-toggle {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .help-panel {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .mode-button {
+        padding: 6px 15px;
+        font-size: 0.85rem;
+        border-radius: 20px;
+    }
+    
+    .count-box {
+        padding: 15px;
+    }
+    
+    .count-box h2 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    #running-count, #true-count {
+        font-size: 2rem;
+    }
+    
+    .strategy-advisor, .card-history {
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .strategy-advisor h2, .card-history h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    
+    .player-hand, .dealer-hand {
+        padding: 15px;
+    }
+    
+    .player-hand h3, .dealer-hand h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    .hand-input {
+        gap: 10px;
+    }
+    
+    .card-select {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .card-display {
+        width: 35px;
+        height: 48px;
+        font-size: 1rem;
+        border-radius: 6px;
+    }
+    
+    .hit-card-btn, .dealer-hit-card-btn {
+        height: 45px;
+        font-size: 1rem;
+    }
+    
+    .action-buttons .btn {
+        padding: 10px;
+        font-size: 0.9rem;
+        flex: 1 1 45%;
+    }
+    
+    .advice-display {
+        padding: 15px;
+    }
+    
+    .advice-display h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    #advice {
+        font-size: 1.3rem;
+    }
+    
+    #history-list {
+        max-height: 250px;
+        padding: 10px;
+    }
+    
+    .history-item {
+        padding: 10px;
+        font-size: 0.85rem;
+        grid-template-columns: 50px 1fr 60px;
+    }
+    
+    .bet-recommendation-container {
+        padding: 12px;
+    }
+    
+    .bet-recommendation-label {
+        font-size: 1rem;
+    }
+    
+    .bet-recommendation-value {
+        font-size: 1.8rem;
+        width: 70px;
+        height: 70px;
+    }
+    
+    .bet-spread-note {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+    
+    .set-bet-btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .outcome-message {
+        font-size: 1.5rem;
+        padding: 12px 25px;
+        border-radius: 8px;
+    }
+    
+    .outcome-message.blackjack {
+        font-size: 2rem;
+    }
+    
+    .error-message {
+        font-size: 1.2rem;
+        padding: 12px 25px;
+    }
+    
+    footer {
+        padding: 3rem 5% 1.5rem;
+    }
+    
+    .footer-links {
+        gap: 0.8rem;
+    }
+    
+    .footer-links a {
+        font-size: 0.9rem;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.8rem;
+    }
+    
+    /* Chip and betting area adjustments */
+    .chip {
+        width: 35px;
+        height: 35px;
+        font-size: 0.7rem;
+    }
+    
+    .betting-area {
+        padding: 15px;
+    }
+    
+    .balance-display {
+        font-size: 1rem;
+    }
+    
+    #balance {
+        font-size: 1.3rem;
+    }
+    
+    .current-bet-display {
+        padding: 12px;
+    }
+    
+    .bet-label {
+        font-size: 0.9rem;
+    }
+    
+    .bet-amount-display {
+        font-size: 1.2rem;
+    }
+    
+    .bet-action-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Card and hand value adjustments */
+    .card {
+        width: 40px;
+        height: 56px;
+    }
+    
+    .card-img {
+        font-size: 0.8rem;
+    }
+    
+    .hand-value {
+        font-size: 0.9rem;
+        padding: 4px 10px;
+        bottom: -20px;
+    }
+    
+    .hand-value.blackjack {
+        font-size: 1.1rem;
+    }
+}
+
+/* Very small devices */
+@media (max-width: 360px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .count-box h2 {
+        font-size: 1rem;
+    }
+    
+    #running-count, #true-count {
+        font-size: 1.8rem;
+    }
+    
+    .strategy-advisor h2, .card-history h2 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+    header {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+    
+    .count-display {
+        margin-bottom: 15px;
+    }
+    
+    .count-box {
+        padding: 15px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body::before {
+        opacity: 0.2;
+    }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    :root {
+        --secondary-color: #ffdd00;
+        --accent-gold: #ffdd00;
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.3);
+    }
+    
+    .btn, .mode-button {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Dark mode preference (if system is in dark mode) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Print styles */
+@media print {
+    body::before {
+        display: none;
+    }
+    
+    header, footer, .mode-toggle, .settings-panel, .action-buttons, .game-controls {
+        display: none;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+}
+
+/* Gold Text Effect - Apply to all gold text elements */
+.gold-text-effect {
+    position: relative;
+    color: var(--secondary-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: radial-gradient(circle at 30% 30%, #ffd78a 0%, #feb750 60%, #f5a423 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Apply gold gradient to various text elements for consistency */
+.footer-logo,
+.footer-links a:hover,
+.footer-social a:hover {
+    background: radial-gradient(circle at 30% 30%, #ffd78a 0%, #feb750 60%, #f5a423 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
