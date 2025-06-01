@@ -59,6 +59,57 @@
                 transform: translateX(0);
             }
         }
+        
+        /* Explanation section styles */
+        .help-explanation .explanation-header {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 4px;
+        }
+        
+        .help-explanation .situation-details {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #FFD700;
+            font-size: 0.8em;
+            line-height: 1.3;
+        }
+        
+        .help-explanation .strategy-note {
+            background: rgba(33, 150, 243, 0.2);
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+            font-size: 0.8em;
+            margin-top: 8px;
+        }
+        
+        .help-explanation strong {
+            color: #FFD700;
+        }
+        
+        /* Custom scrollbar for explanation section */
+        .help-explanation::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .help-explanation::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+        
+        .help-explanation::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 3px;
+        }
+        
+        .help-explanation::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -191,8 +242,13 @@
                     <div class="help-tab-content">
                         <!-- Strategy Tab -->
                         <div class="help-tab-panel active" id="strategy-tab" style="display: block;">
-                            <div id="help-advice" class="help-advice" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; text-align: center; font-size: 1em; font-weight: 600; color: #fff; min-height: 45px; display: flex; align-items: center; justify-content: center;">
+                            <div id="help-advice" class="help-advice" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; text-align: center; font-size: 1em; font-weight: 600; color: #fff; min-height: 45px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
                                 Waiting for next hand...
+                            </div>
+                            <div id="help-explanation" class="help-explanation" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 0.85em; color: #fff; line-height: 1.4; max-height: 300px; overflow-y: auto;">
+                                <div style="text-align: center; color: #888; font-style: italic;">
+                                    Deal cards to see detailed strategy explanations
+                                </div>
                             </div>
                         </div>
                         
