@@ -387,8 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Finalize performance data calculation
         if (window.trainerState && window.trainerState.isTestMode) {
             // Call the finalization function from the trainer
-            if (typeof finalizePerformanceData === 'function') {
-                finalizePerformanceData();
+            if (window.finalizePerformanceData && typeof window.finalizePerformanceData === 'function') {
+                window.finalizePerformanceData();
             }
         }
         
@@ -949,24 +949,62 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const overallScore = (strategyAccuracy * 0.7) + (bettingAccuracy * 0.3);
             
-            // Store final performance data
-            window.testPerformanceResults = {
-                strategyAccuracy: Math.round(strategyAccuracy),
-                bettingAccuracy: Math.round(bettingAccuracy), 
+            // Calculate average decision time
+            const avgDecisionTime = state.performance.handsPlayed > 0 ?
+                totalTestTime / state.performance.totalDecisions : 0;
+            
+            // Store performance data in the format expected by getPerformanceResults
+            window.trainerPerformance = {
                 overallScore: Math.round(overallScore),
-                totalHands: state.performance.handsPlayed,
-                totalDecisions: state.performance.totalDecisions,
-                correctDecisions: state.performance.correctDecisions,
-                hitDecisions: state.performance.hit,
-                standDecisions: state.performance.stand,
-                doubleDecisions: state.performance.double,
-                splitDecisions: state.performance.split,
-                bettingDecisions: state.performance.bets,
+                strategyAccuracy: Math.round(strategyAccuracy),
+                bettingAccuracy: Math.round(bettingAccuracy),
+                correctHits: { 
+                    correct: Math.round((state.performance.hit / Math.max(state.performance.totalDecisions, 1)) * state.performance.correctDecisions) || 0, 
+                    total: state.performance.hit 
+                },
+                correctStands: { 
+                    correct: Math.round((state.performance.stand / Math.max(state.performance.totalDecisions, 1)) * state.performance.correctDecisions) || 0, 
+                    total: state.performance.stand 
+                },
+                correctDoubles: { 
+                    correct: Math.round((state.performance.double / Math.max(state.performance.totalDecisions, 1)) * state.performance.correctDecisions) || 0, 
+                    total: state.performance.double 
+                },
+                correctSplits: { 
+                    correct: Math.round((state.performance.split / Math.max(state.performance.totalDecisions, 1)) * state.performance.correctDecisions) || 0, 
+                    total: state.performance.split 
+                },
+                bettingDecisions: { 
+                    correct: state.performance.bets.correct, 
+                    total: state.performance.bets.total 
+                },
                 startingBalance: settings?.startingBalance || 1000,
                 finalBalance: state.balance,
-                profitLoss: state.balance - (settings?.startingBalance || 1000),
-                testDuration: Math.round(totalTestTime)
+                totalHands: state.performance.handsPlayed,
+                testDuration: Math.round(totalTestTime),
+                avgDecisionTime: Math.round(avgDecisionTime * 100) / 100,
+                countingAccuracy: bettingAccuracy, // Use betting accuracy as counting accuracy proxy
+                avgTrueCount: state.performance.trueCountHistory.length > 0 ? 
+                    state.performance.trueCountHistory.reduce((sum, count) => sum + count, 0) / state.performance.trueCountHistory.length : 0
             };
+            
+            // Also store in testResults format for localStorage (for test-results.html)
+            const testResults = {
+                testType: 'performance',
+                overallScore: Math.round(overallScore),
+                strategyAccuracy: Math.round(strategyAccuracy),
+                bettingAccuracy: Math.round(bettingAccuracy),
+                totalDecisions: state.performance.totalDecisions,
+                correctDecisions: state.performance.correctDecisions,
+                totalHands: state.performance.handsPlayed,
+                startingBalance: settings?.startingBalance || 1000,
+                finalBalance: state.balance,
+                testDuration: Math.round(totalTestTime),
+                avgDecisionTime: Math.round(avgDecisionTime * 100) / 100
+            };
+            
+            // Store in localStorage for the test-results.html page
+            localStorage.setItem('testResults', JSON.stringify(testResults));
         }
         
         // Initialize the game
