@@ -29,7 +29,17 @@ body {
     line-height: 1.6;
     color: var(--light-color);
     background: var(--gradient-green);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     position: relative;
+}
+
+/* Mobile-specific background fix */
+@supports (-webkit-touch-callout: none) {
+    body {
+        background-attachment: scroll;
+        background-size: cover;
+    }
 }
 
 .container {
@@ -205,7 +215,7 @@ select {
 }
 
 .strategy-advisor, .card-history {
-    background: var(--gradient-green);
+    background: var(--gradient-light);
     padding: 25px;
     border-radius: 12px;
     margin-bottom: 30px;

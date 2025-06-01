@@ -99,13 +99,22 @@ body {
     line-height: 1.7;
     color: var(--light-color);
     background: var(--gradient-green);
-    background-attachment: fixed;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     position: relative;
     font-size: 16px;
     overflow-x: hidden;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+/* Mobile-specific background fix */
+@supports (-webkit-touch-callout: none) {
+    body {
+        background-attachment: scroll;
+        background-size: cover;
+    }
 }
 
 /* Add felt texture overlay - same as landing page */
