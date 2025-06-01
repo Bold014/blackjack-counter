@@ -23,22 +23,23 @@ class HighScoresManager {
             // Get current high scores from user metadata
             const currentScores = await this.getHighScores();
             
-            // Create new score entry with compact field names and essential data only
+            // Create new score entry with minimal data to stay under 8KB limit
             const newScore = {
-                id: Date.now().toString(),
-                ts: new Date().toISOString(),
+                // Use timestamp as ID to save space (remove separate ID field)
+                ts: Date.now(), // Use timestamp number instead of ISO string to save space
                 t: testResult.testType === 'speed' ? 's' : 'p', // 'p' for performance, 's' for speed
                 os: Math.round(testResult.overallScore), // overall score
                 sa: Math.round(testResult.strategyAccuracy), // strategy accuracy
-                ba: Math.round(testResult.bettingAccuracy || 0), // betting accuracy
                 th: testResult.totalHands, // total hands
-                td: testResult.testDuration, // test duration
-                adt: Math.round((testResult.avgDecisionTime || 0) * 100) / 100, // avg decision time
-                nb: (testResult.finalBalance || 0) - (testResult.startingBalance || 0), // net balance (gain/loss)
-                // Speed training specific fields (only store if speed test)
+                td: Math.round(testResult.testDuration), // test duration (rounded to save space)
+                adt: Math.round(testResult.avgDecisionTime * 10) / 10, // avg decision time (1 decimal)
+                // Only store net balance for performance tests, and only if significant
+                ...(testResult.testType !== 'speed' && Math.abs((testResult.finalBalance || 0) - (testResult.startingBalance || 0)) > 0 && {
+                    nb: Math.round((testResult.finalBalance || 0) - (testResult.startingBalance || 0)) // net balance
+                }),
+                // Speed training specific fields (minimal set)
                 ...(testResult.testType === 'speed' && {
                     cd: testResult.correctDecisions || 0, // correct decisions
-                    tde: testResult.totalDecisions || 0, // total decisions
                     to: testResult.timeouts || 0 // timeouts
                 })
             };
@@ -46,9 +47,9 @@ class HighScoresManager {
             // Add to scores array
             currentScores.push(newScore);
 
-            // Keep only the last 20 scores to prevent metadata from getting too large (reduced from 50)
-            if (currentScores.length > 20) {
-                currentScores.splice(0, currentScores.length - 20);
+            // Keep only the last 10 scores to stay well under 8KB limit (reduced from 20)
+            if (currentScores.length > 10) {
+                currentScores.splice(0, currentScores.length - 10);
             }
 
             // Debug: Log data size for monitoring
@@ -56,8 +57,13 @@ class HighScoresManager {
             const dataSize = new Blob([dataString]).size;
             console.log(`High scores data size: ${dataSize} bytes (${(dataSize/1024).toFixed(1)}KB)`);
             
-            if (dataSize > 7000) { // Warn if approaching 8KB limit
-                console.warn('High scores data approaching 8KB limit');
+            if (dataSize > 6000) { // Warn if approaching reasonable buffer under 8KB limit
+                console.warn('High scores data approaching safe limit, reducing stored scores');
+                // If still too large, keep only 5 most recent scores
+                if (dataSize > 7000) {
+                    currentScores.splice(0, currentScores.length - 5);
+                    console.log(`Reduced to 5 scores. New size: ${JSON.stringify(currentScores).length} chars`);
+                }
             }
 
             // Update user metadata
@@ -71,6 +77,27 @@ class HighScoresManager {
             return true;
         } catch (error) {
             console.error('Error saving test result:', error);
+            // If save fails due to size, try with even fewer scores
+            if (error.message && error.message.includes('8192 bytes')) {
+                console.log('Attempting emergency save with minimal data...');
+                try {
+                    const currentScores = await this.getHighScores();
+                    // Keep only the 3 most recent scores
+                    const minimalScores = currentScores.slice(-3);
+                    
+                    await this.clerk.user.update({
+                        unsafeMetadata: {
+                            ...this.clerk.user.unsafeMetadata,
+                            highScores: minimalScores
+                        }
+                    });
+                    console.log('Emergency save successful with 3 scores');
+                    return true;
+                } catch (emergencyError) {
+                    console.error('Emergency save also failed:', emergencyError);
+                    return false;
+                }
+            }
             return false;
         }
     }
@@ -98,21 +125,21 @@ class HighScoresManager {
             return null;
         }
 
-        // Calculate personal bests
+        // Calculate personal bests with safe handling of missing fields
         const personalBests = {
             // Averages for percentage-based metrics
             averageOverallScore: Math.round(scores.reduce((sum, s) => sum + s.os, 0) / scores.length),
             averageStrategyAccuracy: Math.round(scores.reduce((sum, s) => sum + s.sa, 0) / scores.length),
-            averageBettingAccuracy: Math.round(scores.reduce((sum, s) => sum + s.ba, 0) / scores.length),
+            averageBettingAccuracy: 0, // No longer tracking betting accuracy separately
             
             // Keep personal bests for other metrics
             highestOverallScore: Math.max(...scores.map(s => s.os)),
             highestStrategyAccuracy: Math.max(...scores.map(s => s.sa)),
-            highestBettingAccuracy: Math.max(...scores.map(s => s.ba)),
+            highestBettingAccuracy: 0, // No longer tracking
             mostHandsPlayed: Math.max(...scores.map(s => s.th)),
             longestTestDuration: Math.max(...scores.map(s => s.td)),
             fastestAvgDecisionTime: Math.min(...scores.filter(s => s.adt > 0).map(s => s.adt)),
-            highestNetGain: Math.max(...scores.map(s => s.nb)),
+            highestNetGain: Math.max(...scores.filter(s => s.nb !== undefined).map(s => s.nb)),
             totalTestsCompleted: scores.length
         };
 
@@ -141,7 +168,7 @@ class HighScoresManager {
         const trends = {
             overallScoreImprovement: calculateAverage(recentTests, 'os') - calculateAverage(earlyTests, 'os'),
             strategyAccuracyImprovement: calculateAverage(recentTests, 'sa') - calculateAverage(earlyTests, 'sa'),
-            bettingAccuracyImprovement: calculateAverage(recentTests, 'ba') - calculateAverage(earlyTests, 'ba'),
+            bettingAccuracyImprovement: 0, // No longer tracking betting accuracy
             decisionTimeImprovement: calculateAverage(earlyTests, 'adt') - calculateAverage(recentTests, 'adt'), // Lower is better
             recentAvgScore: calculateAverage(recentTests, 'os'),
             earlyAvgScore: calculateAverage(earlyTests, 'os'),
@@ -183,17 +210,16 @@ class HighScoresManager {
             improvements.push('strategyAccuracy');
         }
         
-        if (Math.round(testResult.bettingAccuracy || 0) > personalBests.highestBettingAccuracy) {
-            improvements.push('bettingAccuracy');
-        }
-        
         if (testResult.totalHands > personalBests.mostHandsPlayed) {
             improvements.push('handsPlayed');
         }
         
-        const netGain = (testResult.finalBalance || 0) - (testResult.startingBalance || 0);
-        if (netGain > personalBests.highestNetGain) {
-            improvements.push('netGain');
+        // Only check net gain for performance tests where we track it
+        if (testResult.testType !== 'speed') {
+            const netGain = (testResult.finalBalance || 0) - (testResult.startingBalance || 0);
+            if (netGain > personalBests.highestNetGain) {
+                improvements.push('netGain');
+            }
         }
 
         if (testResult.avgDecisionTime > 0 && testResult.avgDecisionTime < personalBests.fastestAvgDecisionTime) {
@@ -285,20 +311,20 @@ class HighScoresManager {
     // Convert compact score format back to readable format for display
     expandScore(score) {
         return {
-            id: score.id,
-            timestamp: score.ts,
+            id: score.ts.toString(), // Use timestamp as ID
+            timestamp: new Date(score.ts).toISOString(), // Convert timestamp back to ISO string
             testType: score.t === 's' ? 'speed' : 'performance',
             overallScore: score.os,
             strategyAccuracy: score.sa,
-            bettingAccuracy: score.ba,
+            bettingAccuracy: 0, // No longer stored separately
             totalHands: score.th,
             testDuration: score.td,
             avgDecisionTime: score.adt,
-            netGain: score.nb,
+            netGain: score.nb || 0,
             // Speed training specific fields
-            correctDecisions: score.cd,
-            totalDecisions: score.tde,
-            timeouts: score.to
+            correctDecisions: score.cd || 0,
+            totalDecisions: score.cd || 0, // Approximate since we don't store this anymore
+            timeouts: score.to || 0
         };
     }
 }
