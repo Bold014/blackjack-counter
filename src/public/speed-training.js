@@ -437,76 +437,280 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function recordDecision(action, isCorrect) {
-            if (!state.isSpeedMode || !state.performance) return;
+            if (!state.performance) return;
             
-            state.performance.totalDecisions++;
-            if (isCorrect) {
-                state.performance.correctDecisions++;
-            }
+            // Show immediate feedback
+            showDecisionFeedback(action, isCorrect);
+            
+            const timeTaken = state.decisionTimer.timeRemaining ? 
+                state.timeLimit - state.decisionTimer.timeRemaining : state.timeLimit;
+            
+            state.performance.decisions.push({
+                action: action,
+                correct: isCorrect,
+                timeTaken: timeTaken
+            });
             
             updateSpeedProgress();
         }
         
+        // Show immediate feedback for the decision
+        function showDecisionFeedback(action, isCorrect) {
+            const currentHand = state.playerHands[state.currentHandIndex];
+            if (!currentHand || currentHand.length === 0) return;
+            
+            const playerValue = getHandValue(currentHand);
+            const dealerUpcard = state.dealerHand[0]?.value;
+            const dealerValue = getCardValue(state.dealerHand[0]);
+            const correctAction = getBasicStrategyAdvice();
+            
+            // Create feedback element
+            const feedback = document.createElement('div');
+            feedback.className = `decision-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            // Get hand description
+            const isSoft = isSoftHand(currentHand);
+            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
+            let handDesc = '';
+            
+            if (isPair) {
+                handDesc = `${currentHand[0].value},${currentHand[1].value}`;
+            } else if (isSoft) {
+                handDesc = `A,${playerValue - 11} (soft ${playerValue})`;
+            } else {
+                handDesc = `${playerValue}`;
+            }
+            
+            // Create feedback content
+            const icon = isCorrect ? '✓' : '✗';
+            const result = isCorrect ? 'CORRECT' : 'INCORRECT';
+            
+            let explanation = '';
+            if (isCorrect) {
+                explanation = getCorrectDecisionExplanation(action, handDesc, dealerUpcard);
+            } else {
+                explanation = getIncorrectDecisionExplanation(action, correctAction, handDesc, dealerUpcard);
+            }
+            
+            feedback.innerHTML = `
+                <div class="feedback-header">
+                    <span class="feedback-icon">${icon}</span>
+                    <span class="feedback-result">${result}</span>
+                </div>
+                <div class="feedback-content">
+                    <div class="feedback-situation">You: ${handDesc} vs Dealer: ${dealerUpcard}</div>
+                    <div class="feedback-explanation">${explanation}</div>
+                </div>
+            `;
+            
+            // Add styles for feedback (same as performance test)
+            if (!document.getElementById('feedback-styles')) {
+                const style = document.createElement('style');
+                style.id = 'feedback-styles';
+                style.textContent = `
+                    .decision-feedback {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0, 0, 0, 0.95);
+                        border-radius: 15px;
+                        padding: 25px;
+                        max-width: 400px;
+                        z-index: 2000;
+                        border: 3px solid;
+                        font-family: 'Poppins', sans-serif;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                        animation: feedbackAppear 0.3s ease-out;
+                    }
+                    
+                    .decision-feedback.correct {
+                        border-color: #4CAF50;
+                        background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(0, 0, 0, 0.95));
+                    }
+                    
+                    .decision-feedback.incorrect {
+                        border-color: #f44336;
+                        background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(0, 0, 0, 0.95));
+                    }
+                    
+                    .feedback-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        margin-bottom: 15px;
+                        font-size: 1.4rem;
+                        font-weight: bold;
+                    }
+                    
+                    .feedback-icon {
+                        font-size: 1.8rem;
+                        font-weight: bold;
+                    }
+                    
+                    .correct .feedback-icon,
+                    .correct .feedback-result {
+                        color: #4CAF50;
+                    }
+                    
+                    .incorrect .feedback-icon,
+                    .incorrect .feedback-result {
+                        color: #f44336;
+                    }
+                    
+                    .feedback-content {
+                        color: white;
+                        line-height: 1.5;
+                    }
+                    
+                    .feedback-situation {
+                        font-size: 1.1rem;
+                        margin-bottom: 10px;
+                        font-weight: 600;
+                        color: #FFD700;
+                    }
+                    
+                    .feedback-explanation {
+                        font-size: 1rem;
+                        color: #e0e0e0;
+                    }
+                    
+                    @keyframes feedbackAppear {
+                        0% {
+                            opacity: 0;
+                            transform: translate(-50%, -50%) scale(0.8);
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: translate(-50%, -50%) scale(1);
+                        }
+                    }
+                    
+                    @keyframes feedbackDisappear {
+                        0% {
+                            opacity: 1;
+                            transform: translate(-50%, -50%) scale(1);
+                        }
+                        100% {
+                            opacity: 0;
+                            transform: translate(-50%, -50%) scale(0.8);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Add to DOM
+            document.body.appendChild(feedback);
+            
+            // For speed training, show feedback for shorter time (1.5 seconds)
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.style.animation = 'feedbackDisappear 0.3s ease-in forwards';
+                    setTimeout(() => {
+                        feedback.remove();
+                    }, 300);
+                }
+            }, 1500);
+        }
+        
+        // Get explanation for correct decisions
+        function getCorrectDecisionExplanation(action, handDesc, dealerUpcard) {
+            const explanations = {
+                'hit': `Good! Hitting with ${handDesc} vs ${dealerUpcard} follows basic strategy. You need to improve this hand.`,
+                'stand': `Correct! Standing with ${handDesc} vs ${dealerUpcard} is the optimal play. Let the dealer risk busting.`,
+                'double': `Excellent! Doubling with ${handDesc} vs ${dealerUpcard} maximizes your expected value on a favorable hand.`,
+                'split': `Perfect! Splitting ${handDesc} vs ${dealerUpcard} gives you better opportunities than playing as one hand.`
+            };
+            
+            return explanations[action] || `Great job! ${action.charAt(0).toUpperCase() + action.slice(1)}ing was the right choice.`;
+        }
+        
+        // Get explanation for incorrect decisions
+        function getIncorrectDecisionExplanation(action, correctAction, handDesc, dealerUpcard) {
+            const wrongAction = action.charAt(0).toUpperCase() + action.slice(1);
+            const rightAction = correctAction.split(' ')[0]; // Get just the action word
+            
+            const explanations = {
+                'hit_should_stand': `Hitting ${handDesc} vs ${dealerUpcard} is too risky. You should stand and let the dealer risk busting.`,
+                'hit_should_double': `While hitting isn't wrong, doubling ${handDesc} vs ${dealerUpcard} would maximize your expected return.`,
+                'hit_should_split': `Hitting ${handDesc} vs ${dealerUpcard} wastes the opportunity to split into two potentially better hands.`,
+                'stand_should_hit': `Standing with ${handDesc} vs ${dealerUpcard} is too passive. This hand needs improvement.`,
+                'stand_should_double': `Standing misses a great opportunity. Doubling ${handDesc} vs ${dealerUpcard} has positive expected value.`,
+                'stand_should_split': `Standing with ${handDesc} vs ${dealerUpcard} wastes the chance to split into better positions.`,
+                'double_should_hit': `Doubling ${handDesc} vs ${dealerUpcard} is too aggressive. Just hit and see what develops.`,
+                'double_should_stand': `Doubling ${handDesc} vs ${dealerUpcard} adds unnecessary risk. This hand is strong enough to stand.`,
+                'double_should_split': `Doubling misses the opportunity to split ${handDesc} vs ${dealerUpcard} into two separate hands.`,
+                'split_should_hit': `Splitting ${handDesc} vs ${dealerUpcard} isn't favorable. Hit to improve the single hand instead.`,
+                'split_should_stand': `Splitting ${handDesc} vs ${dealerUpcard} is unnecessary. This hand is strong enough to stand.`,
+                'split_should_double': `While splitting isn't terrible, doubling ${handDesc} vs ${dealerUpcard} is more profitable.`
+            };
+            
+            const key = `${action}_should_${rightAction.toLowerCase()}`;
+            const specificExplanation = explanations[key];
+            
+            if (specificExplanation) {
+                return `${specificExplanation}`;
+            } else {
+                return `${wrongAction}ing ${handDesc} vs ${dealerUpcard} isn't optimal. Basic strategy recommends: ${correctAction}`;
+            }
+        }
+        
         function updateSpeedProgress() {
-            if (!state.isSpeedMode) return;
+            if (!state.performance) return;
             
-            // Update hands played
-            const handsPlayedEl = document.getElementById('hands-played');
-            if (handsPlayedEl && state.performance) {
-                handsPlayedEl.textContent = state.performance.handsPlayed.toString();
+            // Calculate current statistics
+            const totalDecisions = state.performance.decisions.length;
+            const correctDecisions = state.performance.decisions.filter(d => d.correct).length;
+            const accuracy = totalDecisions > 0 ? (correctDecisions / totalDecisions) * 100 : 0;
+            
+            // Update progress displays
+            const accuracyDisplay = document.getElementById('current-accuracy');
+            const decisionsDisplay = document.getElementById('decisions-made');
+            const handsDisplay = document.getElementById('hands-played');
+            
+            if (accuracyDisplay) {
+                accuracyDisplay.textContent = `${Math.round(accuracy)}%`;
             }
             
-            // Update accuracy
-            const accuracyEl = document.getElementById('current-accuracy');
-            if (accuracyEl && state.performance) {
-                const accuracy = state.performance.totalDecisions > 0 ? 
-                    (state.performance.correctDecisions / state.performance.totalDecisions) * 100 : 0;
-                accuracyEl.textContent = `${Math.round(accuracy)}%`;
+            if (decisionsDisplay) {
+                decisionsDisplay.textContent = totalDecisions;
             }
             
-            // Update average decision time
-            const avgTimeEl = document.getElementById('avg-decision-time');
-            if (avgTimeEl && state.performance && state.performance.decisionTimes.length > 0) {
-                const avgTime = state.performance.decisionTimes.reduce((a, b) => a + b, 0) / state.performance.decisionTimes.length;
-                avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
-            } else if (avgTimeEl) {
-                avgTimeEl.textContent = '0.0s';
-            }
-            
-            // Check if training should end (after many hands)
-            if (state.performance.handsPlayed >= 50) {
-                setTimeout(() => {
-                    calculateAndShowResults();
-                }, 1000);
+            if (handsDisplay) {
+                handsDisplay.textContent = state.performance.handsPlayed;
             }
         }
         
         function finalizeSpeedData() {
-            if (!state.isSpeedMode || !state.performance) return;
+            if (!state.performance) return;
             
-            // Calculate final metrics
-            const performance = state.performance;
+            const endTime = Date.now();
+            const totalTrainingTime = (endTime - state.performance.startTime) / 1000; // in seconds
             
-            const finalAccuracy = performance.totalDecisions > 0 ? 
-                (performance.correctDecisions / performance.totalDecisions) * 100 : 0;
+            // Calculate final statistics from decisions array
+            const totalDecisions = state.performance.decisions.length;
+            const correctDecisions = state.performance.decisions.filter(d => d.correct).length;
+            const finalAccuracy = totalDecisions > 0 ? (correctDecisions / totalDecisions) * 100 : 0;
             
-            const avgDecisionTime = performance.decisionTimes.length > 0 ? 
-                performance.decisionTimes.reduce((a, b) => a + b, 0) / performance.decisionTimes.length : 0;
+            // Calculate average decision time
+            const decisionTimes = state.performance.decisions.map(d => d.timeTaken);
+            const avgDecisionTime = decisionTimes.length > 0 ? 
+                decisionTimes.reduce((a, b) => a + b, 0) / decisionTimes.length : 0;
             
-            const fastestDecisionTime = performance.fastestDecisionTime === Infinity ? 0 : performance.fastestDecisionTime;
+            // Find fastest decision time
+            const fastestDecisionTime = decisionTimes.length > 0 ? Math.min(...decisionTimes) : 0;
             
-            const trainingDuration = state.speedStartTime ? (Date.now() - state.speedStartTime) / 1000 : 0;
-            
-            // Store results globally for access
+            // Store results globally for access by results page
             window.trainerSpeedPerformance = {
-                finalAccuracy,
-                correctDecisions: performance.correctDecisions,
-                totalDecisions: performance.totalDecisions,
-                totalHands: performance.handsPlayed,
-                avgDecisionTime,
-                fastestDecisionTime,
-                trainingDuration,
-                timeouts: performance.timeouts
+                finalAccuracy: Math.round(finalAccuracy),
+                correctDecisions: correctDecisions,
+                totalDecisions: totalDecisions,
+                totalHands: state.performance.handsPlayed,
+                avgDecisionTime: Math.round(avgDecisionTime * 100) / 100, // Round to 2 decimal places
+                fastestDecisionTime: Math.round(fastestDecisionTime * 100) / 100,
+                trainingDuration: Math.round(totalTrainingTime),
+                timeouts: state.performance.timeouts || 0
             };
         }
         
@@ -566,9 +770,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                 }
                 
-                // Show immediate feedback
-                showDecisionFeedback(action, isCorrect, correctAction);
-                
                 recordDecision(action, isCorrect);
                 stopDecisionTimer();
             }
@@ -590,182 +791,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Show immediate feedback for decisions
-        function showDecisionFeedback(playerAction, isCorrect, correctAction) {
-            const gameArea = document.querySelector('.blackjack-table') || document.querySelector('#speed-training-game');
-            if (!gameArea) return;
-            
-            // Create feedback element
-            const feedback = document.createElement('div');
-            feedback.className = `decision-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
-            
-            // Get current hand information for explanation
-            const currentHand = state.playerHands[state.currentHandIndex];
-            const playerValue = getHandValue(currentHand);
-            const dealerUpcard = state.dealerHand[0]?.value;
-            const dealerValue = getCardValue(state.dealerHand[0]);
-            const isSoft = isSoftHand(currentHand);
-            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
-            
-            // Generate explanation
-            let explanation = '';
-            if (isCorrect) {
-                explanation = `<strong>✓ Correct!</strong><br>`;
-                explanation += `${playerAction.toUpperCase()} was the right choice.`;
-            } else {
-                explanation = `<strong>✗ Incorrect</strong><br>`;
-                explanation += `You chose ${playerAction.toUpperCase()}, but ${correctAction} was better.`;
-            }
-            
-            // Add strategy explanation
-            explanation += '<br><br>';
-            if (isPair) {
-                explanation += getPairExplanation(currentHand[0].value, dealerValue);
-            } else if (isSoft) {
-                explanation += getSoftHandExplanation(playerValue, dealerValue);
-            } else {
-                explanation += getHardHandExplanation(playerValue, dealerValue);
-            }
-            
-            feedback.innerHTML = `
-                <div class="feedback-content">
-                    <div class="feedback-header">
-                        ${explanation}
-                    </div>
-                </div>
-            `;
-            
-            gameArea.appendChild(feedback);
-            
-            // Show with animation
-            setTimeout(() => feedback.classList.add('show'), 50);
-            
-            // Remove after delay
-            setTimeout(() => {
-                feedback.classList.remove('show');
-                setTimeout(() => {
-                    if (feedback.parentNode) {
-                        feedback.parentNode.removeChild(feedback);
-                    }
-                }, 300);
-            }, 2500);
-        }
-        
-        // Get explanation for pair decisions
-        function getPairExplanation(cardValue, dealerValue) {
-            switch(cardValue) {
-                case 'A':
-                    return `<strong>Always split Aces!</strong> Two 11s = 22 (bust), but split gives two chances at blackjack.`;
-                case '8':
-                    return `<strong>Always split 8s!</strong> 16 is the worst hand, splitting gives much better chances.`;
-                case 'K': case 'Q': case 'J': case '10':
-                    return `<strong>Never split 10s!</strong> 20 is excellent - splitting would waste a winning hand.`;
-                case '9':
-                    if ([7, 10, 11].includes(dealerValue)) {
-                        return `<strong>Stand with 18 vs ${dealerValue}:</strong> 18 is strong against dealer's upcard.`;
-                    }
-                    return `<strong>Split vs weak dealer (${dealerValue}):</strong> Get more money on table when dealer is vulnerable.`;
-                case '7':
-                    if (dealerValue <= 7) {
-                        return `<strong>Split vs ${dealerValue}:</strong> Two 7s can make 17+ against weak dealer.`;
-                    }
-                    return `<strong>Hit vs ${dealerValue}:</strong> Don't split weak hands against strong dealer.`;
-                case '6':
-                    if (dealerValue <= 6) {
-                        return `<strong>Split vs ${dealerValue}:</strong> Dealer has bust card, take advantage.`;
-                    }
-                    return `<strong>Hit vs ${dealerValue}:</strong> 12 vs strong dealer needs improvement.`;
-                case '5':
-                    return `<strong>Double (don't split):</strong> 10 is great for doubling, 5s make terrible starts.`;
-                case '4':
-                    if (dealerValue === 5 || dealerValue === 6) {
-                        return `<strong>Split vs ${dealerValue}:</strong> Dealer very weak, worth the risk.`;
-                    }
-                    return `<strong>Hit:</strong> 8 vs strong dealer, don't create two weak hands.`;
-                case '3':
-                case '2':
-                    if (dealerValue <= 7) {
-                        return `<strong>Split vs ${dealerValue}:</strong> Small pairs need dealer weakness to split.`;
-                    }
-                    return `<strong>Hit:</strong> Small pair vs strong dealer - keep as one hand.`;
-                default:
-                    return `Standard pair strategy applies.`;
-            }
-        }
-        
-        // Get explanation for soft hand decisions  
-        function getSoftHandExplanation(playerValue, dealerValue) {
-            switch(playerValue) {
-                case 20: // A,9
-                    return `<strong>A,9 = 20:</strong> Excellent hand, always stand.`;
-                case 19: // A,8
-                    if (dealerValue === 6) {
-                        return `<strong>A,8 vs 6:</strong> Double to maximize profit against dealer's weak card.`;
-                    }
-                    return `<strong>A,8 = 19:</strong> Strong hand, stand against most dealer cards.`;
-                case 18: // A,7
-                    if (dealerValue <= 6) {
-                        return `<strong>A,7 vs ${dealerValue}:</strong> Double against weak dealer - improve or stay strong.`;
-                    } else if (dealerValue <= 8) {
-                        return `<strong>A,7 vs ${dealerValue}:</strong> 18 is competitive, stand.`;
-                    } else {
-                        return `<strong>A,7 vs ${dealerValue}:</strong> 18 vs strong dealer needs improvement, hit.`;
-                    }
-                case 17: // A,6
-                    if (dealerValue <= 6) {
-                        return `<strong>A,6 vs ${dealerValue}:</strong> Double against weak dealer for improvement.`;
-                    }
-                    return `<strong>A,6 = 17:</strong> Weak soft hand needs improvement, hit.`;
-                case 16: // A,5
-                case 15: // A,4
-                    if (dealerValue >= 4 && dealerValue <= 6) {
-                        return `<strong>A,${playerValue-11} vs ${dealerValue}:</strong> Double against dealer's bust cards.`;
-                    }
-                    return `<strong>A,${playerValue-11}:</strong> Weak soft hand, hit to improve.`;
-                case 14: // A,3  
-                case 13: // A,2
-                    if (dealerValue === 5 || dealerValue === 6) {
-                        return `<strong>A,${playerValue-11} vs ${dealerValue}:</strong> Double against dealer's weakest cards.`;
-                    }
-                    return `<strong>A,${playerValue-11}:</strong> Very weak soft hand, hit to improve.`;
-                default:
-                    return `<strong>Soft hand:</strong> Ace flexibility allows aggressive play.`;
-            }
-        }
-        
-        // Get explanation for hard hand decisions
-        function getHardHandExplanation(playerValue, dealerValue) {
-            if (playerValue >= 17) {
-                return `<strong>${playerValue}:</strong> Always stand - risk of busting is too high.`;
-            } else if (playerValue >= 13 && playerValue <= 16) {
-                if (dealerValue <= 6) {
-                    return `<strong>${playerValue} vs ${dealerValue}:</strong> Stand and let dealer bust (~40% chance).`;
-                } else {
-                    return `<strong>${playerValue} vs ${dealerValue}:</strong> Hit - dealer likely makes 17+ (74% chance).`;
-                }
-            } else if (playerValue === 12) {
-                if (dealerValue >= 4 && dealerValue <= 6) {
-                    return `<strong>12 vs ${dealerValue}:</strong> Stand, dealer has bust card.`;
-                } else {
-                    return `<strong>12 vs ${dealerValue}:</strong> Hit, need improvement against strong dealer.`;
-                }
-            } else if (playerValue === 11) {
-                return `<strong>11:</strong> Double if allowed - excellent chance for 21.`;
-            } else if (playerValue === 10) {
-                if (dealerValue <= 9) {
-                    return `<strong>10:</strong> Double if allowed - great chance for 20.`;
-                }
-                return `<strong>10 vs ${dealerValue}:</strong> Hit, doubling too risky against strong dealer.`;
-            } else if (playerValue === 9) {
-                if (dealerValue >= 3 && dealerValue <= 6) {
-                    return `<strong>9 vs ${dealerValue}:</strong> Double against weak dealer.`;
-                }
-                return `<strong>9:</strong> Hit to improve total.`;
-            } else {
-                return `<strong>${playerValue}:</strong> Always hit low totals to improve.`;
-            }
-        }
-
         // Create and shuffle the deck
         function createDeck() {
             state.deck = [];
