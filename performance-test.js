@@ -872,6 +872,147 @@ document.addEventListener('DOMContentLoaded', () => {
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
         
+        // Get explanation for pair decisions
+        function getPairExplanation(cardValue, dealerValue, trueCount) {
+            let explanation = '';
+            
+            switch(cardValue) {
+                case 'A':
+                    explanation = 'Always split Aces! Two soft 11s give you two chances at 21.';
+                    break;
+                case '8':
+                    explanation = 'Always split 8s! 16 is the worst hand, but two 8s have potential.';
+                    break;
+                case 'K':
+                case 'Q':
+                case 'J':
+                case '10':
+                    explanation = 'Never split 10s! 20 is an excellent hand.';
+                    break;
+                case '9':
+                    if ([7, 10, 11].includes(dealerValue)) {
+                        explanation = `Stand with 18 against dealer ${dealerValue}. 18 is strong enough.`;
+                    } else {
+                        explanation = `Split 9s against weak dealer ${dealerValue} to maximize profit.`;
+                    }
+                    break;
+                case '7':
+                    if (dealerValue <= 7) {
+                        explanation = `Split 7s against dealer ${dealerValue}. Two chances to make 17+.`;
+                    } else {
+                        explanation = 'Hit 14 against strong dealer card. Don\'t create two weak hands.';
+                    }
+                    break;
+                case '6':
+                    if (dealerValue <= 6) {
+                        explanation = `Split 6s against weak dealer ${dealerValue}. Dealer likely to bust.`;
+                    } else {
+                        explanation = 'Hit 12 against strong dealer. One decent hand better than two weak ones.';
+                    }
+                    break;
+                case '5':
+                    explanation = 'Never split 5s! Double down on 10 instead - much more profitable.';
+                    break;
+                case '4':
+                    if (dealerValue === 5 || dealerValue === 6) {
+                        explanation = `Split 4s only against dealer ${dealerValue}. Very weak dealer cards.`;
+                    } else {
+                        explanation = 'Hit 8. Starting with 4 is too weak for most situations.';
+                    }
+                    break;
+                case '3':
+                case '2':
+                    if (dealerValue <= 7) {
+                        explanation = `Split low pairs against dealer ${dealerValue}. Take advantage of weak dealer.`;
+                    } else {
+                        explanation = 'Hit low pairs against strong dealer. Don\'t split into weakness.';
+                    }
+                    break;
+                default:
+                    explanation = 'Follow basic strategy for this pair.';
+            }
+            
+            return explanation;
+        }
+        
+        // Get explanation for soft hand decisions
+        function getSoftHandExplanation(playerValue, dealerValue, trueCount) {
+            let explanation = '';
+            
+            if (playerValue === 20) {
+                explanation = 'Always stand with soft 20 (A,9). Only blackjack beats you.';
+            } else if (playerValue === 19) {
+                if (dealerValue === 6) {
+                    explanation = 'Double soft 19 against 6 if allowed. Dealer very likely to bust.';
+                } else {
+                    explanation = 'Stand with soft 19. Excellent hand that wins most of the time.';
+                }
+            } else if (playerValue === 18) {
+                if (dealerValue <= 6) {
+                    explanation = `Double soft 18 against weak dealer ${dealerValue}. Can\'t bust and dealer vulnerable.`;
+                } else if (dealerValue <= 8) {
+                    explanation = 'Stand with soft 18. Good enough against moderate dealer cards.';
+                } else {
+                    explanation = `Hit soft 18 against strong dealer ${dealerValue}. Need to improve to compete.`;
+                }
+            } else if (playerValue === 17) {
+                if (dealerValue <= 6) {
+                    explanation = `Double soft 17 against dealer ${dealerValue}. Weak hand needs improvement, dealer vulnerable.`;
+                } else {
+                    explanation = 'Hit soft 17. Too weak to stand, can\'t bust.';
+                }
+            } else if (playerValue >= 13 && playerValue <= 16) {
+                if (dealerValue >= 4 && dealerValue <= 6) {
+                    explanation = `Double soft ${playerValue} against dealer ${dealerValue}. Perfect doubling opportunity.`;
+                } else {
+                    explanation = `Hit soft ${playerValue}. Weak hand that can\'t bust - always try to improve.`;
+                }
+            } else {
+                explanation = 'Hit this soft hand. Too weak to stand, impossible to bust.';
+            }
+            
+            return explanation;
+        }
+        
+        // Get explanation for hard hand decisions
+        function getHardHandExplanation(playerValue, dealerValue, trueCount) {
+            let explanation = '';
+            
+            if (playerValue >= 17) {
+                explanation = `Always stand with hard ${playerValue}. Risk of busting too high.`;
+            } else if (playerValue >= 13 && playerValue <= 16) {
+                if (dealerValue <= 6) {
+                    explanation = `Stand ${playerValue} against dealer ${dealerValue}. Dealer has bust card - let them take the risk.`;
+                } else {
+                    explanation = `Hit ${playerValue} against dealer ${dealerValue}. Must risk busting against strong dealer card.`;
+                }
+            } else if (playerValue === 12) {
+                if (dealerValue >= 4 && dealerValue <= 6) {
+                    explanation = `Stand 12 against dealer ${dealerValue}. Dealer likely to bust, don\'t risk it.`;
+                } else {
+                    explanation = `Hit 12 against dealer ${dealerValue}. Only 31% bust chance, need to improve.`;
+                }
+            } else if (playerValue === 11) {
+                explanation = `Double down on 11! Best doubling hand - 31% chance of making 21.`;
+            } else if (playerValue === 10) {
+                if (dealerValue <= 9) {
+                    explanation = `Double 10 against dealer ${dealerValue}. Great chance to make 20.`;
+                } else {
+                    explanation = 'Hit 10 against 10 or Ace. Good hand but dealer too strong to double.';
+                }
+            } else if (playerValue === 9) {
+                if (dealerValue >= 3 && dealerValue <= 6) {
+                    explanation = `Double 9 against dealer ${dealerValue}. Many cards help you, dealer weak.`;
+                } else {
+                    explanation = 'Hit 9. Need improvement but dealer too strong for doubling.';
+                }
+            } else {
+                explanation = `Hit ${playerValue}. Very low hand must be improved.`;
+            }
+            
+            return explanation;
+        }
+        
         function trackBettingDecision(isCorrect) {
             if (!state.isTestMode || !state.performance) return;
             
