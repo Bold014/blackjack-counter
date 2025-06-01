@@ -9,15 +9,13 @@
     --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     --gradient-light: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
-    --gradient-green: linear-gradient(135deg, #0a3d1b 0%, #0d4a24 50%, #0a3d1b 100%);
+    --gradient-green: linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%);
     --table-felt: #0d4a24;
     --table-border: #8a6d3b;
     --card-back: #191970;
     --glass-blur: 10px;
     --glass-border: rgba(254, 183, 80, 0.2);
     --transition: all 0.3s ease;
-    --felt-dark: #0a3d1b;
-    --felt-light: #0d4a24;
 }
 
 * {
@@ -30,26 +28,8 @@ body {
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
     color: var(--light-color);
-    background-color: #0a3d1b; /* Fallback solid color */
     background: var(--gradient-green);
-    background: linear-gradient(135deg, #0a3d1b 0%, #0d4a24 50%, #0a3d1b 100%); /* Direct fallback */
-    background-attachment: fixed;
     position: relative;
-    min-height: 100vh;
-}
-
-/* Add felt texture overlay */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zm-24.596 0l-5.485 5.486 1.414 1.414 7.9-7.9h-2.83zm16.97 0l-1.414 1.414L42.485 0h-2.828zm-10.657 0l1.415 1.414L20.172 0h-2.83zM29.9 0L8.486 21.414l1.414 1.414L31.313 0H29.9zm-8.485 0L.686 20.828l1.415 1.415L24.828 0h-3.414zM48.373 0L28.544 19.828l-1.414-1.414L45.544 0h2.83zm-14.485 0h-3.414l10.313 10.313 1.414-1.414L33.887 0z' fill='%23196d3d' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-    opacity: 0.3;
-    z-index: -1;
-    pointer-events: none;
 }
 
 .container {
@@ -225,7 +205,7 @@ select {
 }
 
 .strategy-advisor, .card-history {
-    background: var(--gradient-light);
+    background: var(--gradient-green);
     padding: 25px;
     border-radius: 12px;
     margin-bottom: 30px;
