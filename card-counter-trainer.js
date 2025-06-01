@@ -1670,196 +1670,210 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Get explanation for soft hand decisions
         function getSoftHandExplanation(playerValue, dealerValue, trueCount) {
-            let explanation = '<div style="margin: 5px 0; font-size: 0.9em;">';
-            
-            explanation += '<strong>Soft Hand Strategy:</strong><br>';
-            explanation += '• Ace counts as 11 (can\'t bust by hitting once)<br>';
+            let explanation = `<div class="explanation-header">Soft Hand Strategy Explanation:</div>`;
             
             switch(playerValue) {
                 case 20: // A,9
-                    explanation += '• <strong>A,9 = 20:</strong> Excellent hand, always stand<br>';
+                    explanation += `<strong>Always stand with soft 20!</strong><br>`;
+                    explanation += `• A,9 = 20 is an excellent hand<br>`;
+                    explanation += `• Only blackjack beats you<br>`;
+                    explanation += `• No reason to risk this strong hand`;
                     break;
+                    
                 case 19: // A,8
-                    explanation += '• <strong>A,8 = 19:</strong> Strong hand<br>';
                     if (dealerValue === 6) {
-                        explanation += '• <strong>Double vs 6:</strong> Dealer weak, maximize bet<br>';
-                        if (trueCount >= 1) {
-                            explanation += `<br><strong>Count Confirms (+${trueCount}):</strong><br>`;
-                            explanation += '• Positive count supports doubling<br>';
-                            explanation += '• More 10s available for strong total<br>';
-                        }
+                        explanation += `<strong>Double against 6 (if allowed):</strong><br>`;
+                        explanation += `• Dealer 6 is the weakest upcard (most likely to bust)<br>`;
+                        explanation += `• You have a strong hand that can't bust<br>`;
+                        explanation += `• Perfect opportunity for extra profit<br>`;
+                        explanation += `• If doubling not allowed, 19 stands beautifully`;
                     } else {
-                        explanation += '• <strong>Stand:</strong> 19 is strong vs most dealer cards<br>';
+                        explanation += `<strong>Stand with soft 19:</strong><br>`;
+                        explanation += `• 19 wins against most dealer totals<br>`;
+                        explanation += `• Risk vs reward doesn't favor hitting<br>`;
+                        explanation += `• Strong hand - keep it`;
                     }
                     break;
+                    
                 case 18: // A,7
-                    explanation += '• <strong>A,7 = 18:</strong> Flexible hand<br>';
                     if (dealerValue <= 6) {
-                        explanation += '• <strong>Double vs 2-6:</strong> Dealer weak, improve or stay strong<br>';
-                        if (dealerValue === 2 && trueCount >= 1) {
-                            explanation += `<br><strong>Count-Based Double (+${trueCount}):</strong><br>`;
-                            explanation += '• Normally hit A,7 vs 2<br>';
-                            explanation += '• Positive count makes doubling profitable<br>';
-                        }
+                        explanation += `<strong>Double against ${dealerValue} (if allowed):</strong><br>`;
+                        explanation += `• Dealer has weak upcard<br>`;
+                        explanation += `• 18 is good, but you can improve it safely<br>`;
+                        explanation += `• Can't bust, and dealer likely to bust<br>`;
+                        explanation += `• Great spot for extra profit`;
                     } else if (dealerValue <= 8) {
-                        explanation += '• <strong>Stand vs 7-8:</strong> 18 vs dealer fair cards<br>';
+                        explanation += `<strong>Stand against ${dealerValue}:</strong><br>`;
+                        explanation += `• 18 is a solid hand<br>`;
+                        explanation += `• Dealer upcard is strong enough to be cautious<br>`;
+                        explanation += `• Don't risk good hand against dealer strength`;
                     } else {
-                        explanation += '• <strong>Hit vs 9,10,A:</strong> 18 vs strong dealer needs improvement<br>';
+                        explanation += `<strong>Hit against ${dealerValue}:</strong><br>`;
+                        explanation += `• Dealer has very strong upcard<br>`;
+                        explanation += `• 18 often loses to 19, 20, 21<br>`;
+                        explanation += `• You can't bust - safe to try improving<br>`;
+                        explanation += `• A,2,3 improve you; only 4,5,6,7,8,9 hurt you`;
                     }
                     break;
+                    
                 case 17: // A,6
-                    explanation += '• <strong>A,6 = 17:</strong> Weak soft hand<br>';
                     if (dealerValue <= 6) {
-                        explanation += '• <strong>Double vs 3-6:</strong> Dealer weak, good improvement chances<br>';
-                        if (dealerValue === 2 && trueCount >= 1) {
-                            explanation += `<br><strong>Count-Based Double (+${trueCount}):</strong><br>`;
-                            explanation += '• Normally hit A,6 vs 2<br>';
-                            explanation += '• Positive count justifies doubling<br>';
-                        }
+                        explanation += `<strong>Double against ${dealerValue} (if allowed):</strong><br>`;
+                        explanation += `• Dealer has weak/moderate upcard<br>`;
+                        explanation += `• 17 is marginal - needs improvement<br>`;
+                        explanation += `• Can't bust by hitting<br>`;
+                        explanation += `• Good spot to get more money out`;
                     } else {
-                        explanation += '• <strong>Hit:</strong> 17 vs strong dealer needs improvement<br>';
+                        explanation += `<strong>Hit against ${dealerValue}:</strong><br>`;
+                        explanation += `• 17 is a weak hand<br>`;
+                        explanation += `• Dealer upcard is strong<br>`;
+                        explanation += `• You can't bust, so always try to improve<br>`;
+                        explanation += `• A,2,3,4 all help significantly`;
                     }
                     break;
+                    
                 case 16: // A,5
                 case 15: // A,4
-                    explanation += `• <strong>A,${playerValue-11} = ${playerValue}:</strong> Weak soft hand<br>`;
-                    if (dealerValue >= 4 && dealerValue <= 6) {
-                        explanation += '• <strong>Double vs 4-6:</strong> Dealer very weak<br>';
+                    if (dealerValue <= 6) {
+                        explanation += `<strong>Double against ${dealerValue} (if allowed):</strong><br>`;
+                        explanation += `• Very weak hand that needs improvement<br>`;
+                        explanation += `• Dealer has weak upcard<br>`;
+                        explanation += `• Can't bust - perfect doubling opportunity<br>`;
+                        explanation += `• A,2,3,4,5,6 all help you significantly`;
                     } else {
-                        explanation += '• <strong>Hit:</strong> Too weak vs most dealer cards<br>';
+                        explanation += `<strong>Hit against ${dealerValue}:</strong><br>`;
+                        explanation += `• ${playerValue} is a very weak hand<br>`;
+                        explanation += `• Must try to improve<br>`;
+                        explanation += `• Can't bust by hitting<br>`;
+                        explanation += `• Dealer upcard too strong for doubling`;
                     }
                     break;
+                    
                 case 14: // A,3
                 case 13: // A,2
-                    explanation += `• <strong>A,${playerValue-11} = ${playerValue}:</strong> Very weak soft hand<br>`;
-                    if (dealerValue === 5 || dealerValue === 6) {
-                        explanation += '• <strong>Double vs 5-6:</strong> Dealer weakest cards<br>';
+                    if (dealerValue <= 5) {
+                        explanation += `<strong>Double against ${dealerValue} (if allowed):</strong><br>`;
+                        explanation += `• Very weak hand that desperately needs improvement<br>`;
+                        explanation += `• Dealer has very weak upcard<br>`;
+                        explanation += `• Can't bust - safe to double<br>`;
+                        explanation += `• Even small improvements help significantly`;
                     } else {
-                        explanation += '• <strong>Hit:</strong> Need improvement<br>';
+                        explanation += `<strong>Hit against ${dealerValue}:</strong><br>`;
+                        explanation += `• ${playerValue} is very weak<br>`;
+                        explanation += `• Must try to improve<br>`;
+                        explanation += `• Can't bust by hitting<br>`;
+                        explanation += `• Dealer upcard too strong for doubling`;
                     }
                     break;
+                    
                 default:
-                    explanation += '• <strong>Hit:</strong> Improve this soft total<br>';
+                    explanation += `<strong>Hit this soft hand:</strong><br>`;
+                    explanation += `• Soft hands under 13 are very weak<br>`;
+                    explanation += `• You cannot bust by hitting<br>`;
+                    explanation += `• Always try to improve`;
             }
             
-            explanation += '• <em>Remember: Ace can switch between 1 and 11</em><br>';
-            explanation += '</div>';
+            explanation += `<br><br><div class="strategy-note"><strong>Soft Hand Key:</strong> You cannot bust because the Ace can count as 1 or 11.</div>`;
+            
             return explanation;
         }
         
         // Get explanation for hard hand decisions
         function getHardHandExplanation(playerValue, dealerValue, trueCount) {
-            let explanation = '<div style="margin: 5px 0; font-size: 0.9em;">';
-            
-            explanation += '<strong>Hard Hand Strategy:</strong><br>';
+            let explanation = `<div class="explanation-header">Hard Hand Strategy Explanation:</div>`;
             
             if (playerValue >= 17) {
-                explanation += '• <strong>17+:</strong> Always stand - risk of busting too high<br>';
+                explanation += `<strong>Always stand with ${playerValue}:</strong><br>`;
+                explanation += `• Strong hand that wins most of the time<br>`;
+                explanation += `• High risk of busting if you hit<br>`;
+                explanation += `• Let the dealer take the risk`;
             } else if (playerValue >= 13 && playerValue <= 16) {
-                explanation += `• <strong>Stiff Hand (${playerValue}):</strong> Difficult decision<br>`;
                 if (dealerValue <= 6) {
-                    explanation += '• <strong>Stand vs 2-6:</strong> Let dealer bust<br>';
-                    explanation += `• Dealer busts ~40% with ${dealerValue} showing<br>`;
+                    explanation += `<strong>Stand against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• Dealer has "bust card" (weak upcard)<br>`;
+                    explanation += `• Dealer must hit and likely to bust<br>`;
+                    explanation += `• Your ${playerValue} wins if dealer busts<br>`;
+                    explanation += `• Don't risk busting when dealer is vulnerable`;
                     
-                    // Count-based deviations for stiff hands
-                    if (playerValue === 12 && [2,3,4].includes(dealerValue) && trueCount < 0) {
-                        explanation += `<br><strong>Negative Count Exception (${trueCount}):</strong><br>`;
-                        explanation += '• More small cards remaining<br>';
-                        explanation += '• Dealer less likely to bust<br>';
-                        explanation += '• Hit to improve your weak 12<br>';
-                    } else if (playerValue === 13 && [2,3].includes(dealerValue) && trueCount <= -1) {
-                        explanation += `<br><strong>Negative Count Exception (${trueCount}):</strong><br>`;
-                        explanation += '• Small cards help improve 13 safely<br>';
-                        explanation += '• Dealer unlikely to bust with low cards<br>';
-                    }
+                    // Add specific bust probabilities
+                    const bustProbabilities = {
+                        2: "35%", 3: "37%", 4: "40%", 5: "42%", 6: "42%"
+                    };
+                    explanation += `<br>• Dealer busts ~${bustProbabilities[dealerValue] || "40%"} with ${dealerValue} showing`;
                 } else {
-                    explanation += '• <strong>Hit vs 7+:</strong> Dealer likely has strong hand<br>';
-                    explanation += `• Dealer makes 17+ about 74% vs ${dealerValue}<br>`;
+                    explanation += `<strong>Hit against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• Dealer has strong upcard<br>`;
+                    explanation += `• Your ${playerValue} likely loses if you stand<br>`;
+                    explanation += `• Must risk busting to have a chance to win<br>`;
                     
-                    // Count-based deviations for hitting decisions  
-                    if (playerValue === 16 && dealerValue === 10 && trueCount >= 0) {
-                        explanation += `<br><strong>Positive Count Exception (+${trueCount}):</strong><br>`;
-                        explanation += '• More 10s remaining make hitting risky<br>';
-                        explanation += '• Dealer also more likely to bust<br>';
-                        explanation += '• Stand instead of hit<br>';
-                    } else if (playerValue === 15 && dealerValue === 10 && trueCount >= 4) {
-                        explanation += `<br><strong>High Count Exception (+${trueCount}):</strong><br>`;
-                        explanation += '• Concentration of 10s very high<br>';
-                        explanation += '• Hitting 15 almost certainly busts<br>';
-                        explanation += '• Stand and hope dealer busts<br>';
+                    // Add hit probabilities
+                    if (playerValue === 16) {
+                        explanation += `• ~62% chance of busting, but ${playerValue} rarely wins anyway`;
+                    } else if (playerValue === 15) {
+                        explanation += `• ~58% chance of busting, but must try to improve`;
+                    } else if (playerValue === 14) {
+                        explanation += `• ~56% chance of busting, but ${playerValue} is too weak`;
+                    } else if (playerValue === 13) {
+                        explanation += `• ~54% chance of busting, but must improve against strength`;
                     }
                 }
             } else if (playerValue === 12) {
                 if (dealerValue >= 4 && dealerValue <= 6) {
-                    explanation += '• <strong>12 vs 4-6:</strong> Stand, dealer weak<br>';
-                    if (dealerValue === 4 && trueCount < 0) {
-                        explanation += `<br><strong>Negative Count Exception (${trueCount}):</strong><br>`;
-                        explanation += '• More small cards = dealer less likely to bust<br>';
-                        explanation += '• Small cards can improve your 12<br>';
-                        explanation += '• Hit instead of stand<br>';
-                    }
-                } else if (dealerValue === 2 || dealerValue === 3) {
-                    explanation += `• <strong>12 vs ${dealerValue}:</strong> Marginal situation<br>`;
-                    if (trueCount >= 2) {
-                        explanation += `<br><strong>Positive Count (+${trueCount}):</strong><br>`;
-                        explanation += '• More 10s make hitting risky<br>';
-                        explanation += '• Stand and let dealer try to make a hand<br>';
-                    } else {
-                        explanation += '• <strong>Hit:</strong> Need improvement vs dealer fair card<br>';
-                    }
+                    explanation += `<strong>Stand against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• Dealer has weak upcard (likely to bust)<br>`;
+                    explanation += `• 12 is on the borderline<br>`;
+                    explanation += `• Slight edge to standing and hoping dealer busts<br>`;
+                    explanation += `• Only ~31% chance of busting if you hit, but still better to stand`;
                 } else {
-                    explanation += '• <strong>Hit:</strong> 12 vs strong dealer needs improvement<br>';
+                    explanation += `<strong>Hit against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• 12 is a weak hand<br>`;
+                    explanation += `• Dealer upcard is strong<br>`;
+                    explanation += `• Only ~31% chance of busting (relatively safe)<br>`;
+                    explanation += `• Need to improve to compete`;
                 }
             } else if (playerValue === 11) {
-                explanation += '• <strong>11:</strong> Excellent doubling hand<br>';
+                explanation += `<strong>Double down against dealer ${dealerValue}:</strong><br>`;
+                explanation += `• 11 is the best doubling hand<br>`;
+                explanation += `• ~31% chance of getting 10-value card for 21<br>`;
+                explanation += `• Can't bust on next card<br>`;
+                explanation += `• Even if you don't get 21, likely to improve significantly`;
                 if (dealerValue === 11) {
-                    if (trueCount >= 1) {
-                        explanation += `<br><strong>Positive Count (+${trueCount}):</strong><br>`;
-                        explanation += '• Normally hit 11 vs Ace<br>';
-                        explanation += '• Extra 10s make doubling profitable<br>';
-                    } else {
-                        explanation += '• <strong>Hit vs Ace:</strong> Double too risky vs dealer Ace<br>';
-                    }
-                } else {
-                    explanation += '• <strong>Double:</strong> Best chance for 21<br>';
+                    explanation += `<br>• Against dealer Ace: still favorable due to your flexibility`;
                 }
             } else if (playerValue === 10) {
-                explanation += '• <strong>10:</strong> Strong doubling hand<br>';
-                if (dealerValue === 10 || dealerValue === 11) {
-                    if (trueCount >= 4) {
-                        explanation += `<br><strong>High Count (+${trueCount}):</strong><br>`;
-                        explanation += `• Normally hit 10 vs ${dealerValue}<br>`;
-                        explanation += '• High concentration of 10s favors doubling<br>';
-                        explanation += '• Risk justified by count<br>';
-                    } else {
-                        explanation += `• <strong>Hit vs ${dealerValue}:</strong> Double too risky<br>`;
-                    }
+                if (dealerValue <= 9) {
+                    explanation += `<strong>Double down against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• Excellent doubling opportunity<br>`;
+                    explanation += `• ~31% chance of making 20 with 10-value card<br>`;
+                    explanation += `• Dealer upcard is weak enough to exploit<br>`;
+                    explanation += `• Get more money out in favorable situation`;
                 } else {
-                    explanation += '• <strong>Double:</strong> Great chance for 20<br>';
+                    explanation += `<strong>Hit against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• 10 is a good hand but needs improvement<br>`;
+                    explanation += `• Dealer has strong upcard<br>`;
+                    explanation += `• Don't double into dealer strength<br>`;
+                    explanation += `• Still try to improve, but risk less money`;
                 }
             } else if (playerValue === 9) {
                 if (dealerValue >= 3 && dealerValue <= 6) {
-                    explanation += '• <strong>Double vs 3-6:</strong> Good card vs weak dealer<br>';
-                } else if (dealerValue === 2 || dealerValue === 7) {
-                    if (dealerValue === 2 && trueCount >= 1) {
-                        explanation += `<br><strong>Positive Count (+${trueCount}):</strong><br>`;
-                        explanation += '• Normally hit 9 vs 2<br>';
-                        explanation += '• Extra 10s make doubling worthwhile<br>';
-                    } else if (dealerValue === 7 && trueCount >= 3) {
-                        explanation += `<br><strong>High Count (+${trueCount}):</strong><br>`;
-                        explanation += '• Normally hit 9 vs 7<br>';
-                        explanation += '• High 10 concentration supports doubling<br>';
-                    } else {
-                        explanation += `• <strong>Hit vs ${dealerValue}:</strong> Not quite strong enough to double<br>`;
-                    }
+                    explanation += `<strong>Double down against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• Dealer has weak/moderate upcard<br>`;
+                    explanation += `• 9 has good potential for improvement<br>`;
+                    explanation += `• A,2,3,4,5,6,7,8,9,10,J,Q,K all help (only A hurts)<br>`;
+                    explanation += `• Good spot to increase bet when advantageous`;
                 } else {
-                    explanation += '• <strong>Hit:</strong> 9 vs strong dealer needs improvement<br>';
+                    explanation += `<strong>Hit against dealer ${dealerValue}:</strong><br>`;
+                    explanation += `• 9 needs improvement<br>`;
+                    explanation += `• Dealer upcard too strong for doubling<br>`;
+                    explanation += `• Try to improve without risking extra money`;
                 }
             } else {
-                explanation += `• <strong>${playerValue}:</strong> Always hit low totals<br>';
+                explanation += `<strong>Hit this weak hand:</strong><br>`;
+                explanation += `• ${playerValue} is too weak to stand<br>`;
+                explanation += `• Very low risk of busting<br>`;
+                explanation += `• Must try to improve`;
             }
             
-            explanation += '</div>';
             return explanation;
         }
         
@@ -1867,59 +1881,38 @@ document.addEventListener('DOMContentLoaded', () => {
         function getCountExplanation(playerValue, dealerValue, trueCount, isSoft, isPair) {
             if (Math.abs(trueCount) < 1) return '';
             
-            let explanation = '<div style="margin-top: 10px; padding: 10px; background: rgba(255, 215, 0, 0.1); border-left: 3px solid #FFD700; border-radius: 4px;">';
+            let explanation = `<br><div class="explanation-header">Card Counting Consideration:</div>`;
             
             if (trueCount > 0) {
                 explanation += `<strong>Positive Count (+${trueCount}):</strong><br>`;
-                explanation += '• More high cards (10s, face cards, Aces) remain in the deck<br>';
-                explanation += '• Dealer more likely to bust when showing weak cards<br>';
-                explanation += '• Player more likely to get blackjack (1.5x payout)<br>';
+                explanation += `• More 10s and Aces remaining in deck<br>`;
+                explanation += `• Dealer more likely to bust<br>`;
+                explanation += `• You more likely to get good cards<br>`;
                 
-                // Specific explanations for common deviations
+                // Specific count deviations
                 if (playerValue === 16 && dealerValue === 10 && !isSoft && trueCount >= 0) {
-                    explanation += `<br><strong>Why stand on 16 vs 10?</strong><br>`;
                     explanation += `• 16 vs 10: Usually hit, but stand with positive count<br>`;
-                    explanation += `• With more 10s remaining, hitting 16 is more likely to bust<br>`;
-                    explanation += `• Dealer also more likely to bust with their 10 showing<br>`;
+                    explanation += `• Dealer more likely to bust with excess 10s`;
                 } else if (playerValue === 15 && dealerValue === 10 && !isSoft && trueCount >= 4) {
-                    explanation += `<br><strong>Why stand on 15 vs 10?</strong><br>`;
                     explanation += `• 15 vs 10: Stand instead of hit with high count<br>`;
-                    explanation += `• High concentration of 10s makes hitting very risky<br>`;
-                    explanation += `• Dealer's 10 upcard + high count = higher bust probability<br>`;
+                    explanation += `• Dealer bust probability increases significantly`;
                 } else if (playerValue === 12 && [2,3].includes(dealerValue) && !isSoft && trueCount >= 2) {
-                    explanation += `<br><strong>Why stand on 12 vs weak dealer cards?</strong><br>`;
-                    explanation += `• 12 vs 2/3: With positive count, let dealer bust<br>`;
-                    explanation += `• Dealer more likely to bust when forced to hit weak totals<br>`;
-                    explanation += `• Risk of busting on 12 not worth it with good count<br>`;
-                } else if (playerValue === 10 && [10,11].includes(dealerValue) && !isSoft && trueCount >= 4) {
-                    explanation += `<br><strong>Why double 10 vs strong dealer cards?</strong><br>`;
-                    explanation += `• High count means more 10s available for strong double<br>`;
-                    explanation += `• Even vs dealer 10/A, the extra 10s justify the risk<br>`;
-                } else if (dealerValue === 11 && trueCount >= 3) {
-                    explanation += `<br><strong>Why take insurance?</strong><br>`;
-                    explanation += `• Insurance pays 2:1, profitable when >33% of cards are 10s<br>`;
-                    explanation += `• True count +3 indicates enough 10s to make insurance profitable<br>`;
+                    explanation += `• 12 vs ${dealerValue}: Stand instead of hit with positive count<br>`;
+                    explanation += `• Extra 10s make hitting more dangerous`;
                 }
             } else {
                 explanation += `<strong>Negative Count (${trueCount}):</strong><br>`;
-                explanation += '• More low cards (2-6) remain in the deck<br>';
-                explanation += '• Dealer less likely to bust on weak upcards<br>';
-                explanation += '• Player should be more aggressive (hit stiff hands)<br>';
+                explanation += `• Fewer 10s and Aces remaining<br>`;
+                explanation += `• Dealer less likely to bust<br>`;
+                explanation += `• Small cards more common<br>`;
                 
-                // Specific explanations for negative count deviations
-                if (playerValue === 12 && [2,3,4,5,6].includes(dealerValue) && !isSoft && trueCount <= -1) {
-                    explanation += `<br><strong>Why hit 12 vs weak dealer cards?</strong><br>`;
-                    explanation += `• 12 vs 2-6: With negative count, hit instead of stand<br>`;
-                    explanation += `• More small cards remaining = less dealer bust probability<br>`;
-                    explanation += `• Small cards help improve your 12 without busting<br>`;
-                } else if (playerValue === 13 && [2,3].includes(dealerValue) && !isSoft && trueCount <= -1) {
-                    explanation += `<br><strong>Why hit 13 vs weak dealer cards?</strong><br>`;
-                    explanation += `• 13 vs 2/3: More small cards available to improve hand<br>`;
-                    explanation += `• Dealer less likely to bust with small cards remaining<br>`;
+                // Negative count considerations
+                if (playerValue >= 12 && playerValue <= 16 && dealerValue <= 6 && !isSoft) {
+                    explanation += `• Consider hitting weak hands more aggressively<br>`;
+                    explanation += `• Dealer less likely to bust with few 10s left`;
                 }
             }
             
-            explanation += '</div>';
             return explanation;
         }
         
@@ -2041,7 +2034,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 12. 12 vs 4
             if (playerValue === 12 && dealerValue === 4 && !isSoft) {
-                if (trueCount < 0) {
+                if (trueCount <= 0) {
                     return 'Hit (due to count)';
                 }
             }

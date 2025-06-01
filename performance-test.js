@@ -541,20 +541,21 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             
             // Performance tracking (only for test mode)
-            performance: state.isTestMode ? {
+            performance: isTestMode ? {
+                startingBalance: settings?.startingBalance || 1000,
                 handsPlayed: 0,
-                correctDecisions: 0,
-                totalDecisions: 0,
-                hit: 0,
-                stand: 0,
-                double: 0,
-                split: 0,
-                bets: {
-                    correct: 0,
-                    total: 0
+                decisions: {
+                    hits: { correct: 0, total: 0 },
+                    stands: { correct: 0, total: 0 },
+                    doubles: { correct: 0, total: 0 },
+                    splits: { correct: 0, total: 0 }
                 },
-                startTime: Date.now()
-            } : null,
+                bettingDecisions: { correct: 0, total: 0 },
+                countingAccuracy: { correct: 0, total: 0 },
+                trueCountHistory: [],
+                handStartTimes: [],
+                totalTestTime: 0
+            } : null
         };
         
         // Card values for Hi-Lo counting system
@@ -657,228 +658,25 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Performance tracking functions
         function trackDecision(action, isCorrect) {
-            if (!state.performance) return;
+            if (!state.isTestMode || !state.performance) return;
             
-            // Show immediate feedback
-            showDecisionFeedback(action, isCorrect);
-            
-            state.performance[action]++;
-            if (isCorrect) {
-                state.performance.correctDecisions++;
+            const decisions = state.performance.decisions;
+            if (decisions[action]) {
+                decisions[action].total++;
+                if (isCorrect) {
+                    decisions[action].correct++;
+                }
             }
-            state.performance.totalDecisions++;
             
             updateTestProgress();
-        }
-        
-        // Show immediate feedback for the decision
-        function showDecisionFeedback(action, isCorrect) {
-            const currentHand = state.playerHands[state.currentHandIndex];
-            if (!currentHand || currentHand.length === 0) return;
-            
-            const playerValue = getHandValue(currentHand);
-            const dealerUpcard = state.dealerHand[0]?.value;
-            const dealerValue = getCardValue(state.dealerHand[0]);
-            const correctAction = getBasicStrategyAdvice();
-            
-            // Create feedback element
-            const feedback = document.createElement('div');
-            feedback.className = `decision-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
-            
-            // Get hand description
-            const isSoft = isSoftHand(currentHand);
-            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
-            let handDesc = '';
-            
-            if (isPair) {
-                handDesc = `${currentHand[0].value},${currentHand[1].value}`;
-            } else if (isSoft) {
-                handDesc = `A,${playerValue - 11} (soft ${playerValue})`;
-            } else {
-                handDesc = `${playerValue}`;
-            }
-            
-            // Create feedback content
-            const icon = isCorrect ? '✓' : '✗';
-            const result = isCorrect ? 'CORRECT' : 'INCORRECT';
-            
-            let explanation = '';
-            if (isCorrect) {
-                explanation = getCorrectDecisionExplanation(action, handDesc, dealerUpcard);
-            } else {
-                explanation = getIncorrectDecisionExplanation(action, correctAction, handDesc, dealerUpcard);
-            }
-            
-            feedback.innerHTML = `
-                <div class="feedback-header">
-                    <span class="feedback-icon">${icon}</span>
-                    <span class="feedback-result">${result}</span>
-                </div>
-                <div class="feedback-content">
-                    <div class="feedback-situation">You: ${handDesc} vs Dealer: ${dealerUpcard}</div>
-                    <div class="feedback-explanation">${explanation}</div>
-                </div>
-            `;
-            
-            // Add styles for feedback
-            if (!document.getElementById('feedback-styles')) {
-                const style = document.createElement('style');
-                style.id = 'feedback-styles';
-                style.textContent = `
-                    .decision-feedback {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: rgba(0, 0, 0, 0.95);
-                        border-radius: 15px;
-                        padding: 25px;
-                        max-width: 400px;
-                        z-index: 2000;
-                        border: 3px solid;
-                        font-family: 'Poppins', sans-serif;
-                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                        animation: feedbackAppear 0.3s ease-out;
-                    }
-                    
-                    .decision-feedback.correct {
-                        border-color: #4CAF50;
-                        background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(0, 0, 0, 0.95));
-                    }
-                    
-                    .decision-feedback.incorrect {
-                        border-color: #f44336;
-                        background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(0, 0, 0, 0.95));
-                    }
-                    
-                    .feedback-header {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        margin-bottom: 15px;
-                        font-size: 1.4rem;
-                        font-weight: bold;
-                    }
-                    
-                    .feedback-icon {
-                        font-size: 1.8rem;
-                        font-weight: bold;
-                    }
-                    
-                    .correct .feedback-icon,
-                    .correct .feedback-result {
-                        color: #4CAF50;
-                    }
-                    
-                    .incorrect .feedback-icon,
-                    .incorrect .feedback-result {
-                        color: #f44336;
-                    }
-                    
-                    .feedback-content {
-                        color: white;
-                        line-height: 1.5;
-                    }
-                    
-                    .feedback-situation {
-                        font-size: 1.1rem;
-                        margin-bottom: 10px;
-                        font-weight: 600;
-                        color: #FFD700;
-                    }
-                    
-                    .feedback-explanation {
-                        font-size: 1rem;
-                        color: #e0e0e0;
-                    }
-                    
-                    @keyframes feedbackAppear {
-                        0% {
-                            opacity: 0;
-                            transform: translate(-50%, -50%) scale(0.8);
-                        }
-                        100% {
-                            opacity: 1;
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                    }
-                    
-                    @keyframes feedbackDisappear {
-                        0% {
-                            opacity: 1;
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                        100% {
-                            opacity: 0;
-                            transform: translate(-50%, -50%) scale(0.8);
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            // Add to DOM
-            document.body.appendChild(feedback);
-            
-            // Remove after delay
-            setTimeout(() => {
-                if (feedback.parentNode) {
-                    feedback.style.animation = 'feedbackDisappear 0.3s ease-in forwards';
-                    setTimeout(() => {
-                        feedback.remove();
-                    }, 300);
-                }
-            }, 2500);
-        }
-        
-        // Get explanation for correct decisions
-        function getCorrectDecisionExplanation(action, handDesc, dealerUpcard) {
-            const explanations = {
-                'hit': `Good! Hitting with ${handDesc} vs ${dealerUpcard} follows basic strategy. You need to improve this hand.`,
-                'stand': `Correct! Standing with ${handDesc} vs ${dealerUpcard} is the optimal play. Let the dealer risk busting.`,
-                'double': `Excellent! Doubling with ${handDesc} vs ${dealerUpcard} maximizes your expected value on a favorable hand.`,
-                'split': `Perfect! Splitting ${handDesc} vs ${dealerUpcard} gives you better opportunities than playing as one hand.`
-            };
-            
-            return explanations[action] || `Great job! ${action.charAt(0).toUpperCase() + action.slice(1)}ing was the right choice.`;
-        }
-        
-        // Get explanation for incorrect decisions
-        function getIncorrectDecisionExplanation(action, correctAction, handDesc, dealerUpcard) {
-            const wrongAction = action.charAt(0).toUpperCase() + action.slice(1);
-            const rightAction = correctAction.split(' ')[0]; // Get just the action word
-            
-            const explanations = {
-                'hit_should_stand': `Hitting ${handDesc} vs ${dealerUpcard} is too risky. You should stand and let the dealer risk busting.`,
-                'hit_should_double': `While hitting isn't wrong, doubling ${handDesc} vs ${dealerUpcard} would maximize your expected return.`,
-                'hit_should_split': `Hitting ${handDesc} vs ${dealerUpcard} wastes the opportunity to split into two potentially better hands.`,
-                'stand_should_hit': `Standing with ${handDesc} vs ${dealerUpcard} is too passive. This hand needs improvement.`,
-                'stand_should_double': `Standing misses a great opportunity. Doubling ${handDesc} vs ${dealerUpcard} has positive expected value.`,
-                'stand_should_split': `Standing with ${handDesc} vs ${dealerUpcard} wastes the chance to split into better positions.`,
-                'double_should_hit': `Doubling ${handDesc} vs ${dealerUpcard} is too aggressive. Just hit and see what develops.`,
-                'double_should_stand': `Doubling ${handDesc} vs ${dealerUpcard} adds unnecessary risk. This hand is strong enough to stand.`,
-                'double_should_split': `Doubling misses the opportunity to split ${handDesc} vs ${dealerUpcard} into two separate hands.`,
-                'split_should_hit': `Splitting ${handDesc} vs ${dealerUpcard} isn't favorable. Hit to improve the single hand instead.`,
-                'split_should_stand': `Splitting ${handDesc} vs ${dealerUpcard} is unnecessary. This hand is strong enough to stand.`,
-                'split_should_double': `While splitting isn't terrible, doubling ${handDesc} vs ${dealerUpcard} is more profitable.`
-            };
-            
-            const key = `${action}_should_${rightAction.toLowerCase()}`;
-            const specificExplanation = explanations[key];
-            
-            if (specificExplanation) {
-                return `${specificExplanation}`;
-            } else {
-                return `${wrongAction}ing ${handDesc} vs ${dealerUpcard} isn't optimal. Basic strategy recommends: ${correctAction}`;
-            }
         }
         
         function trackBettingDecision(isCorrect) {
             if (!state.isTestMode || !state.performance) return;
             
-            state.performance.bets.total++;
+            state.performance.bettingDecisions.total++;
             if (isCorrect) {
-                state.performance.bets.correct++;
+                state.performance.bettingDecisions.correct++;
             }
         }
         
@@ -918,52 +716,65 @@ document.addEventListener('DOMContentLoaded', () => {
         function calculateCurrentScore() {
             if (!state.performance) return 0;
             
+            const decisions = state.performance.decisions;
+            let totalDecisions = 0;
+            let correctDecisions = 0;
+            
+            Object.values(decisions).forEach(decision => {
+                totalDecisions += decision.total;
+                correctDecisions += decision.correct;
+            });
+            
+            if (totalDecisions === 0) return 0;
+            return (correctDecisions / totalDecisions) * 100;
+        }
+        
+        function finalizePerformanceData() {
+            if (!state.isTestMode || !state.performance) return;
+            
+            // Calculate final metrics
+            const performance = state.performance;
+            const decisions = performance.decisions;
+            
             // Strategy accuracy
-            const strategyAccuracy = state.performance.totalDecisions > 0 ? 
-                (state.performance.correctDecisions / state.performance.totalDecisions) * 100 : 0;
+            let totalStrategyDecisions = 0;
+            let correctStrategyDecisions = 0;
+            
+            Object.values(decisions).forEach(decision => {
+                totalStrategyDecisions += decision.total;
+                correctStrategyDecisions += decision.correct;
+            });
+            
+            const strategyAccuracy = totalStrategyDecisions > 0 ? 
+                (correctStrategyDecisions / totalStrategyDecisions) * 100 : 0;
             
             // Betting accuracy (based on Hi-Lo count system recommendations)
-            const bettingAccuracy = state.performance.bets.total > 0 ? 
-                (state.performance.bets.correct / state.performance.bets.total) * 100 : 0;
+            const bettingAccuracy = performance.bettingDecisions.total > 0 ? 
+                (performance.bettingDecisions.correct / performance.bettingDecisions.total) * 100 : 0;
             
             // Overall score (weighted average: 70% strategy, 30% betting)
             const overallScore = (strategyAccuracy * 0.7) + (bettingAccuracy * 0.3);
             
-            return Math.round(overallScore);
-        }
-        
-        function finalizePerformanceData() {
-            if (!state.performance) return;
+            // Calculate session metrics
+            const testDuration = state.testStartTime ? (Date.now() - state.testStartTime) / 1000 : 0;
+            const avgDecisionTime = performance.handStartTimes.length > 0 ? 
+                testDuration / totalStrategyDecisions : 0;
             
-            const endTime = Date.now();
-            const totalTestTime = (endTime - state.performance.startTime) / 1000; // in seconds
-            
-            // Calculate final statistics
-            const strategyAccuracy = state.performance.totalDecisions > 0 ? 
-                (state.performance.correctDecisions / state.performance.totalDecisions) * 100 : 0;
-            
-            const bettingAccuracy = state.performance.bets.total > 0 ? 
-                (state.performance.bets.correct / state.performance.bets.total) * 100 : 0;
-            
-            const overallScore = (strategyAccuracy * 0.7) + (bettingAccuracy * 0.3);
-            
-            // Store final performance data
-            window.testPerformanceResults = {
-                strategyAccuracy: Math.round(strategyAccuracy),
-                bettingAccuracy: Math.round(bettingAccuracy), 
-                overallScore: Math.round(overallScore),
-                totalHands: state.performance.handsPlayed,
-                totalDecisions: state.performance.totalDecisions,
-                correctDecisions: state.performance.correctDecisions,
-                hitDecisions: state.performance.hit,
-                standDecisions: state.performance.stand,
-                doubleDecisions: state.performance.double,
-                splitDecisions: state.performance.split,
-                bettingDecisions: state.performance.bets,
-                startingBalance: settings?.startingBalance || 1000,
+            // Store results globally for access
+            window.trainerPerformance = {
+                overallScore,
+                strategyAccuracy,
+                bettingAccuracy,
+                correctHits: decisions.hits,
+                correctStands: decisions.stands,
+                correctDoubles: decisions.doubles,
+                correctSplits: decisions.splits,
+                bettingDecisions: performance.bettingDecisions,
+                startingBalance: performance.startingBalance,
                 finalBalance: state.balance,
-                profitLoss: state.balance - (settings?.startingBalance || 1000),
-                testDuration: Math.round(totalTestTime)
+                totalHands: performance.handsPlayed,
+                testDuration,
+                avgDecisionTime
             };
         }
         
@@ -1305,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('hit');
-                trackDecision('hit', isCorrect);
+                trackDecision('hits', isCorrect);
             }
             
             const currentHand = state.playerHands[state.currentHandIndex];
@@ -1342,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('stand');
-                trackDecision('stand', isCorrect);
+                trackDecision('stands', isCorrect);
             }
             
             if (state.currentHandIndex < state.playerHands.length - 1) {
@@ -1379,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('double');
-                trackDecision('double', isCorrect);
+                trackDecision('doubles', isCorrect);
             }
             
             // Double the bet
@@ -1431,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('split');
-                trackDecision('split', isCorrect);
+                trackDecision('splits', isCorrect);
             }
             
             // Special handling for Aces

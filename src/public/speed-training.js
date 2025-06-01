@@ -437,280 +437,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         function recordDecision(action, isCorrect) {
-            if (!state.performance) return;
+            if (!state.isSpeedMode || !state.performance) return;
             
-            // Show immediate feedback
-            showDecisionFeedback(action, isCorrect);
-            
-            const timeTaken = state.decisionTimer.timeRemaining ? 
-                state.timeLimit - state.decisionTimer.timeRemaining : state.timeLimit;
-            
-            state.performance.decisions.push({
-                action: action,
-                correct: isCorrect,
-                timeTaken: timeTaken
-            });
+            state.performance.totalDecisions++;
+            if (isCorrect) {
+                state.performance.correctDecisions++;
+            }
             
             updateSpeedProgress();
         }
         
-        // Show immediate feedback for the decision
-        function showDecisionFeedback(action, isCorrect) {
-            const currentHand = state.playerHands[state.currentHandIndex];
-            if (!currentHand || currentHand.length === 0) return;
-            
-            const playerValue = getHandValue(currentHand);
-            const dealerUpcard = state.dealerHand[0]?.value;
-            const dealerValue = getCardValue(state.dealerHand[0]);
-            const correctAction = getBasicStrategyAdvice();
-            
-            // Create feedback element
-            const feedback = document.createElement('div');
-            feedback.className = `decision-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
-            
-            // Get hand description
-            const isSoft = isSoftHand(currentHand);
-            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
-            let handDesc = '';
-            
-            if (isPair) {
-                handDesc = `${currentHand[0].value},${currentHand[1].value}`;
-            } else if (isSoft) {
-                handDesc = `A,${playerValue - 11} (soft ${playerValue})`;
-            } else {
-                handDesc = `${playerValue}`;
-            }
-            
-            // Create feedback content
-            const icon = isCorrect ? '✓' : '✗';
-            const result = isCorrect ? 'CORRECT' : 'INCORRECT';
-            
-            let explanation = '';
-            if (isCorrect) {
-                explanation = getCorrectDecisionExplanation(action, handDesc, dealerUpcard);
-            } else {
-                explanation = getIncorrectDecisionExplanation(action, correctAction, handDesc, dealerUpcard);
-            }
-            
-            feedback.innerHTML = `
-                <div class="feedback-header">
-                    <span class="feedback-icon">${icon}</span>
-                    <span class="feedback-result">${result}</span>
-                </div>
-                <div class="feedback-content">
-                    <div class="feedback-situation">You: ${handDesc} vs Dealer: ${dealerUpcard}</div>
-                    <div class="feedback-explanation">${explanation}</div>
-                </div>
-            `;
-            
-            // Add styles for feedback (same as performance test)
-            if (!document.getElementById('feedback-styles')) {
-                const style = document.createElement('style');
-                style.id = 'feedback-styles';
-                style.textContent = `
-                    .decision-feedback {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: rgba(0, 0, 0, 0.95);
-                        border-radius: 15px;
-                        padding: 25px;
-                        max-width: 400px;
-                        z-index: 2000;
-                        border: 3px solid;
-                        font-family: 'Poppins', sans-serif;
-                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                        animation: feedbackAppear 0.3s ease-out;
-                    }
-                    
-                    .decision-feedback.correct {
-                        border-color: #4CAF50;
-                        background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(0, 0, 0, 0.95));
-                    }
-                    
-                    .decision-feedback.incorrect {
-                        border-color: #f44336;
-                        background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(0, 0, 0, 0.95));
-                    }
-                    
-                    .feedback-header {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        margin-bottom: 15px;
-                        font-size: 1.4rem;
-                        font-weight: bold;
-                    }
-                    
-                    .feedback-icon {
-                        font-size: 1.8rem;
-                        font-weight: bold;
-                    }
-                    
-                    .correct .feedback-icon,
-                    .correct .feedback-result {
-                        color: #4CAF50;
-                    }
-                    
-                    .incorrect .feedback-icon,
-                    .incorrect .feedback-result {
-                        color: #f44336;
-                    }
-                    
-                    .feedback-content {
-                        color: white;
-                        line-height: 1.5;
-                    }
-                    
-                    .feedback-situation {
-                        font-size: 1.1rem;
-                        margin-bottom: 10px;
-                        font-weight: 600;
-                        color: #FFD700;
-                    }
-                    
-                    .feedback-explanation {
-                        font-size: 1rem;
-                        color: #e0e0e0;
-                    }
-                    
-                    @keyframes feedbackAppear {
-                        0% {
-                            opacity: 0;
-                            transform: translate(-50%, -50%) scale(0.8);
-                        }
-                        100% {
-                            opacity: 1;
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                    }
-                    
-                    @keyframes feedbackDisappear {
-                        0% {
-                            opacity: 1;
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                        100% {
-                            opacity: 0;
-                            transform: translate(-50%, -50%) scale(0.8);
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            // Add to DOM
-            document.body.appendChild(feedback);
-            
-            // For speed training, show feedback for shorter time (1.5 seconds)
-            setTimeout(() => {
-                if (feedback.parentNode) {
-                    feedback.style.animation = 'feedbackDisappear 0.3s ease-in forwards';
-                    setTimeout(() => {
-                        feedback.remove();
-                    }, 300);
-                }
-            }, 1500);
-        }
-        
-        // Get explanation for correct decisions
-        function getCorrectDecisionExplanation(action, handDesc, dealerUpcard) {
-            const explanations = {
-                'hit': `Good! Hitting with ${handDesc} vs ${dealerUpcard} follows basic strategy. You need to improve this hand.`,
-                'stand': `Correct! Standing with ${handDesc} vs ${dealerUpcard} is the optimal play. Let the dealer risk busting.`,
-                'double': `Excellent! Doubling with ${handDesc} vs ${dealerUpcard} maximizes your expected value on a favorable hand.`,
-                'split': `Perfect! Splitting ${handDesc} vs ${dealerUpcard} gives you better opportunities than playing as one hand.`
-            };
-            
-            return explanations[action] || `Great job! ${action.charAt(0).toUpperCase() + action.slice(1)}ing was the right choice.`;
-        }
-        
-        // Get explanation for incorrect decisions
-        function getIncorrectDecisionExplanation(action, correctAction, handDesc, dealerUpcard) {
-            const wrongAction = action.charAt(0).toUpperCase() + action.slice(1);
-            const rightAction = correctAction.split(' ')[0]; // Get just the action word
-            
-            const explanations = {
-                'hit_should_stand': `Hitting ${handDesc} vs ${dealerUpcard} is too risky. You should stand and let the dealer risk busting.`,
-                'hit_should_double': `While hitting isn't wrong, doubling ${handDesc} vs ${dealerUpcard} would maximize your expected return.`,
-                'hit_should_split': `Hitting ${handDesc} vs ${dealerUpcard} wastes the opportunity to split into two potentially better hands.`,
-                'stand_should_hit': `Standing with ${handDesc} vs ${dealerUpcard} is too passive. This hand needs improvement.`,
-                'stand_should_double': `Standing misses a great opportunity. Doubling ${handDesc} vs ${dealerUpcard} has positive expected value.`,
-                'stand_should_split': `Standing with ${handDesc} vs ${dealerUpcard} wastes the chance to split into better positions.`,
-                'double_should_hit': `Doubling ${handDesc} vs ${dealerUpcard} is too aggressive. Just hit and see what develops.`,
-                'double_should_stand': `Doubling ${handDesc} vs ${dealerUpcard} adds unnecessary risk. This hand is strong enough to stand.`,
-                'double_should_split': `Doubling misses the opportunity to split ${handDesc} vs ${dealerUpcard} into two separate hands.`,
-                'split_should_hit': `Splitting ${handDesc} vs ${dealerUpcard} isn't favorable. Hit to improve the single hand instead.`,
-                'split_should_stand': `Splitting ${handDesc} vs ${dealerUpcard} is unnecessary. This hand is strong enough to stand.`,
-                'split_should_double': `While splitting isn't terrible, doubling ${handDesc} vs ${dealerUpcard} is more profitable.`
-            };
-            
-            const key = `${action}_should_${rightAction.toLowerCase()}`;
-            const specificExplanation = explanations[key];
-            
-            if (specificExplanation) {
-                return `${specificExplanation}`;
-            } else {
-                return `${wrongAction}ing ${handDesc} vs ${dealerUpcard} isn't optimal. Basic strategy recommends: ${correctAction}`;
-            }
-        }
-        
         function updateSpeedProgress() {
-            if (!state.performance) return;
+            if (!state.isSpeedMode) return;
             
-            // Calculate current statistics
-            const totalDecisions = state.performance.decisions.length;
-            const correctDecisions = state.performance.decisions.filter(d => d.correct).length;
-            const accuracy = totalDecisions > 0 ? (correctDecisions / totalDecisions) * 100 : 0;
-            
-            // Update progress displays
-            const accuracyDisplay = document.getElementById('current-accuracy');
-            const decisionsDisplay = document.getElementById('decisions-made');
-            const handsDisplay = document.getElementById('hands-played');
-            
-            if (accuracyDisplay) {
-                accuracyDisplay.textContent = `${Math.round(accuracy)}%`;
+            // Update hands played
+            const handsPlayedEl = document.getElementById('hands-played');
+            if (handsPlayedEl && state.performance) {
+                handsPlayedEl.textContent = state.performance.handsPlayed.toString();
             }
             
-            if (decisionsDisplay) {
-                decisionsDisplay.textContent = totalDecisions;
+            // Update accuracy
+            const accuracyEl = document.getElementById('current-accuracy');
+            if (accuracyEl && state.performance) {
+                const accuracy = state.performance.totalDecisions > 0 ? 
+                    (state.performance.correctDecisions / state.performance.totalDecisions) * 100 : 0;
+                accuracyEl.textContent = `${Math.round(accuracy)}%`;
             }
             
-            if (handsDisplay) {
-                handsDisplay.textContent = state.performance.handsPlayed;
+            // Update average decision time
+            const avgTimeEl = document.getElementById('avg-decision-time');
+            if (avgTimeEl && state.performance && state.performance.decisionTimes.length > 0) {
+                const avgTime = state.performance.decisionTimes.reduce((a, b) => a + b, 0) / state.performance.decisionTimes.length;
+                avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
+            } else if (avgTimeEl) {
+                avgTimeEl.textContent = '0.0s';
+            }
+            
+            // Check if training should end (after many hands)
+            if (state.performance.handsPlayed >= 50) {
+                setTimeout(() => {
+                    calculateAndShowResults();
+                }, 1000);
             }
         }
         
         function finalizeSpeedData() {
-            if (!state.performance) return;
+            if (!state.isSpeedMode || !state.performance) return;
             
-            const endTime = Date.now();
-            const totalTrainingTime = (endTime - state.performance.startTime) / 1000; // in seconds
+            // Calculate final metrics
+            const performance = state.performance;
             
-            // Calculate final statistics from decisions array
-            const totalDecisions = state.performance.decisions.length;
-            const correctDecisions = state.performance.decisions.filter(d => d.correct).length;
-            const finalAccuracy = totalDecisions > 0 ? (correctDecisions / totalDecisions) * 100 : 0;
+            const finalAccuracy = performance.totalDecisions > 0 ? 
+                (performance.correctDecisions / performance.totalDecisions) * 100 : 0;
             
-            // Calculate average decision time
-            const decisionTimes = state.performance.decisions.map(d => d.timeTaken);
-            const avgDecisionTime = decisionTimes.length > 0 ? 
-                decisionTimes.reduce((a, b) => a + b, 0) / decisionTimes.length : 0;
+            const avgDecisionTime = performance.decisionTimes.length > 0 ? 
+                performance.decisionTimes.reduce((a, b) => a + b, 0) / performance.decisionTimes.length : 0;
             
-            // Find fastest decision time
-            const fastestDecisionTime = decisionTimes.length > 0 ? Math.min(...decisionTimes) : 0;
+            const fastestDecisionTime = performance.fastestDecisionTime === Infinity ? 0 : performance.fastestDecisionTime;
             
-            // Store results globally for access by results page
+            const trainingDuration = state.speedStartTime ? (Date.now() - state.speedStartTime) / 1000 : 0;
+            
+            // Store results globally for access
             window.trainerSpeedPerformance = {
-                finalAccuracy: Math.round(finalAccuracy),
-                correctDecisions: correctDecisions,
-                totalDecisions: totalDecisions,
-                totalHands: state.performance.handsPlayed,
-                avgDecisionTime: Math.round(avgDecisionTime * 100) / 100, // Round to 2 decimal places
-                fastestDecisionTime: Math.round(fastestDecisionTime * 100) / 100,
-                trainingDuration: Math.round(totalTrainingTime),
-                timeouts: state.performance.timeouts || 0
+                finalAccuracy,
+                correctDecisions: performance.correctDecisions,
+                totalDecisions: performance.totalDecisions,
+                totalHands: performance.handsPlayed,
+                avgDecisionTime,
+                fastestDecisionTime,
+                trainingDuration,
+                timeouts: performance.timeouts
             };
         }
         
