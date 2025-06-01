@@ -438,13 +438,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Record decision and update stats
         function recordDecision(action, isCorrect) {
-            state.totalDecisions++;
-            state.decisionsPerHand++;
+            if (!state.performance) return;
+            
+            state.performance.totalDecisions++;
             
             if (isCorrect) {
-                state.correctDecisions++;
-            } else {
-                state.incorrectDecisions++;
+                state.performance.correctDecisions++;
             }
             
             // Show immediate feedback if enabled
@@ -453,6 +452,72 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             updateCurrentAccuracy();
+        }
+        
+        // Update current accuracy display
+        function updateCurrentAccuracy() {
+            if (!state.performance) return;
+            
+            const accuracyEl = document.getElementById('current-accuracy');
+            if (accuracyEl) {
+                const accuracy = state.performance.totalDecisions > 0 
+                    ? (state.performance.correctDecisions / state.performance.totalDecisions) * 100 
+                    : 0;
+                accuracyEl.textContent = Math.round(accuracy) + '%';
+            }
+        }
+        
+        // Update speed training progress display
+        function updateSpeedProgress() {
+            if (!state.isSpeedMode || !state.performance) return;
+            
+            // Update hands played
+            const handsPlayedEl = document.getElementById('hands-played');
+            if (handsPlayedEl) {
+                handsPlayedEl.textContent = state.performance.handsPlayed.toString();
+            }
+            
+            // Update current accuracy
+            updateCurrentAccuracy();
+            
+            // Update average decision time
+            const avgTimeEl = document.getElementById('avg-decision-time');
+            if (avgTimeEl && state.performance.decisionTimes.length > 0) {
+                const avgTime = state.performance.decisionTimes.reduce((a, b) => a + b, 0) / state.performance.decisionTimes.length;
+                avgTimeEl.textContent = avgTime.toFixed(1) + 's';
+            }
+        }
+        
+        // Finalize speed training data
+        function finalizeSpeedData() {
+            if (!state.isSpeedMode || !state.performance) return;
+            
+            const performance = state.performance;
+            
+            // Calculate final accuracy
+            const finalAccuracy = performance.totalDecisions > 0
+                ? (performance.correctDecisions / performance.totalDecisions) * 100
+                : 0;
+            
+            // Calculate average decision time
+            const avgDecisionTime = performance.decisionTimes.length > 0
+                ? performance.decisionTimes.reduce((a, b) => a + b, 0) / performance.decisionTimes.length
+                : 0;
+            
+            // Calculate training duration
+            const trainingDuration = (Date.now() - performance.speedStartTime) / 1000;
+            
+            // Store results globally for access
+            window.trainerSpeedPerformance = {
+                finalAccuracy,
+                correctDecisions: performance.correctDecisions,
+                totalDecisions: performance.totalDecisions,
+                totalHands: performance.handsPlayed,
+                avgDecisionTime,
+                trainingDuration,
+                timeouts: performance.timeouts,
+                fastestDecisionTime: performance.fastestDecisionTime === Infinity ? 0 : performance.fastestDecisionTime
+            };
         }
         
         // Show decision feedback overlay
@@ -564,10 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 case '8':
                     explanation = 'Always split 8s! 16 is the worst hand, but two 8s have potential.';
                     break;
-                case 'K':
-                case 'Q':
-                case 'J':
-                case '10':
+                case 'K': case 'Q': case 'J': case '10':
                     explanation = 'Never split 10s! 20 is an excellent hand.';
                     break;
                 case '9':
