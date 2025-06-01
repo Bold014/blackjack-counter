@@ -400,5 +400,34 @@
             }
         }
     </script>
+    
+    <!-- Decision Feedback Overlay -->
+    <div id="decision-feedback" class="decision-feedback-overlay" style="display: none;">
+        <div class="decision-feedback-card">
+            <div class="feedback-header">
+                <i class="feedback-icon fas fa-check-circle" id="feedback-icon"></i>
+                <h3 class="feedback-title" id="feedback-title">Correct Decision!</h3>
+            </div>
+            <div class="feedback-body">
+                <div class="your-action">
+                    <span class="label">Your Action:</span>
+                    <span class="value" id="your-action-value">Hit</span>
+                </div>
+                <div class="correct-action">
+                    <span class="label">Correct Action:</span>
+                    <span class="value" id="correct-action-value">Hit</span>
+                </div>
+                <div class="explanation-section">
+                    <h4>Explanation:</h4>
+                    <p id="decision-explanation">With a hard 16 against dealer's 10, basic strategy says to hit because standing gives you only a 23% chance to win.</p>
+                </div>
+                <div class="count-info" id="count-info-section" style="display: none;">
+                    <h4>Count Consideration:</h4>
+                    <p id="count-explanation">True count is +0. The Illustrious 18 says to stand on 16 vs 10 when the count is 0 or higher.</p>
+                </div>
+            </div>
+            <button class="continue-btn" id="feedback-continue-btn">Continue</button>
+        </div>
+    </div>
 </body>
 </html> 

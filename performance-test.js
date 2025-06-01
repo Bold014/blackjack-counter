@@ -544,18 +544,29 @@ document.addEventListener('DOMContentLoaded', () => {
             performance: isTestMode ? {
                 startingBalance: settings?.startingBalance || 1000,
                 handsPlayed: 0,
+                totalDecisions: 0,
+                correctDecisions: 0,
                 decisions: {
                     hits: { correct: 0, total: 0 },
                     stands: { correct: 0, total: 0 },
                     doubles: { correct: 0, total: 0 },
                     splits: { correct: 0, total: 0 }
                 },
+                correctByAction: {
+                    hits: 0,
+                    stands: 0,
+                    doubles: 0,
+                    splits: 0
+                },
                 bettingDecisions: { correct: 0, total: 0 },
                 countingAccuracy: { correct: 0, total: 0 },
                 trueCountHistory: [],
                 handStartTimes: [],
                 totalTestTime: 0
-            } : null
+            } : null,
+            
+            // Whether to show decision feedback
+            showDecisionFeedback: settings?.showFeedback !== false
         };
         
         // Card values for Hi-Lo counting system
@@ -660,15 +671,205 @@ document.addEventListener('DOMContentLoaded', () => {
         function trackDecision(action, isCorrect) {
             if (!state.isTestMode || !state.performance) return;
             
-            const decisions = state.performance.decisions;
-            if (decisions[action]) {
-                decisions[action].total++;
+            state.performance.totalDecisions++;
+            
+            // Update decision tracking by action type
+            if (state.performance.decisions[action]) {
+                state.performance.decisions[action].total++;
                 if (isCorrect) {
-                    decisions[action].correct++;
+                    state.performance.decisions[action].correct++;
                 }
             }
             
+            // Update overall correct decisions
+            if (isCorrect) {
+                state.performance.correctDecisions++;
+                if (state.performance.correctByAction[action] !== undefined) {
+                    state.performance.correctByAction[action]++;
+                }
+            }
+            
+            // Show immediate feedback
+            if (state.showDecisionFeedback) {
+                showDecisionFeedback(action, isCorrect);
+            }
+            
+            // Update test progress
             updateTestProgress();
+        }
+        
+        // Show decision feedback overlay
+        function showDecisionFeedback(playerAction, isCorrect) {
+            const feedbackOverlay = document.getElementById('decision-feedback');
+            if (!feedbackOverlay) return;
+            
+            // Get the correct action and explanation
+            const correctAction = getBasicStrategyAdvice();
+            const explanation = getDecisionExplanation(playerAction, correctAction);
+            
+            // Update feedback UI
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const yourActionValue = document.getElementById('your-action-value');
+            const correctActionValue = document.getElementById('correct-action-value');
+            const decisionExplanation = document.getElementById('decision-explanation');
+            const countInfoSection = document.getElementById('count-info-section');
+            const countExplanation = document.getElementById('count-explanation');
+            const yourActionDiv = document.querySelector('.your-action');
+            
+            // Set correct/incorrect status
+            if (isCorrect) {
+                feedbackIcon.className = 'feedback-icon fas fa-check-circle correct';
+                feedbackTitle.textContent = 'Correct Decision!';
+                yourActionDiv.className = 'your-action correct';
+            } else {
+                feedbackIcon.className = 'feedback-icon fas fa-times-circle incorrect';
+                feedbackTitle.textContent = 'Incorrect Decision';
+                yourActionDiv.className = 'your-action incorrect';
+            }
+            
+            // Set action values
+            yourActionValue.textContent = capitalizeFirst(playerAction);
+            correctActionValue.textContent = getSimpleAction(correctAction);
+            
+            // Set explanations
+            decisionExplanation.textContent = explanation.basic;
+            
+            // Show count info if applicable
+            if (explanation.countBased) {
+                countInfoSection.style.display = 'block';
+                countExplanation.textContent = explanation.count;
+            } else {
+                countInfoSection.style.display = 'none';
+            }
+            
+            // Show the overlay
+            feedbackOverlay.style.display = 'flex';
+            setTimeout(() => {
+                feedbackOverlay.classList.add('show');
+            }, 10);
+        }
+        
+        // Generate detailed explanation for the decision
+        function getDecisionExplanation(playerAction, correctAction) {
+            const currentHand = state.playerHands[state.currentHandIndex];
+            const playerValue = getHandValue(currentHand);
+            const dealerUpcard = state.dealerHand[0];
+            const dealerValue = getCardValue(dealerUpcard);
+            const isSoft = isSoftHand(currentHand);
+            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
+            const trueCount = parseFloat(calculateTrueCount());
+            
+            let explanation = {
+                basic: '',
+                count: '',
+                countBased: false
+            };
+            
+            // Check if the decision was affected by count
+            if (correctAction.includes('(due to count)')) {
+                explanation.countBased = true;
+            }
+            
+            // Generate basic strategy explanation
+            if (isPair) {
+                explanation.basic = getPairExplanation(currentHand[0].value, dealerValue, trueCount);
+            } else if (isSoft) {
+                explanation.basic = getSoftHandExplanation(playerValue, dealerValue, trueCount);
+            } else {
+                explanation.basic = getHardHandExplanation(playerValue, dealerValue, trueCount);
+            }
+            
+            // Generate count-based explanation if applicable
+            if (explanation.countBased) {
+                explanation.count = getCountDeviationExplanation(playerValue, dealerValue, trueCount, isSoft, isPair);
+            }
+            
+            return explanation;
+        }
+        
+        // Get count deviation explanation
+        function getCountDeviationExplanation(playerValue, dealerValue, trueCount, isSoft, isPair) {
+            let explanation = `True count is ${trueCount >= 0 ? '+' : ''}${trueCount.toFixed(1)}. `;
+            
+            // Insurance
+            if (dealerValue === 11 && trueCount >= 3) {
+                explanation += "The Illustrious 18 says to take insurance when the true count is +3 or higher, as the deck is rich in 10s.";
+                return explanation;
+            }
+            
+            // Hard hands
+            if (!isSoft && !isPair) {
+                // 16 vs 10
+                if (playerValue === 16 && dealerValue === 10 && trueCount >= 0) {
+                    explanation += "The Illustrious 18 says to stand on 16 vs 10 when the count is 0 or higher. With more high cards remaining, the dealer is more likely to bust.";
+                }
+                // 15 vs 10
+                else if (playerValue === 15 && dealerValue === 10 && trueCount >= 4) {
+                    explanation += "Stand on 15 vs 10 when the count is +4 or higher. The deck is very rich in high cards.";
+                }
+                // 12 vs 3
+                else if (playerValue === 12 && dealerValue === 3 && trueCount >= 2) {
+                    explanation += "Stand on 12 vs 3 when the count is +2 or higher. More high cards increase the dealer's bust probability.";
+                }
+                // 12 vs 2
+                else if (playerValue === 12 && dealerValue === 2 && trueCount >= 3) {
+                    explanation += "Stand on 12 vs 2 when the count is +3 or higher. The positive count favors standing on stiff hands.";
+                }
+                // Negative count deviations
+                else if (playerValue === 13 && dealerValue === 2 && trueCount <= -1) {
+                    explanation += "Hit 13 vs 2 when the count is -1 or lower. With fewer high cards, you're less likely to bust.";
+                }
+                else if (playerValue === 12 && dealerValue === 4 && trueCount <= 0) {
+                    explanation += "Hit 12 vs 4 when the count is 0 or lower. The deck composition favors taking a card.";
+                }
+                // Double down deviations
+                else if (playerValue === 11 && dealerValue === 11 && trueCount >= 1) {
+                    explanation += "Double 11 vs Ace when the count is +1 or higher. The positive count makes this aggressive play profitable.";
+                }
+                else if (playerValue === 10 && dealerValue === 10 && trueCount >= 4) {
+                    explanation += "Double 10 vs 10 when the count is +4 or higher. The deck is rich enough in high cards to justify this risky double.";
+                }
+                else if (playerValue === 9 && dealerValue === 2 && trueCount >= 1) {
+                    explanation += "Double 9 vs 2 when the count is +1 or higher. The slight positive count tips the scales in favor of doubling.";
+                }
+            }
+            
+            // Pair deviations
+            if (isPair) {
+                const cardValue = state.playerHands[state.currentHandIndex][0].value;
+                if ((cardValue === '10' || ['J', 'Q', 'K'].includes(cardValue)) && dealerValue === 5 && trueCount >= 5) {
+                    explanation += "Split 10s vs 5 when the count is +5 or higher. This is a rare deviation only used with extremely positive counts.";
+                }
+                else if ((cardValue === '10' || ['J', 'Q', 'K'].includes(cardValue)) && dealerValue === 6 && trueCount >= 4) {
+                    explanation += "Split 10s vs 6 when the count is +4 or higher. Breaking up a made 20 is only profitable with high positive counts.";
+                }
+            }
+            
+            return explanation;
+        }
+        
+        // Get simple action from complex advice
+        function getSimpleAction(advice) {
+            if (advice.toLowerCase().includes('insurance')) {
+                return 'Take Insurance';
+            } else if (advice.toLowerCase().includes('split')) {
+                return 'Split';
+            } else if (advice.toLowerCase().includes('double')) {
+                return 'Double Down';
+            } else if (advice.toLowerCase().includes('stand')) {
+                return 'Stand';
+            } else if (advice.toLowerCase().includes('hit')) {
+                return 'Hit';
+            } else if (advice.toLowerCase().includes('surrender')) {
+                return 'Surrender';
+            }
+            return advice;
+        }
+        
+        // Capitalize first letter
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
         
         function trackBettingDecision(isCorrect) {
@@ -897,6 +1098,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (state.gamePhase === 'betting' || state.gamePhase === 'gameOver') {
                         state.currentBet = parseInt(betInput.value);
                         startNewHand();
+                    }
+                });
+            }
+            
+            // Feedback continue button
+            const feedbackContinueBtn = document.getElementById('feedback-continue-btn');
+            if (feedbackContinueBtn) {
+                feedbackContinueBtn.addEventListener('click', () => {
+                    const feedbackOverlay = document.getElementById('decision-feedback');
+                    if (feedbackOverlay) {
+                        feedbackOverlay.classList.remove('show');
+                        setTimeout(() => {
+                            feedbackOverlay.style.display = 'none';
+                        }, 300);
                     }
                 });
             }
@@ -2949,3 +3164,4 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 });
+
