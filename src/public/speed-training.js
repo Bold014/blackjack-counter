@@ -566,6 +566,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                 }
                 
+                // Show immediate feedback
+                showDecisionFeedback(action, isCorrect, correctAction);
+                
                 recordDecision(action, isCorrect);
                 stopDecisionTimer();
             }
@@ -587,6 +590,182 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // Show immediate feedback for decisions
+        function showDecisionFeedback(playerAction, isCorrect, correctAction) {
+            const gameArea = document.querySelector('.blackjack-table') || document.querySelector('#speed-training-game');
+            if (!gameArea) return;
+            
+            // Create feedback element
+            const feedback = document.createElement('div');
+            feedback.className = `decision-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            // Get current hand information for explanation
+            const currentHand = state.playerHands[state.currentHandIndex];
+            const playerValue = getHandValue(currentHand);
+            const dealerUpcard = state.dealerHand[0]?.value;
+            const dealerValue = getCardValue(state.dealerHand[0]);
+            const isSoft = isSoftHand(currentHand);
+            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
+            
+            // Generate explanation
+            let explanation = '';
+            if (isCorrect) {
+                explanation = `<strong>✓ Correct!</strong><br>`;
+                explanation += `${playerAction.toUpperCase()} was the right choice.`;
+            } else {
+                explanation = `<strong>✗ Incorrect</strong><br>`;
+                explanation += `You chose ${playerAction.toUpperCase()}, but ${correctAction} was better.`;
+            }
+            
+            // Add strategy explanation
+            explanation += '<br><br>';
+            if (isPair) {
+                explanation += getPairExplanation(currentHand[0].value, dealerValue);
+            } else if (isSoft) {
+                explanation += getSoftHandExplanation(playerValue, dealerValue);
+            } else {
+                explanation += getHardHandExplanation(playerValue, dealerValue);
+            }
+            
+            feedback.innerHTML = `
+                <div class="feedback-content">
+                    <div class="feedback-header">
+                        ${explanation}
+                    </div>
+                </div>
+            `;
+            
+            gameArea.appendChild(feedback);
+            
+            // Show with animation
+            setTimeout(() => feedback.classList.add('show'), 50);
+            
+            // Remove after delay
+            setTimeout(() => {
+                feedback.classList.remove('show');
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.parentNode.removeChild(feedback);
+                    }
+                }, 300);
+            }, 2500);
+        }
+        
+        // Get explanation for pair decisions
+        function getPairExplanation(cardValue, dealerValue) {
+            switch(cardValue) {
+                case 'A':
+                    return `<strong>Always split Aces!</strong> Two 11s = 22 (bust), but split gives two chances at blackjack.`;
+                case '8':
+                    return `<strong>Always split 8s!</strong> 16 is the worst hand, splitting gives much better chances.`;
+                case 'K': case 'Q': case 'J': case '10':
+                    return `<strong>Never split 10s!</strong> 20 is excellent - splitting would waste a winning hand.`;
+                case '9':
+                    if ([7, 10, 11].includes(dealerValue)) {
+                        return `<strong>Stand with 18 vs ${dealerValue}:</strong> 18 is strong against dealer's upcard.`;
+                    }
+                    return `<strong>Split vs weak dealer (${dealerValue}):</strong> Get more money on table when dealer is vulnerable.`;
+                case '7':
+                    if (dealerValue <= 7) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Two 7s can make 17+ against weak dealer.`;
+                    }
+                    return `<strong>Hit vs ${dealerValue}:</strong> Don't split weak hands against strong dealer.`;
+                case '6':
+                    if (dealerValue <= 6) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Dealer has bust card, take advantage.`;
+                    }
+                    return `<strong>Hit vs ${dealerValue}:</strong> 12 vs strong dealer needs improvement.`;
+                case '5':
+                    return `<strong>Double (don't split):</strong> 10 is great for doubling, 5s make terrible starts.`;
+                case '4':
+                    if (dealerValue === 5 || dealerValue === 6) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Dealer very weak, worth the risk.`;
+                    }
+                    return `<strong>Hit:</strong> 8 vs strong dealer, don't create two weak hands.`;
+                case '3':
+                case '2':
+                    if (dealerValue <= 7) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Small pairs need dealer weakness to split.`;
+                    }
+                    return `<strong>Hit:</strong> Small pair vs strong dealer - keep as one hand.`;
+                default:
+                    return `Standard pair strategy applies.`;
+            }
+        }
+        
+        // Get explanation for soft hand decisions  
+        function getSoftHandExplanation(playerValue, dealerValue) {
+            switch(playerValue) {
+                case 20: // A,9
+                    return `<strong>A,9 = 20:</strong> Excellent hand, always stand.`;
+                case 19: // A,8
+                    if (dealerValue === 6) {
+                        return `<strong>A,8 vs 6:</strong> Double to maximize profit against dealer's weak card.`;
+                    }
+                    return `<strong>A,8 = 19:</strong> Strong hand, stand against most dealer cards.`;
+                case 18: // A,7
+                    if (dealerValue <= 6) {
+                        return `<strong>A,7 vs ${dealerValue}:</strong> Double against weak dealer - improve or stay strong.`;
+                    } else if (dealerValue <= 8) {
+                        return `<strong>A,7 vs ${dealerValue}:</strong> 18 is competitive, stand.`;
+                    } else {
+                        return `<strong>A,7 vs ${dealerValue}:</strong> 18 vs strong dealer needs improvement, hit.`;
+                    }
+                case 17: // A,6
+                    if (dealerValue <= 6) {
+                        return `<strong>A,6 vs ${dealerValue}:</strong> Double against weak dealer for improvement.`;
+                    }
+                    return `<strong>A,6 = 17:</strong> Weak soft hand needs improvement, hit.`;
+                case 16: // A,5
+                case 15: // A,4
+                    if (dealerValue >= 4 && dealerValue <= 6) {
+                        return `<strong>A,${playerValue-11} vs ${dealerValue}:</strong> Double against dealer's bust cards.`;
+                    }
+                    return `<strong>A,${playerValue-11}:</strong> Weak soft hand, hit to improve.`;
+                case 14: // A,3  
+                case 13: // A,2
+                    if (dealerValue === 5 || dealerValue === 6) {
+                        return `<strong>A,${playerValue-11} vs ${dealerValue}:</strong> Double against dealer's weakest cards.`;
+                    }
+                    return `<strong>A,${playerValue-11}:</strong> Very weak soft hand, hit to improve.`;
+                default:
+                    return `<strong>Soft hand:</strong> Ace flexibility allows aggressive play.`;
+            }
+        }
+        
+        // Get explanation for hard hand decisions
+        function getHardHandExplanation(playerValue, dealerValue) {
+            if (playerValue >= 17) {
+                return `<strong>${playerValue}:</strong> Always stand - risk of busting is too high.`;
+            } else if (playerValue >= 13 && playerValue <= 16) {
+                if (dealerValue <= 6) {
+                    return `<strong>${playerValue} vs ${dealerValue}:</strong> Stand and let dealer bust (~40% chance).`;
+                } else {
+                    return `<strong>${playerValue} vs ${dealerValue}:</strong> Hit - dealer likely makes 17+ (74% chance).`;
+                }
+            } else if (playerValue === 12) {
+                if (dealerValue >= 4 && dealerValue <= 6) {
+                    return `<strong>12 vs ${dealerValue}:</strong> Stand, dealer has bust card.`;
+                } else {
+                    return `<strong>12 vs ${dealerValue}:</strong> Hit, need improvement against strong dealer.`;
+                }
+            } else if (playerValue === 11) {
+                return `<strong>11:</strong> Double if allowed - excellent chance for 21.`;
+            } else if (playerValue === 10) {
+                if (dealerValue <= 9) {
+                    return `<strong>10:</strong> Double if allowed - great chance for 20.`;
+                }
+                return `<strong>10 vs ${dealerValue}:</strong> Hit, doubling too risky against strong dealer.`;
+            } else if (playerValue === 9) {
+                if (dealerValue >= 3 && dealerValue <= 6) {
+                    return `<strong>9 vs ${dealerValue}:</strong> Double against weak dealer.`;
+                }
+                return `<strong>9:</strong> Hit to improve total.`;
+            } else {
+                return `<strong>${playerValue}:</strong> Always hit low totals to improve.`;
+            }
+        }
+
         // Create and shuffle the deck
         function createDeck() {
             state.deck = [];

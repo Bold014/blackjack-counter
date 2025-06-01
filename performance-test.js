@@ -1116,6 +1116,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('hit');
+                
+                // Show immediate feedback
+                showDecisionFeedback('hit', isCorrect, correctAction);
+                
                 trackDecision('hits', isCorrect);
             }
             
@@ -1153,6 +1157,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('stand');
+                
+                // Show immediate feedback
+                showDecisionFeedback('stand', isCorrect, correctAction);
+                
                 trackDecision('stands', isCorrect);
             }
             
@@ -1190,6 +1198,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('double');
+                
+                // Show immediate feedback
+                showDecisionFeedback('double', isCorrect, correctAction);
+                
                 trackDecision('doubles', isCorrect);
             }
             
@@ -1242,6 +1254,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
                 const isCorrect = correctAction.toLowerCase().includes('split');
+                
+                // Show immediate feedback
+                showDecisionFeedback('split', isCorrect, correctAction);
+                
                 trackDecision('splits', isCorrect);
             }
             
@@ -1733,50 +1749,11 @@ document.addEventListener('DOMContentLoaded', () => {
             animateBalanceCount(startBalance, endBalance);
         }
         
-        // Function to animate balance counting up
-        function animateBalanceCount(startValue, endValue) {
-            const balanceDisplay = document.getElementById('balance');
-            if (!balanceDisplay) return;
-            
-            const duration = 1000; // 1 second
-            const frameDuration = 1000 / 60; // 60fps
-            const totalFrames = Math.round(duration / frameDuration);
-            const valueIncrement = (endValue - startValue) / totalFrames;
-            
-            let currentFrame = 0;
-            let currentValue = startValue;
-            
-            // Highlight the balance display
-            balanceDisplay.classList.add('balance-updated');
-            
-            const animate = () => {
-                currentFrame++;
-                currentValue += valueIncrement;
-                
-                if (currentFrame === totalFrames) {
-                    currentValue = endValue;
-                }
-                
-                balanceDisplay.textContent = Math.floor(currentValue).toFixed(0);
-                
-                if (currentFrame < totalFrames) {
-                    requestAnimationFrame(animate);
-                } else {
-                    // Animation complete, remove highlight class after a short delay
-                    setTimeout(() => {
-                        balanceDisplay.classList.remove('balance-updated');
-                    }, 500);
-                }
-            };
-            
-            requestAnimationFrame(animate);
-        }
-        
-        // Function to display outcome message
-        function displayOutcomeMessage(message, outcomeType) {
+        // Function to display error message with animation
+        function displayErrorMessage(message) {
             // Create message element
             const messageEl = document.createElement('div');
-            messageEl.className = `outcome-message ${outcomeType}`;
+            messageEl.className = 'error-message';
             messageEl.textContent = message;
             
             // Find the blackjack table and append message
@@ -1799,388 +1776,177 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Reset the game
-        function resetGame() {
-            state.playerHands = [[]];
-            state.dealerHand = [];
-            state.currentHandIndex = 0;
-            state.gamePhase = 'betting';
-            state.doubledHands = new Set();
-            state.splitHands = [];
+        // Show immediate feedback for decisions
+        function showDecisionFeedback(playerAction, isCorrect, correctAction) {
+            const gameArea = document.querySelector('.blackjack-table') || document.querySelector('#test-run-game');
+            if (!gameArea) return;
             
-            createDeck();
-            shuffleDeck();
+            // Create feedback element
+            const feedback = document.createElement('div');
+            feedback.className = `decision-feedback ${isCorrect ? 'correct' : 'incorrect'}`;
             
-            updateGameDisplay();
-            updateControls();
-
-        }
-        
-        // Get the value of a single card
-        function getCardValue(card) {
-            if (!card) return 0;
-            
-            if (card.value === 'A') return 11;
-            if (['K', 'Q', 'J', '10'].includes(card.value)) return 10;
-            return parseInt(card.value);
-        }
-        
-        // Calculate the value of a hand
-        function getHandValue(hand) {
-            if (!hand || hand.length === 0) return 0;
-            
-            let sum = 0;
-            let aceCount = 0;
-            
-            for (let card of hand) {
-                if (card.value === 'A') {
-                    aceCount++;
-                    sum += 11;
-                } else if (['K', 'Q', 'J', '10'].includes(card.value)) {
-                    sum += 10;
-                } else {
-                    sum += parseInt(card.value);
-                }
-            }
-            
-            // Adjust for Aces if needed
-            while (sum > 21 && aceCount > 0) {
-                sum -= 10;
-                aceCount--;
-            }
-            
-            return sum;
-        }
-        
-        // Check if a hand is soft (contains an Ace counted as 11)
-        function isSoftHand(hand) {
-            let sum = 0;
-            let aceCount = 0;
-            
-            for (let card of hand) {
-                if (card.value === 'A') {
-                    aceCount++;
-                    sum += 11;
-                } else if (['K', 'Q', 'J', '10'].includes(card.value)) {
-                    sum += 10;
-                } else {
-                    sum += parseInt(card.value);
-                }
-            }
-            
-            // If there's at least one Ace and it's not being counted as 1
-            return aceCount > 0 && sum <= 21;
-        }
-        
-        // Update game display with current state
-        function updateGameDisplay() {
-            renderCards();
-        }
-        
-        // Render all cards on the table
-        function renderCards() {
-            // Clear dealer and player card areas
-            const dealerCardArea = document.getElementById('dealer-cards');
-            const playerCardArea = document.getElementById('player-cards');
-            
-            const previousDealerCardCount = dealerCardArea ? dealerCardArea.childElementCount : 0;
-            
-            if (dealerCardArea) dealerCardArea.innerHTML = '';
-            if (playerCardArea) playerCardArea.innerHTML = '';
-            
-            // Determine if this is an initial deal animation
-            const isSequentialDealing = state.sequentialDealing === true;
-            
-            // Flag to track if dealer is currently hitting
-            const isDealerHitting = state.gamePhase === 'dealerTurn';
-            
-            // Flag to track if player is currently hitting
-            const isPlayerHitting = state.gamePhase === 'playerTurn' && !isSequentialDealing;
-            
-            // Flag to check if we're in the process of splitting
-            const isSplitting = state.isSplitting === true;
-            
-            // Flag to check if we're just revealing the dealer's hole card (not dealing a new card)
-            const isRevealingHoleCard = state.gamePhase === 'dealerTurn' && state.dealerHand.length === 2;
-            
-            // Render dealer cards
-            if (dealerCardArea) {
-                // Track if we're adding a new dealer card to apply special animation
-                const isNewDealerCard = state.dealerHand.length > previousDealerCardCount && previousDealerCardCount > 0;
-                
-                // Create a container for dealer hand to match player hand structure
-                const dealerHandEl = document.createElement('div');
-                dealerHandEl.className = 'hand';
-                
-                state.dealerHand.forEach((card, index) => {
-                    const cardEl = document.createElement('div');
-                    cardEl.className = 'card';
-                    
-                    const cardImage = document.createElement('img');
-                    cardImage.className = 'card-img';
-                    cardImage.alt = card.isHidden ? '?' : `${card.value}${card.suit}`;
-                    cardImage.src = getCardImagePath(card);
-                    
-                    if (card.isHidden) {
-                        cardEl.classList.add('hidden');
-                    }
-                    
-                    cardEl.appendChild(cardImage);
-                    dealerHandEl.appendChild(cardEl);
-                    
-                    // Determine card animation based on context
-                    if (isSequentialDealing) {
-                        // For sequential dealing, only animate the current card being dealt
-                        if ((state.dealingStage === 2 && index === 0) || // Dealer's first card when it's shown
-                            (state.dealingStage === 4 && index === 1)) { // Dealer's second card when it's shown
-                            cardEl.classList.add('card-dealt');
-                        }
-                    } else if (isDealerHitting && isNewDealerCard && index === state.dealerHand.length - 1 && !isRevealingHoleCard) {
-                        // For dealer hit during play, use dealer hit animation ONLY if dealer is currently hitting
-                        // and only if we're not just revealing the hole card
-                        cardEl.classList.add('dealer-hit-card');
-                        cardEl.style.zIndex = '10';
-                        setTimeout(() => {
-                            cardEl.style.zIndex = '1';
-                        }, 700);
-                    } else if (isRevealingHoleCard && index === 1 && !card.isHidden) {
-                        // When revealing the dealer's hole card after player stands, just add the flip class
-                        cardEl.classList.add('card-flip');
-                    }
-                });
-                
-                // Display dealer hand value (only visible total if no hidden cards)
-                const dealerValueEl = document.createElement('div');
-                dealerValueEl.className = 'hand-value';
-                
-                // Only show total if all cards are face up or we're in gameOver phase
-                if (!state.dealerHand.some(card => card.isHidden) || state.gamePhase === 'gameOver') {
-                    dealerValueEl.textContent = getHandValue(state.dealerHand);
-                    
-                    // Add color indication based on value
-                    const dealerValue = getHandValue(state.dealerHand);
-                    if (dealerValue > 21) {
-                        dealerValueEl.classList.add('busted');
-                    } else if (dealerValue === 21 && state.dealerHand.length === 2) {
-                        dealerValueEl.classList.add('blackjack');
-                    }
-                } else {
-                    dealerValueEl.textContent = '?';
-                }
-                
-                dealerHandEl.appendChild(dealerValueEl);
-                dealerCardArea.appendChild(dealerHandEl);
-            }
-            
-            // Track if this is a regular initial deal (not used during sequential dealing)
-            const isInitialDeal = !isSequentialDealing && 
-                                 state.gamePhase === 'playerTurn' && 
-                                 state.playerHands[0].length === 2 && 
-                                 state.playerHands.length === 1 &&
-                                 !state.splitHands.length;
-            
-            // Render player hands
-            if (playerCardArea) {
-                // Remove any existing hand indicators if starting a new hand
-                if (state.gamePhase === 'dealing' || state.gamePhase === 'betting') {
-                    const existingIndicators = document.querySelectorAll('.hand-indicator');
-                    existingIndicators.forEach(indicator => indicator.remove());
-                }
-                
-                state.playerHands.forEach((hand, handIndex) => {
-                    const handEl = document.createElement('div');
-                    handEl.className = 'hand';
-                    
-                    // Add appropriate classes for multi-hand display
-                    if (state.playerHands.length > 1) {
-                        handEl.classList.add('split-hand');
-                        handEl.classList.add(`split-hand-${handIndex + 1}`);
-                        
-                        // Add transformation to visually separate split hands
-                        if (isSplitting) {
-                            // During split animation, apply transition for smooth movement
-                            handEl.style.transition = 'transform 0.5s ease';
-                            
-                            if (handIndex === 0) {
-                                // First hand moves left
-                                handEl.style.transform = 'translateX(-50px)';
-                            } else {
-                                // Second hand moves right
-                                handEl.style.transform = 'translateX(50px)';
-                            }
-                        } else {
-                            // After split is complete, position is maintained but without transition
-                            if (handIndex === 0) {
-                                handEl.style.transform = 'translateX(-50px)';
-                            } else {
-                                handEl.style.transform = 'translateX(50px)';
-                            }
-                        }
-                    }
-                    
-                    if (handIndex === state.currentHandIndex && state.gamePhase === 'playerTurn') {
-                        handEl.classList.add('active');
-                    }
-                    
-                    // Add hand outcome class if the game is over
-                    if (state.gamePhase === 'gameOver') {
-                        const playerValue = getHandValue(hand);
-                        const dealerValue = getHandValue(state.dealerHand);
-                        
-                        if (playerValue > 21) {
-                            handEl.classList.add('outcome-lose', 'outcome-bust');
-                        } else if (dealerValue > 21) {
-                            handEl.classList.add('outcome-win', 'outcome-dealer-bust');
-                        } else if (playerValue > dealerValue) {
-                            handEl.classList.add('outcome-win');
-                        } else if (playerValue === dealerValue) {
-                            handEl.classList.add('outcome-push');
-                        } else {
-                            handEl.classList.add('outcome-lose');
-                        }
-                        
-                        // Check for blackjack
-                        if (playerValue === 21 && hand.length === 2) {
-                            handEl.classList.add('outcome-blackjack');
-                        }
-                    }
-                    
-                    // Track the last card in the current hand (the newly added one)
-                    const lastCardIndex = hand.length - 1;
-                    const isCurrentHand = handIndex === state.currentHandIndex;
-                    
-                    hand.forEach((card, cardIndex) => {
-                        const cardEl = document.createElement('div');
-                        cardEl.className = 'card';
-                        
-                        // Determine animation based on dealing context
-                        if (isSequentialDealing) {
-                            // Only animate the player card that was just dealt
-                            if ((state.dealingStage === 1 && cardIndex === 0) || // First player card when it's shown
-                                (state.dealingStage === 3 && cardIndex === 1)) { // Second player card when it's shown
-                                cardEl.classList.add('card-dealt');
-                            }
-                        } else if (isSplitting) {
-                            // For split hands, animate the newly dealt cards
-                            if (cardIndex === hand.length - 1) {
-                                cardEl.classList.add('card-dealt');
-                            } else {
-                                // The original card (not the new one) gets a split animation
-                                cardEl.classList.add('card-split');
-                            }
-                        } else if (isInitialDeal) {
-                            // This is for regular initial deal (not sequential)
-                            setTimeout(() => {
-                                cardEl.classList.add('card-dealt');
-                            }, (handIndex * hand.length + cardIndex) * 200 + 400);
-                        } else if (isPlayerHitting && isCurrentHand && cardIndex === lastCardIndex && hand.length > 2) {
-                            // For hit during play, animate only the newest card AND only if player is currently hitting
-                            cardEl.classList.add('card-dealt');
-                        }
-                        
-                        const cardImage = document.createElement('img');
-                        cardImage.className = 'card-img';
-                        cardImage.alt = `${card.value}${card.suit}`;
-                        cardImage.src = getCardImagePath(card);
-                        
-                        cardEl.appendChild(cardImage);
-                        handEl.appendChild(cardEl);
-                    });
-                    
-                    // Display hand value
-                    const valueEl = document.createElement('div');
-                    valueEl.className = 'hand-value';
-                    valueEl.textContent = getHandValue(hand);
-                    
-                    // Add color indication based on value
-                    const handValue = getHandValue(hand);
-                    if (handValue > 21) {
-                        valueEl.classList.add('busted');
-                    } else if (handValue === 21 && hand.length === 2) {
-                        valueEl.classList.add('blackjack');
-                    }
-                    
-                    handEl.appendChild(valueEl);
-                    playerCardArea.appendChild(handEl);
-                });
-            }
-        }
-        
-        // Update controls based on game state
-        function updateControls() {
-            // Implementation will depend on your HTML structure
-            // This function should enable/disable buttons based on game state
-            
-            // Disable all action buttons during dealing phase
-            const isDealingPhase = state.gamePhase === 'dealing';
-            
-            if (dealButton) dealButton.disabled = (state.gamePhase !== 'betting' && state.gamePhase !== 'gameOver') || isDealingPhase;
-            if (hitButton) hitButton.disabled = state.gamePhase !== 'playerTurn' || isDealingPhase;
-            if (standButton) standButton.disabled = state.gamePhase !== 'playerTurn' || isDealingPhase;
-            if (doubleButton) {
-                // Can double only on first two cards of a hand
-                const canDouble = state.gamePhase === 'playerTurn' && 
-                                  state.playerHands[state.currentHandIndex].length === 2 &&
-                                  (!state.bettingEnabled || state.balance >= state.currentBet);
-                doubleButton.disabled = !canDouble || isDealingPhase;
-            }
-            if (splitButton) {
-                // Can split only if you have a pair
-                const currentHand = state.playerHands[state.currentHandIndex] || [];
-                const canSplit = state.gamePhase === 'playerTurn' && 
-                                 currentHand.length === 2 && 
-                                 currentHand[0]?.value === currentHand[1]?.value &&
-                                 (!state.bettingEnabled || state.balance >= state.currentBet);
-                splitButton.disabled = !canSplit || isDealingPhase;
-            }
-            if (betInput) betInput.disabled = (state.gamePhase !== 'betting' && state.gamePhase !== 'gameOver') || 
-                                              !state.bettingEnabled || 
-                                              isDealingPhase;
-        }
-        
-        // Update balance display
-        function updateBalanceDisplay() {
-            if (balanceDisplay) {
-                balanceDisplay.textContent = state.balance.toFixed(0);
-            }
-        }
-        
-        // Calculate true count
-        function calculateTrueCount() {
-            const decksRemaining = Math.max((state.decks * 52 - state.cardsDealt) / 52, 0.5);
-            return (state.runningCount / decksRemaining).toFixed(1);
-        }
-        
-        // Get basic strategy advice
-        function getBasicStrategyAdvice() {
-            if (state.gamePhase !== 'playerTurn') return 'Waiting for next hand...';
-            
+            // Get current hand information for explanation
             const currentHand = state.playerHands[state.currentHandIndex];
-            if (!currentHand || currentHand.length === 0) return 'Waiting for cards...';
-            
             const playerValue = getHandValue(currentHand);
             const dealerUpcard = state.dealerHand[0]?.value;
-            if (!dealerUpcard) return 'Waiting for dealer card...';
-            
             const dealerValue = getCardValue(state.dealerHand[0]);
+            const isSoft = isSoftHand(currentHand);
+            const isPair = currentHand.length === 2 && currentHand[0].value === currentHand[1].value;
             
-            let baseAdvice = '';
-            
-            // Check for pair
-            if (currentHand.length === 2 && currentHand[0].value === currentHand[1].value) {
-                baseAdvice = getPairAdvice(currentHand[0].value, dealerValue);
-            }
-            // Check for soft hand
-            else if (isSoftHand(currentHand)) {
-                baseAdvice = getSoftHandAdvice(playerValue, dealerValue);
-            }
-            // Hard hand
-            else {
-                baseAdvice = getHardHandAdvice(playerValue, dealerValue);
+            // Generate explanation
+            let explanation = '';
+            if (isCorrect) {
+                explanation = `<strong>✓ Correct!</strong><br>`;
+                explanation += `${playerAction.toUpperCase()} was the right choice.`;
+            } else {
+                explanation = `<strong>✗ Incorrect</strong><br>`;
+                explanation += `You chose ${playerAction.toUpperCase()}, but ${correctAction} was better.`;
             }
             
-            // Now adjust based on the count
-            return adjustAdviceBasedOnCount(baseAdvice, playerValue, dealerValue, currentHand);
+            // Add strategy explanation
+            explanation += '<br><br>';
+            if (isPair) {
+                explanation += getPairExplanation(currentHand[0].value, dealerValue);
+            } else if (isSoft) {
+                explanation += getSoftHandExplanation(playerValue, dealerValue);
+            } else {
+                explanation += getHardHandExplanation(playerValue, dealerValue);
+            }
+            
+            feedback.innerHTML = `
+                <div class="feedback-content">
+                    <div class="feedback-header">
+                        ${explanation}
+                    </div>
+                </div>
+            `;
+            
+            gameArea.appendChild(feedback);
+            
+            // Show with animation
+            setTimeout(() => feedback.classList.add('show'), 50);
+            
+            // Remove after delay
+            setTimeout(() => {
+                feedback.classList.remove('show');
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.parentNode.removeChild(feedback);
+                    }
+                }, 300);
+            }, 3000); // Slightly longer for performance test
+        }
+        
+        // Get explanation for pair decisions
+        function getPairExplanation(cardValue, dealerValue) {
+            switch(cardValue) {
+                case 'A':
+                    return `<strong>Always split Aces!</strong> Two 11s = 22 (bust), but split gives two chances at blackjack.`;
+                case '8':
+                    return `<strong>Always split 8s!</strong> 16 is the worst hand, splitting gives much better chances.`;
+                case 'K': case 'Q': case 'J': case '10':
+                    return `<strong>Never split 10s!</strong> 20 is excellent - splitting would waste a winning hand.`;
+                case '9':
+                    if ([7, 10, 11].includes(dealerValue)) {
+                        return `<strong>Stand with 18 vs ${dealerValue}:</strong> 18 is strong against dealer's upcard.`;
+                    }
+                    return `<strong>Split vs weak dealer (${dealerValue}):</strong> Get more money on table when dealer is vulnerable.`;
+                case '7':
+                    if (dealerValue <= 7) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Two 7s can make 17+ against weak dealer.`;
+                    }
+                    return `<strong>Hit vs ${dealerValue}:</strong> Don't split weak hands against strong dealer.`;
+                case '6':
+                    if (dealerValue <= 6) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Dealer has bust card, take advantage.`;
+                    }
+                    return `<strong>Hit vs ${dealerValue}:</strong> 12 vs strong dealer needs improvement.`;
+                case '5':
+                    return `<strong>Double (don't split):</strong> 10 is great for doubling, 5s make terrible starts.`;
+                case '4':
+                    if (dealerValue === 5 || dealerValue === 6) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Dealer very weak, worth the risk.`;
+                    }
+                    return `<strong>Hit:</strong> 8 vs strong dealer, don't create two weak hands.`;
+                case '3': case '2':
+                    if (dealerValue <= 7) {
+                        return `<strong>Split vs ${dealerValue}:</strong> Small pairs need dealer weakness to split.`;
+                    }
+                    return `<strong>Hit:</strong> Small pair vs strong dealer - keep as one hand.`;
+                default:
+                    return `Standard pair strategy applies.`;
+            }
+        }
+        
+        // Get explanation for soft hand decisions  
+        function getSoftHandExplanation(playerValue, dealerValue) {
+            switch(playerValue) {
+                case 20: // A,9
+                    return `<strong>A,9 = 20:</strong> Excellent hand, always stand.`;
+                case 19: // A,8
+                    if (dealerValue === 6) {
+                        return `<strong>A,8 vs 6:</strong> Double to maximize profit against dealer's weak card.`;
+                    }
+                    return `<strong>A,8 = 19:</strong> Strong hand, stand against most dealer cards.`;
+                case 18: // A,7
+                    if (dealerValue <= 6) {
+                        return `<strong>A,7 vs ${dealerValue}:</strong> Double against weak dealer - improve or stay strong.`;
+                    } else if (dealerValue <= 8) {
+                        return `<strong>A,7 vs ${dealerValue}:</strong> 18 is competitive, stand.`;
+                    } else {
+                        return `<strong>A,7 vs ${dealerValue}:</strong> 18 vs strong dealer needs improvement, hit.`;
+                    }
+                case 17: // A,6
+                    if (dealerValue <= 6) {
+                        return `<strong>A,6 vs ${dealerValue}:</strong> Double against weak dealer for improvement.`;
+                    }
+                    return `<strong>A,6 = 17:</strong> Weak soft hand needs improvement, hit.`;
+                case 16: case 15: // A,5 / A,4
+                    if (dealerValue >= 4 && dealerValue <= 6) {
+                        return `<strong>A,${playerValue-11} vs ${dealerValue}:</strong> Double against dealer's bust cards.`;
+                    }
+                    return `<strong>A,${playerValue-11}:</strong> Weak soft hand, hit to improve.`;
+                case 14: case 13: // A,3 / A,2
+                    if (dealerValue === 5 || dealerValue === 6) {
+                        return `<strong>A,${playerValue-11} vs ${dealerValue}:</strong> Double against dealer's weakest cards.`;
+                    }
+                    return `<strong>A,${playerValue-11}:</strong> Very weak soft hand, hit to improve.`;
+                default:
+                    return `<strong>Soft hand:</strong> Ace flexibility allows aggressive play.`;
+            }
+        }
+        
+        // Get explanation for hard hand decisions
+        function getHardHandExplanation(playerValue, dealerValue) {
+            if (playerValue >= 17) {
+                return `<strong>${playerValue}:</strong> Always stand - risk of busting is too high.`;
+            } else if (playerValue >= 13 && playerValue <= 16) {
+                if (dealerValue <= 6) {
+                    return `<strong>${playerValue} vs ${dealerValue}:</strong> Stand and let dealer bust (~40% chance).`;
+                } else {
+                    return `<strong>${playerValue} vs ${dealerValue}:</strong> Hit - dealer likely makes 17+ (74% chance).`;
+                }
+            } else if (playerValue === 12) {
+                if (dealerValue >= 4 && dealerValue <= 6) {
+                    return `<strong>12 vs ${dealerValue}:</strong> Stand, dealer has bust card.`;
+                } else {
+                    return `<strong>12 vs ${dealerValue}:</strong> Hit, need improvement against strong dealer.`;
+                }
+            } else if (playerValue === 11) {
+                return `<strong>11:</strong> Double if allowed - excellent chance for 21.`;
+            } else if (playerValue === 10) {
+                if (dealerValue <= 9) {
+                    return `<strong>10:</strong> Double if allowed - great chance for 20.`;
+                }
+                return `<strong>10 vs ${dealerValue}:</strong> Hit, doubling too risky against strong dealer.`;
+            } else if (playerValue === 9) {
+                if (dealerValue >= 3 && dealerValue <= 6) {
+                    return `<strong>9 vs ${dealerValue}:</strong> Double against weak dealer.`;
+                }
+                return `<strong>9:</strong> Hit to improve total.`;
+            } else {
+                return `<strong>${playerValue}:</strong> Always hit low totals to improve.`;
+            }
         }
         
         // Adjust advice based on the true count
@@ -2301,7 +2067,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 12. 12 vs 4
             if (playerValue === 12 && dealerValue === 4 && !isSoft) {
-                if (trueCount <= 0) {
+                if (trueCount < 0) {
                     return 'Hit (due to count)';
                 }
             }
@@ -2405,272 +2171,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             return advice;
-        }
-        
-        // Get advice for pair hands
-        function getPairAdvice(cardValue, dealerValue) {
-            switch(cardValue) {
-                case 'A':
-                    return 'Split';
-                case 'K':
-                case 'Q':
-                case 'J':
-                case '10':
-                    return 'Stand';
-                case '9':
-                    if ([7, 10, 11].includes(dealerValue)) {
-                        return 'Stand';
-                    }
-                    return 'Split';
-                case '8':
-                    return 'Split';
-                case '7':
-                    if (dealerValue <= 7) {
-                        return 'Split';
-                    }
-                    return 'Hit';
-                case '6':
-                    if (dealerValue <= 6) {
-                        return 'Split';
-                    }
-                    return 'Hit';
-                case '5':
-                    if (dealerValue <= 9) {
-                        return 'Double';
-                    }
-                    return 'Hit';
-                case '4':
-                    if (dealerValue === 5 || dealerValue === 6) {
-                        return 'Split';
-                    }
-                    return 'Hit';
-                case '3':
-                case '2':
-                    if (dealerValue <= 7) {
-                        return 'Split';
-                    }
-                    return 'Hit';
-                default:
-                    return 'Hit';
-            }
-        }
-        
-        // Get advice for soft hands
-        function getSoftHandAdvice(playerValue, dealerValue) {
-            switch(playerValue) {
-                case 20:
-                    return 'Stand';
-                case 19:
-                    if (dealerValue === 6) {
-                        return 'Double if allowed, otherwise Stand';
-                    }
-                    return 'Stand';
-                case 18:
-                    if (dealerValue <= 6) {
-                        return 'Double if allowed, otherwise Stand';
-                    }
-                    if (dealerValue <= 8) {
-                        return 'Stand';
-                    }
-                    return 'Hit';
-                case 17:
-                    if (dealerValue <= 6) {
-                        return 'Double if allowed, otherwise Hit';
-                    }
-                    return 'Hit';
-                case 16:
-                case 15:
-                    if (dealerValue <= 6) {
-                        return 'Double if allowed, otherwise Hit';
-                    }
-                    return 'Hit';
-                case 14:
-                case 13:
-                    if (dealerValue <= 5) {
-                        return 'Double if allowed, otherwise Hit';
-                    }
-                    return 'Hit';
-                default:
-                    return 'Hit';
-            }
-        }
-        
-        // Get advice for hard hands
-        function getHardHandAdvice(playerValue, dealerValue) {
-            if (playerValue >= 17) {
-                return 'Stand';
-            } else if (playerValue >= 13 && playerValue <= 16) {
-                if (dealerValue <= 6) {
-                    return 'Stand';
-                }
-                return 'Hit';
-            } else if (playerValue === 12) {
-                if (dealerValue >= 4 && dealerValue <= 6) {
-                    return 'Stand';
-                }
-                return 'Hit';
-            } else if (playerValue === 11) {
-                return 'Double if allowed, otherwise Hit';
-            } else if (playerValue === 10) {
-                if (dealerValue <= 9) {
-                    return 'Double if allowed, otherwise Hit';
-                }
-                return 'Hit';
-            } else if (playerValue === 9) {
-                if (dealerValue >= 3 && dealerValue <= 6) {
-                    return 'Double if allowed, otherwise Hit';
-                }
-                return 'Hit';
-            } else {
-                return 'Hit';
-            }
-        }
-        
-        // Update help panel
-        function updateHelpPanel() {
-            // Skip UI updates for performance test
-            // All calculations are still performed in other functions
-            // This function is now a no-op but kept for compatibility
-            return;
-            
-            if (!helpPanel) return;
-            
-            if (runningCountDisplay) {
-                runningCountDisplay.textContent = state.runningCount;
-                
-                // Add color based on count
-                if (state.runningCount > 0) {
-                    runningCountDisplay.style.color = 'var(--success-color)';
-                } else if (state.runningCount < 0) {
-                    runningCountDisplay.style.color = 'var(--warning-color)';
-                } else {
-                    runningCountDisplay.style.color = 'var(--light-color)';
-                }
-            }
-            
-            if (trueCountDisplay) {
-                const trueCount = calculateTrueCount();
-                trueCountDisplay.textContent = trueCount;
-                
-                // Add color based on count
-                if (parseFloat(trueCount) > 0) {
-                    trueCountDisplay.style.color = 'var(--success-color)';
-                } else if (parseFloat(trueCount) < 0) {
-                    trueCountDisplay.style.color = 'var(--warning-color)';
-                } else {
-                    trueCountDisplay.style.color = 'var(--light-color)';
-                }
-                
-                // Update recommended bet based on true count
-                updateBettingRecommendation();
-            }
-            
-            // Update shoe progress information
-            const cardsRemainingEl = document.getElementById('cards-remaining');
-            const cardsCompositionEl = document.getElementById('cards-composition');
-            
-            if (cardsRemainingEl) {
-                cardsRemainingEl.textContent = state.deck.length;
-            }
-            
-            if (cardsCompositionEl) {
-                // Clear previous content
-                cardsCompositionEl.innerHTML = '';
-                
-                // Display card counts by rank
-                const ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
-                
-                ranks.forEach(rank => {
-                    const countItem = document.createElement('div');
-                    countItem.className = 'card-count-item';
-                    
-                    const rankSpan = document.createElement('span');
-                    rankSpan.className = 'card-rank';
-                    rankSpan.textContent = rank;
-                    
-                    const countSpan = document.createElement('span');
-                    countSpan.className = 'card-amount';
-                    countSpan.textContent = state.cardCounts[rank] || 0;
-                    
-                    // Color coding based on depletion
-                    const originalCount = 4 * state.decks; // 4 cards per rank per deck
-                    const depletion = 1 - (state.cardCounts[rank] / originalCount);
-                    
-                    if (depletion > 0.75) {
-                        // Highly depleted
-                        countSpan.style.color = 'var(--warning-color)';
-                    } else if (depletion > 0.5) {
-                        // Moderately depleted
-                        countSpan.style.color = 'orange';
-                    } else if (depletion > 0.25) {
-                        // Slightly depleted
-                        countSpan.style.color = 'yellow';
-                    }
-                    
-                    countItem.appendChild(rankSpan);
-                    countItem.appendChild(countSpan);
-                    cardsCompositionEl.appendChild(countItem);
-                });
-            }
-            
-            // Update advice
-            if (helpAdviceDisplay) {
-                const advice = getBasicStrategyAdvice();
-                helpAdviceDisplay.textContent = advice;
-                
-                // Apply styling based on advice
-                helpAdviceDisplay.className = 'help-advice';
-                if (advice.includes('Hit')) {
-                    helpAdviceDisplay.classList.add('hit');
-                } else if (advice.includes('Stand')) {
-                    helpAdviceDisplay.classList.add('stand');
-                } else if (advice.includes('Double')) {
-                    helpAdviceDisplay.classList.add('double');
-                } else if (advice.includes('Split')) {
-                    helpAdviceDisplay.classList.add('split');
-                } else if (advice.includes('Surrender')) {
-                    helpAdviceDisplay.classList.add('surrender');
-                }
-            }
-            
-            // Update card history
-            if (historyList) {
-                historyList.innerHTML = '';
-                
-                // Show only the last 20 cards
-                const recentHistory = state.cardHistory.slice(0, 20);
-                
-                recentHistory.forEach(item => {
-                    const historyItem = document.createElement('div');
-                    historyItem.classList.add('history-item');
-                    
-                    // Add dealer or player class for styling
-                    if (item.player) {
-                        historyItem.classList.add(item.player.toLowerCase());
-                    }
-                    
-                    const playerSpan = document.createElement('span');
-                    playerSpan.textContent = item.player || 'Unknown';
-                    playerSpan.className = 'history-player';
-                    
-                    const cardSpan = document.createElement('span');
-                    cardSpan.textContent = `Card: ${item.card}`;
-                    
-                    const valueSpan = document.createElement('span');
-                    valueSpan.textContent = `Count: ${item.value > 0 ? '+' + item.value : item.value}`;
-                    
-                    const timeSpan = document.createElement('span');
-                    timeSpan.textContent = item.timestamp;
-                    timeSpan.className = 'history-time';
-                    
-                    historyItem.appendChild(playerSpan);
-                    historyItem.appendChild(cardSpan);
-                    historyItem.appendChild(valueSpan);
-                    historyItem.appendChild(timeSpan);
-                    
-                    historyList.appendChild(historyItem);
-                });
-            }
         }
         
         // Update the bet recommendation in the UI
