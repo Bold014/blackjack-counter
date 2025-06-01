@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             
             // Performance tracking (only for test mode)
-            performance: state.isTestMode ? {
+            performance: isTestMode ? {
                 handsPlayed: 0,
                 correctDecisions: 0,
                 totalDecisions: 0,
@@ -553,6 +553,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     correct: 0,
                     total: 0
                 },
+                handStartTimes: [],
+                trueCountHistory: [],
                 startTime: Date.now()
             } : null,
         };
