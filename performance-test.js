@@ -784,6 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createDeck();
             shuffleDeck();
             updateBalanceDisplay();
+            updateBetDisplay();
             bindEvents();
             updateControls();
             
@@ -809,7 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (betInput) {
                 betInput.disabled = !state.bettingEnabled;
                 if (!state.bettingEnabled) {
-                    state.currentBet = 10; // Default bet
+                    state.currentBet = 0; // Default bet
                     if (betInput) betInput.value = state.currentBet;
                     updateBetDisplay();
                 }
@@ -841,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (betInput) {
                     betInput.disabled = !state.bettingEnabled;
                     if (!state.bettingEnabled) {
-                        state.currentBet = 10; // Default bet
+                        state.currentBet = 0; // Default bet
                         if (betInput) betInput.value = state.currentBet;
                         updateBetDisplay();
                     }
