@@ -18,7 +18,8 @@
     --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.2);
     --gradient-dark: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
     --gradient-gold: linear-gradient(135deg, #feb750 0%, #ffc566 100%);
-    --gradient-green: linear-gradient(135deg, var(--felt-dark) 0%, var(--felt-light) 50%, var(--felt-dark) 100%);
+    /* Mobile-compatible gradient with fallback */
+    --gradient-green: linear-gradient(135deg, #0a3d1b 0%, #0d4a24 50%, #0a3d1b 100%);
     --transition: all 0.3s ease;
     --border-radius: 18px;
     --glass-blur: 12px;
@@ -98,6 +99,10 @@ body {
     font-family: 'Poppins', sans-serif;
     line-height: 1.7;
     color: var(--light-color);
+    /* Fallback for mobile browsers that don't support CSS variables in gradients */
+    background: #0a3d1b;
+    background: -webkit-linear-gradient(135deg, #0a3d1b 0%, #0d4a24 50%, #0a3d1b 100%);
+    background: linear-gradient(135deg, #0a3d1b 0%, #0d4a24 50%, #0a3d1b 100%);
     background: var(--gradient-green);
     background-attachment: fixed;
     position: relative;
@@ -1629,9 +1634,9 @@ select, button, .game-btn {
 }
 
 .controls-panel .chip {
-    width: 45px;
-    height: 45px;
-    font-size: 0.85rem;
+    width: 30px;
+    height: 30px;
+    font-size: 0.65rem;
 }
 
 /* Responsive adjustments for horizontal layout */
@@ -1677,9 +1682,9 @@ select, button, .game-btn {
     }
     
     .controls-panel .chip {
-        width: 40px;
-        height: 40px;
-        font-size: 0.8rem;
+        width: 30px;
+        height: 30px;
+        font-size: 0.65rem;
     }
 }
 

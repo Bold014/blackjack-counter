@@ -26,10 +26,17 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--light-color);
+    /* Fallback for mobile browsers that don't support CSS variables in gradients */
+    background: #0a3d1b;
+    background: -webkit-linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%);
+    background: linear-gradient(135deg, #0a3d1b 0%, #0e5a2a 50%, #0a3d1b 100%);
     background: var(--gradient-green);
+    background-attachment: fixed;
     position: relative;
+    font-size: 16px;
+    overflow-x: hidden;
 }
 
 .container {
