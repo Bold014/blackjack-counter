@@ -35,8 +35,11 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
-// Serve static files with clean public root
-// Expose assets, components JS, and styles at top-level paths
+
+// Serve static files from public directory (web root)
+app.use(express.static(path.join(__dirname, 'src', 'public')));
+
+// Serve assets, components, and styles with proper paths
 app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
 app.use('/components', express.static(path.join(__dirname, 'src', 'components')));
 app.use('/styles', express.static(path.join(__dirname, 'src', 'styles')));
@@ -338,27 +341,14 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
 });
 
-// Redirect legacy deep paths to clean paths
-app.get(['/src/public/*', '/src/*'], (req, res) => {
-    const legacyPath = req.path
-        .replace(/^\/src\/public\//, '/')
-        .replace(/^\/src\//, '/');
-    return res.redirect(301, legacyPath || '/');
-});
-
 app.get('*', (req, res) => {
     // Check if it's an API route that doesn't exist
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
     
-    // For all other routes, try to serve the file or default to index
-    const filePath = path.join(__dirname, 'src', 'public', req.path === '/' ? 'index.html' : req.path);
-    res.sendFile(filePath, (err) => {
-        if (err) {
-            res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
-        }
-    });
+    // For all other routes, serve index.html (let client-side handle routing if needed)
+    res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
