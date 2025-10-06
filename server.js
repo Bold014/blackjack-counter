@@ -39,9 +39,10 @@ app.use(express.json());
 // Serve static files from src/public as root
 app.use(express.static(path.join(__dirname, 'src', 'public')));
 
-// Serve assets and components from src directory
+// Serve assets, components, and styles from src directory
 app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
 app.use('/components', express.static(path.join(__dirname, 'src', 'components')));
+app.use('/styles', express.static(path.join(__dirname, 'src', 'styles')));
 
 // API Routes for Stripe integration
 
