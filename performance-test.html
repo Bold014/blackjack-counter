@@ -7,11 +7,11 @@
 </head>
 <body>
     <script>
-        // Redirect to the performance test in the organized structure
-        window.location.href = './src/public/performance-test.html';
+        // Redirect to clean path
+        window.location.href = './src/public/performance-test.html'.replace('/src/public/', '/');
     </script>
     <noscript>
-        <p>Please enable JavaScript or <a href="./src/public/performance-test.html">click here to continue to the performance test</a>.</p>
+        <p>Please enable JavaScript or <a href="./performance-test.html">click here to continue to the performance test</a>.</p>
     </noscript>
     
     <!-- Decision Feedback Overlay -->

@@ -35,10 +35,11 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.static('src'));
-
-// Serve static files from src directory
-app.use(express.static(path.join(__dirname, 'src')));
+// Serve static files with clean public root
+// Expose assets, components JS, and styles at top-level paths
+app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
+app.use('/components', express.static(path.join(__dirname, 'src', 'components')));
+app.use('/styles', express.static(path.join(__dirname, 'src', 'styles')));
 
 // API Routes for Stripe integration
 
@@ -70,8 +71,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
             metadata: {
                 userId: userId,
             },
-            success_url: `${req.headers.origin}/src/public/pricing.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${req.headers.origin}/src/public/pricing.html?canceled=true`,
+            success_url: `${req.headers.origin}/pricing.html?success=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.headers.origin}/pricing.html?canceled=true`,
         };
 
         // Add discounts if couponId is provided
@@ -335,6 +336,14 @@ app.post('/webhook', express.raw({type: 'application/json'}), (req, res) => {
 // Serve HTML files
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
+});
+
+// Redirect legacy deep paths to clean paths
+app.get(['/src/public/*', '/src/*'], (req, res) => {
+    const legacyPath = req.path
+        .replace(/^\/src\/public\//, '/')
+        .replace(/^\/src\//, '/');
+    return res.redirect(301, legacyPath || '/');
 });
 
 app.get('*', (req, res) => {
