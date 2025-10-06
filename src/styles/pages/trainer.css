@@ -1801,7 +1801,7 @@ select, button, .game-btn {
 }
 
 .chip-10 {
-    background-image: url('../assets/images/chip-10.png');
+    background-image: url('/assets/images/chip-10.png');
     background-size: cover;
     background-position: center;
     border: none;
@@ -1810,7 +1810,7 @@ select, button, .game-btn {
 }
 
 .chip-50 {
-    background-image: url('../assets/images/chip-50.png');
+    background-image: url('/assets/images/chip-50.png');
     background-size: cover;
     background-position: center;
     border: none;
@@ -1819,7 +1819,7 @@ select, button, .game-btn {
 }
 
 .chip-100 {
-    background-image: url('../assets/images/chip-100.png');
+    background-image: url('/assets/images/chip-100.png');
     background-size: cover;
     background-position: center;
     border: none;
@@ -1899,19 +1899,19 @@ select, button, .game-btn {
 }
 
 .stacked-chip.chip-10 {
-    background-image: url('../assets/images/chip-10.png');
+    background-image: url('/assets/images/chip-10.png');
     background-size: cover;
     background-position: center;
 }
 
 .stacked-chip.chip-50 {
-    background-image: url('../assets/images/chip-50.png');
+    background-image: url('/assets/images/chip-50.png');
     background-size: cover;
     background-position: center;
 }
 
 .stacked-chip.chip-100 {
-    background-image: url('../assets/images/chip-100.png');
+    background-image: url('/assets/images/chip-100.png');
     background-size: cover;
     background-position: center;
 }
