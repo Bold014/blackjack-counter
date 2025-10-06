@@ -96,6 +96,7 @@ class HighScoresManager {
         }
 
         // Calculate personal bests
+        const decisionTimes = scores.filter(s => s.avgDecisionTime > 0).map(s => s.avgDecisionTime);
         const personalBests = {
             // Averages for percentage-based metrics
             averageOverallScore: Math.round(scores.reduce((sum, s) => sum + s.overallScore, 0) / scores.length),
@@ -108,7 +109,7 @@ class HighScoresManager {
             highestBettingAccuracy: Math.max(...scores.map(s => s.bettingAccuracy)),
             mostHandsPlayed: Math.max(...scores.map(s => s.totalHands)),
             longestTestDuration: Math.max(...scores.map(s => s.testDuration)),
-            fastestAvgDecisionTime: Math.min(...scores.filter(s => s.avgDecisionTime > 0).map(s => s.avgDecisionTime)),
+            fastestAvgDecisionTime: decisionTimes.length > 0 ? Math.min(...decisionTimes) : 0,
             highestNetGain: Math.max(...scores.map(s => s.netGain)),
             totalTestsCompleted: scores.length
         };
@@ -232,13 +233,16 @@ class HighScoresManager {
         
         if (speedScores.length === 0) return null;
 
+        const decisionTimes = speedScores.filter(s => s.avgDecisionTime > 0).map(s => s.avgDecisionTime);
+        const timeouts = speedScores.map(s => s.timeouts || 0);
+
         return {
-            bestAccuracy: Math.max(...speedScores.map(s => s.finalAccuracy || s.overallScore)),
-            fastestAvgDecisionTime: Math.min(...speedScores.map(s => s.avgDecisionTime)),
-            mostHandsPlayed: Math.max(...speedScores.map(s => s.totalHands)),
-            fewestTimeouts: Math.min(...speedScores.map(s => s.timeouts)),
-            averageTimeouts: speedScores.reduce((sum, s) => sum + s.timeouts, 0) / speedScores.length,
-            averageAccuracy: speedScores.reduce((sum, s) => sum + (s.finalAccuracy || s.overallScore), 0) / speedScores.length,
+            bestAccuracy: Math.max(...speedScores.map(s => s.finalAccuracy || s.overallScore || 0)),
+            fastestAvgDecisionTime: decisionTimes.length > 0 ? Math.min(...decisionTimes) : 0,
+            mostHandsPlayed: Math.max(...speedScores.map(s => s.totalHands || 0)),
+            fewestTimeouts: timeouts.length > 0 ? Math.min(...timeouts) : 0,
+            averageTimeouts: timeouts.reduce((sum, val) => sum + val, 0) / speedScores.length,
+            averageAccuracy: speedScores.reduce((sum, s) => sum + (s.finalAccuracy || s.overallScore || 0), 0) / speedScores.length,
             totalSpeedTests: speedScores.length
         };
     }

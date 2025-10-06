@@ -686,12 +686,12 @@
         function updatePerformanceBests(bests) {
             if (!bests) return;
 
-            document.getElementById('perf-best-overall').textContent = `${bests.averageOverallScore}%`;
-            document.getElementById('perf-best-strategy').textContent = `${bests.averageStrategyAccuracy}%`;
-            document.getElementById('perf-best-betting').textContent = `${bests.averageBettingAccuracy}%`;
-            document.getElementById('perf-best-hands').textContent = bests.mostHandsPlayed.toString();
-            document.getElementById('perf-best-profit').textContent = `$${bests.highestNetGain}`;
-            document.getElementById('perf-best-speed').textContent = `${bests.fastestAvgDecisionTime.toFixed(1)}s`;
+            document.getElementById('perf-best-overall').textContent = `${bests.averageOverallScore || 0}%`;
+            document.getElementById('perf-best-strategy').textContent = `${bests.averageStrategyAccuracy || 0}%`;
+            document.getElementById('perf-best-betting').textContent = `${bests.averageBettingAccuracy || 0}%`;
+            document.getElementById('perf-best-hands').textContent = (bests.mostHandsPlayed || 0).toString();
+            document.getElementById('perf-best-profit').textContent = `$${bests.highestNetGain || 0}`;
+            document.getElementById('perf-best-speed').textContent = `${(bests.fastestAvgDecisionTime || 0).toFixed(1)}s`;
         }
 
         function updateSpeedTrainingBests(bests) {
@@ -702,12 +702,12 @@
             }
 
             const elements = {
-                'speed-best-accuracy': `${Math.round(bests.bestAccuracy)}%`,
-                'speed-fastest-time': `${bests.fastestAvgDecisionTime.toFixed(1)}s`,
-                'speed-most-hands': bests.mostHandsPlayed.toString(),
-                'speed-avg-timeouts': bests.averageTimeouts.toFixed(1),
-                'speed-avg-accuracy': `${Math.round(bests.averageAccuracy)}%`,
-                'speed-total-tests': bests.totalSpeedTests.toString()
+                'speed-best-accuracy': `${Math.round(bests.bestAccuracy || 0)}%`,
+                'speed-fastest-time': `${(bests.fastestAvgDecisionTime || 0).toFixed(1)}s`,
+                'speed-most-hands': (bests.mostHandsPlayed || 0).toString(),
+                'speed-avg-timeouts': (bests.averageTimeouts || 0).toFixed(1),
+                'speed-avg-accuracy': `${Math.round(bests.averageAccuracy || 0)}%`,
+                'speed-total-tests': (bests.totalSpeedTests || 0).toString()
             };
 
             Object.entries(elements).forEach(([id, value]) => {
@@ -903,22 +903,23 @@
             recentTests.forEach(test => {
                 const testItem = document.createElement('div');
                 testItem.className = 'test-item';
+                const netGain = test.netGain || 0;
                 
                 testItem.innerHTML = `
                     <div class="test-date">
                         ${window.highScoresManager.formatTimestamp(test.timestamp)}
                     </div>
                     <div class="test-score overall-score">
-                        ${test.overallScore}%
+                        ${test.overallScore || 0}%
                     </div>
                     <div class="test-details">
-                        <span>Strategy: ${test.strategyAccuracy}%</span>
-                        <span>Betting: ${test.bettingAccuracy}%</span>
-                        <span>Hands: ${test.totalHands}</span>
-                        <span>Duration: ${window.highScoresManager.formatDuration(test.testDuration)}</span>
+                        <span>Strategy: ${test.strategyAccuracy || 0}%</span>
+                        <span>Betting: ${test.bettingAccuracy || 0}%</span>
+                        <span>Hands: ${test.totalHands || 0}</span>
+                        <span>Duration: ${window.highScoresManager.formatDuration(test.testDuration || 0)}</span>
                     </div>
-                    <div class="test-profit ${test.netGain >= 0 ? 'positive' : 'negative'}">
-                        ${test.netGain >= 0 ? '+' : ''}$${test.netGain}
+                    <div class="test-profit ${netGain >= 0 ? 'positive' : 'negative'}">
+                        ${netGain >= 0 ? '+' : ''}$${netGain}
                     </div>
                 `;
                 
@@ -944,14 +945,14 @@
                         ${window.highScoresManager.formatTimestamp(test.timestamp)}
                     </div>
                     <div class="test-score overall-score">
-                        ${Math.round(test.finalAccuracy || test.overallScore)}%
+                        ${Math.round(test.finalAccuracy || test.overallScore || 0)}%
                     </div>
                     <div class="test-details">
-                        <span>Correct: ${test.correctDecisions}/${test.totalDecisions}</span>
-                        <span>Hands: ${test.totalHands}</span>
-                        <span>Avg Time: ${test.avgDecisionTime.toFixed(1)}s</span>
-                        <span>Timeouts: ${test.timeouts}</span>
-                        <span>Duration: ${window.highScoresManager.formatDuration(test.testDuration)}</span>
+                        <span>Correct: ${test.correctDecisions || 0}/${test.totalDecisions || 0}</span>
+                        <span>Hands: ${test.totalHands || 0}</span>
+                        <span>Avg Time: ${(test.avgDecisionTime || 0).toFixed(1)}s</span>
+                        <span>Timeouts: ${test.timeouts || 0}</span>
+                        <span>Duration: ${window.highScoresManager.formatDuration(test.testDuration || 0)}</span>
                     </div>
                     <div class="test-profit neutral">
                         Speed Test
