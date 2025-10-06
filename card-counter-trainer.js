@@ -207,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (state.balance >= chipValue) {
                             addChipToBet(chipValue, chip.classList.contains('white') ? 'white' : 
                                                   chip.classList.contains('red') ? 'red' : 
-                                                  chip.classList.contains('blue') ? 'blue' : 
-                                                  chip.classList.contains('green') ? 'green' : 'black');
+                                                  chip.classList.contains('chip-10') ? 'chip-10' : 
+                                                  chip.classList.contains('chip-50') ? 'chip-50' : 'chip-100');
                         } else {
                             // Shake the chip to indicate not enough balance
                             chip.classList.add('shake');

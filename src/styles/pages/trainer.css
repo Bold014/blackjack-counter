@@ -1800,19 +1800,31 @@ select, button, .game-btn {
     color: white;
 }
 
-.chip.blue {
-    background: radial-gradient(circle at center, #4444ff 0%, #0000cc 100%);
-    color: white;
+.chip-10 {
+    background-image: url('../assets/images/chip-10.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+    color: transparent;
+    text-indent: -9999px;
 }
 
-.chip.green {
-    background: radial-gradient(circle at center, #44ff44 0%, #00cc00 100%);
-    color: white;
+.chip-50 {
+    background-image: url('../assets/images/chip-50.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+    color: transparent;
+    text-indent: -9999px;
 }
 
-.chip.black {
-    background: radial-gradient(circle at center, #444444 0%, #000000 100%);
-    color: white;
+.chip-100 {
+    background-image: url('../assets/images/chip-100.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+    color: transparent;
+    text-indent: -9999px;
 }
 
 /* Bet controls styling */
@@ -1886,19 +1898,22 @@ select, button, .game-btn {
     color: white;
 }
 
-.stacked-chip.blue {
-    background: radial-gradient(circle at center, #4444ff 0%, #0000cc 100%);
-    color: white;
+.stacked-chip.chip-10 {
+    background-image: url('../assets/images/chip-10.png');
+    background-size: cover;
+    background-position: center;
 }
 
-.stacked-chip.green {
-    background: radial-gradient(circle at center, #44ff44 0%, #00cc00 100%);
-    color: white;
+.stacked-chip.chip-50 {
+    background-image: url('../assets/images/chip-50.png');
+    background-size: cover;
+    background-position: center;
 }
 
-.stacked-chip.black {
-    background: radial-gradient(circle at center, #444444 0%, #000000 100%);
-    color: white;
+.stacked-chip.chip-100 {
+    background-image: url('../assets/images/chip-100.png');
+    background-size: cover;
+    background-position: center;
 }
 
 .bet-actions {

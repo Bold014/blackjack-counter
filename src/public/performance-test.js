@@ -1215,8 +1215,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (state.balance >= chipValue) {
                             addChipToBet(chipValue, chip.classList.contains('white') ? 'white' : 
                                                   chip.classList.contains('red') ? 'red' : 
-                                                  chip.classList.contains('blue') ? 'blue' : 
-                                                  chip.classList.contains('green') ? 'green' : 'black');
+                                                  chip.classList.contains('chip-10') ? 'chip-10' : 
+                                                  chip.classList.contains('chip-50') ? 'chip-50' : 'chip-100');
                         } else {
                             // Shake the chip to indicate not enough balance
                             chip.classList.add('shake');
@@ -3148,27 +3148,27 @@ document.addEventListener('DOMContentLoaded', () => {
                                 
                                 // Try to add larger denomination chips first
                                 if (remainingAmount >= 100) {
-                                    const blackChips = Math.floor(remainingAmount / 100);
-                                    for (let i = 0; i < blackChips; i++) {
-                                        addChipToBet(100, 'black');
+                                    const chip100s = Math.floor(remainingAmount / 100);
+                                    for (let i = 0; i < chip100s; i++) {
+                                        addChipToBet(100, 'chip-100');
                                     }
-                                    remainingAmount -= blackChips * 100;
+                                    remainingAmount -= chip100s * 100;
                                 }
                                 
-                                if (remainingAmount >= 25) {
-                                    const greenChips = Math.floor(remainingAmount / 25);
-                                    for (let i = 0; i < greenChips; i++) {
-                                        addChipToBet(25, 'green');
+                                if (remainingAmount >= 50) {
+                                    const chip50s = Math.floor(remainingAmount / 50);
+                                    for (let i = 0; i < chip50s; i++) {
+                                        addChipToBet(50, 'chip-50');
                                     }
-                                    remainingAmount -= greenChips * 25;
+                                    remainingAmount -= chip50s * 50;
                                 }
                                 
                                 if (remainingAmount >= 10) {
-                                    const blueChips = Math.floor(remainingAmount / 10);
-                                    for (let i = 0; i < blueChips; i++) {
-                                        addChipToBet(10, 'blue');
+                                    const chip10s = Math.floor(remainingAmount / 10);
+                                    for (let i = 0; i < chip10s; i++) {
+                                        addChipToBet(10, 'chip-10');
                                     }
-                                    remainingAmount -= blueChips * 10;
+                                    remainingAmount -= chip10s * 10;
                                 }
                                 
                                 if (remainingAmount >= 5) {

@@ -934,16 +934,31 @@ footer {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
-.chip.blue {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+.chip-10 {
+    background-image: url('../assets/images/chip-10.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+    color: transparent;
+    text-indent: -9999px;
 }
 
-.chip.green {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+.chip-50 {
+    background-image: url('../assets/images/chip-50.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+    color: transparent;
+    text-indent: -9999px;
 }
 
-.chip.black {
-    background: linear-gradient(135deg, #34495e, #2c3e50);
+.chip-100 {
+    background-image: url('../assets/images/chip-100.png');
+    background-size: cover;
+    background-position: center;
+    border: none;
+    color: transparent;
+    text-indent: -9999px;
 }
 
 .current-bet-display {
@@ -1019,9 +1034,23 @@ footer {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    border: 2px dashed rgba(255, 255, 255, 0.5);
+    border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     position: relative;
+    background-size: cover;
+    background-position: center;
+}
+
+.stacked-chip.chip-10 {
+    background-image: url('../assets/images/chip-10.png');
+}
+
+.stacked-chip.chip-50 {
+    background-image: url('../assets/images/chip-50.png');
+}
+
+.stacked-chip.chip-100 {
+    background-image: url('../assets/images/chip-100.png');
 }
 
 /* Game Controls Styles */
