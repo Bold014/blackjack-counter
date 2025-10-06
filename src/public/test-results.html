@@ -20,7 +20,7 @@
 </head>
 <body>
     <div class="home-button">
-        <a href="index.html" class="home-link">
+        <a href="/" class="home-link">
             <img src="/assets/images/logosmall.png" alt="HitOrStand" class="home-logo-image" style="height: 60px; width: auto; max-width: none;">
         </a>
     </div>
@@ -171,7 +171,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
-                <a href="index.html" class="logo-link">
+                <a href="/" class="logo-link">
                     <img src="/assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
                 </a>
             </div>
@@ -386,7 +386,7 @@
                     console.warn('User not authenticated, but allowing results display');
                     setTimeout(() => {
                         if (!authenticationComplete) {
-                            window.location.href = '../index.html';
+                            window.location.href = '/';
                         }
                     }, 5000);
                 }
@@ -394,7 +394,7 @@
             } catch (error) {
                 console.error('Error initializing Clerk:', error);
                 setTimeout(() => {
-                    window.location.href = '../index.html';
+                    window.location.href = '/';
                 }, 5000);
             }
         });
@@ -423,7 +423,7 @@
                 
                 signOutBtn.addEventListener('click', async () => {
                     await clerk.signOut();
-                    window.location.href = 'index.html';
+                    window.location.href = '/';
                 });
 
                 // Progress button functionality

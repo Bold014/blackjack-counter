@@ -36,13 +36,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Serve static files from public directory (web root)
+// Serve static files from src/public as root
 app.use(express.static(path.join(__dirname, 'src', 'public')));
 
-// Serve assets, components, and styles with proper paths
+// Serve assets and components from src directory
 app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
 app.use('/components', express.static(path.join(__dirname, 'src', 'components')));
-app.use('/styles', express.static(path.join(__dirname, 'src', 'styles')));
 
 // API Routes for Stripe integration
 
@@ -347,8 +346,9 @@ app.get('*', (req, res) => {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
     
-    // For all other routes, serve index.html (let client-side handle routing if needed)
-    res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
+    // Static files are already handled by express.static middleware
+    // If we get here, the file doesn't exist, so send 404 or index.html
+    res.status(404).sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {

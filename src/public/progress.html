@@ -287,7 +287,7 @@
 </head>
 <body>
     <div class="home-button">
-        <a href="index.html" class="home-link">
+        <a href="/" class="home-link">
             <img src="/assets/images/logosmall.png" alt="HitOrStand" class="home-logo-image" style="height: 60px; width: auto; max-width: none;">
         </a>
     </div>
@@ -526,7 +526,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
-                <a href="index.html" class="logo-link">
+                <a href="/" class="logo-link">
                     <img src="/assets/images/hitorstandlogo.png" alt="HitOrStand" class="footer-logo-image">
                 </a>
             </div>
@@ -563,7 +563,7 @@
             try {
                 if (typeof window.Clerk === 'undefined') {
                     console.error('Clerk is not loaded');
-                    window.location.href = '../index.html';
+                    window.location.href = '/';
                     return;
                 }
                 
@@ -574,12 +574,12 @@
                     showUserButton();
                     await initializeProgress();
                 } else {
-                    window.location.href = '../index.html';
+                    window.location.href = '/';
                 }
                 
             } catch (error) {
                 console.error('Error initializing progress page:', error);
-                window.location.href = '../index.html';
+                window.location.href = '/';
             }
         });
 
@@ -991,7 +991,7 @@
                 
                 signOutBtn.addEventListener('click', async () => {
                     await clerk.signOut();
-                    window.location.href = 'index.html';
+                    window.location.href = '/';
                 });
 
                 // Progress button functionality (for consistency, though it's the same page)
