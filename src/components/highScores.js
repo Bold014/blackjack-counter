@@ -10,6 +10,49 @@ class HighScoresManager {
     async initialize(clerkInstance) {
         this.clerk = clerkInstance;
         this.initialized = true;
+        
+        // Clean up metadata if it's too large
+        await this.cleanupMetadata();
+    }
+
+    // Clean up metadata to prevent exceeding 8KB limit
+    async cleanupMetadata() {
+        if (!this.clerk?.user) return;
+
+        try {
+            const currentScores = await this.getHighScores();
+            
+            // If we have more than 20 scores, trim to 15 to give some buffer
+            if (currentScores.length > 20) {
+                console.log(`[HighScores] Cleaning up: ${currentScores.length} scores found, trimming to 15`);
+                
+                const trimmedScores = currentScores.slice(-15); // Keep only last 15
+                
+                await this.clerk.user.update({
+                    unsafeMetadata: {
+                        ...this.clerk.user.unsafeMetadata,
+                        highScores: trimmedScores
+                    }
+                });
+                
+                console.log(`[HighScores] ✅ Cleanup complete: ${trimmedScores.length} scores remaining`);
+            }
+        } catch (error) {
+            console.error('[HighScores] Error during cleanup:', error);
+            // If cleanup fails, try to clear all scores as last resort
+            try {
+                console.warn('[HighScores] Attempting emergency cleanup - clearing all scores');
+                await this.clerk.user.update({
+                    unsafeMetadata: {
+                        ...this.clerk.user.unsafeMetadata,
+                        highScores: []
+                    }
+                });
+                console.log('[HighScores] ✅ Emergency cleanup complete');
+            } catch (emergencyError) {
+                console.error('[HighScores] ❌ Emergency cleanup failed:', emergencyError);
+            }
+        }
     }
 
     // Save a new test result as a high score
@@ -52,10 +95,13 @@ class HighScoresManager {
             // Add to scores array
             currentScores.push(newScore);
 
-            // Keep only the last 50 scores to prevent metadata from getting too large
-            if (currentScores.length > 50) {
-                currentScores.splice(0, currentScores.length - 50);
+            // Keep only the last 20 scores to prevent metadata from exceeding 8KB limit
+            // This ensures we stay well under Clerk's metadata size restrictions
+            if (currentScores.length > 20) {
+                currentScores.splice(0, currentScores.length - 20);
             }
+
+            console.log(`[HighScores] Saving ${currentScores.length} scores (latest added)`);
 
             // Update user metadata
             await this.clerk.user.update({
