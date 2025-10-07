@@ -82,7 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
             timeLimit: parseInt(document.getElementById('speed-time-limit')?.value || 5),
             hitSoft17: document.getElementById('speed-hit-soft-17')?.value === 'yes',
             doubleAfterSplit: document.getElementById('speed-double-after-split')?.value === 'yes',
-            resplitAces: false // Always false for speed training
+            resplitAces: false, // Always false for speed training
+            handsToPlay: parseInt(document.getElementById('speed-hands-to-play')?.value || 50)
         };
     }
     
@@ -203,6 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             doubleAfterSplit: settings?.doubleAfterSplit !== undefined ? settings.doubleAfterSplit : true,
             resplitAces: settings?.resplitAces !== undefined ? settings.resplitAces : false,
             timeLimit: settings?.timeLimit || 5,
+            handsToPlay: settings?.handsToPlay || 0, // 0 means unlimited
             
             // Speed mode settings
             isSpeedMode: isSpeedMode,
@@ -950,6 +952,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (state.performance) {
                         state.performance.handsPlayed++;
                         updateSpeedProgress();
+                        
+                        // Check if we've reached the target number of hands
+                        if (state.isSpeedMode && state.handsToPlay > 0 && state.performance.handsPlayed >= state.handsToPlay) {
+                            // End training after showing the outcome
+                            setTimeout(() => {
+                                console.log(`Target hands reached (blackjack): ${state.performance.handsPlayed}/${state.handsToPlay}`);
+                                calculateAndShowResults();
+                            }, 2000); // Give player time to see the outcome
+                        }
                     }
                 } else {
                     // Start decision timer for speed mode
@@ -1108,6 +1119,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.isSpeedMode && state.performance) {
                 state.performance.handsPlayed++;
                 updateSpeedProgress();
+                
+                // Check if we've reached the target number of hands
+                if (state.handsToPlay > 0 && state.performance.handsPlayed >= state.handsToPlay) {
+                    // End training after showing the outcome
+                    setTimeout(() => {
+                        console.log(`Target hands reached: ${state.performance.handsPlayed}/${state.handsToPlay}`);
+                        calculateAndShowResults();
+                    }, 2000); // Give player time to see the outcome
+                }
             }
             
             // Show outcome
