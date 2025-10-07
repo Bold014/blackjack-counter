@@ -372,7 +372,7 @@ class AchievementsService {
 
     // Update daily streak
     async updateDailyStreak() {
-        const data = await this.getGamificationData();
+        let data = await this.getGamificationData();
         const today = new Date().toDateString();
         const lastActive = data.lastActiveDate ? new Date(data.lastActiveDate).toDateString() : null;
         
@@ -399,10 +399,14 @@ class AchievementsService {
         
         data.lastActiveDate = new Date().toISOString();
         
-        // Award daily login XP
+        // Save streak data BEFORE awarding XP
+        await this.saveGamificationData(data);
+        
+        // Award daily login XP (this saves internally)
         await this.addXp(this.xpRewards.dailyLogin, 'Daily login');
         
-        await this.saveGamificationData(data);
+        // Get fresh data after XP was added
+        data = await this.getGamificationData();
         
         // Check for streak achievements
         await this.checkAchievements(data);
@@ -416,40 +420,24 @@ class AchievementsService {
 
     // Process test result and award XP/achievements
     async processTestResult(testResult) {
-        const data = await this.getGamificationData();
+        // Get current gamification data
+        let data = await this.getGamificationData();
         
-        // Update stats
+        // Update stats FIRST (before any XP calculations)
         data.stats.totalTests++;
         data.stats.totalDecisions += testResult.totalDecisions || testResult.totalHands || 0;
         data.stats.correctDecisions += testResult.correctDecisions || 
             Math.floor((testResult.totalHands || 0) * (testResult.strategyAccuracy || 0) / 100);
         data.stats.totalSessionTime += testResult.testDuration || 0;
         
-        // Award XP based on test type
-        let xpEarned = 0;
-        if (testResult.testType === 'speed') {
-            xpEarned = this.xpRewards.speedTest;
-        } else {
-            xpEarned = this.xpRewards.performanceTest;
-        }
-        
-        // Bonus XP for high accuracy
-        if (testResult.finalAccuracy >= 95 || testResult.strategyAccuracy >= 95) {
-            xpEarned += 10;
-        }
-        if (testResult.finalAccuracy >= 99 || testResult.strategyAccuracy >= 99) {
-            xpEarned += 15;
-        }
-        
-        // Perfect session bonus
+        // Calculate accuracy and decisions for bonuses
         const accuracy = testResult.finalAccuracy || testResult.strategyAccuracy || 0;
         const decisions = testResult.totalDecisions || testResult.totalHands || 0;
+        
+        // Perfect session bonus
         if (accuracy === 100 && decisions >= 10) {
             data.stats.perfectSessions++;
-            xpEarned += 25;
         }
-        
-        await this.addXp(xpEarned, 'Test completion');
         
         // Update personal bests
         if (testResult.testType === 'speed' && testResult.avgDecisionTime) {
@@ -466,7 +454,35 @@ class AchievementsService {
             data.personalBests.longestSession = testResult.testDuration;
         }
         
+        // Save stats and personal bests BEFORE adding XP
         await this.saveGamificationData(data);
+        
+        // Calculate XP to award
+        let xpEarned = 0;
+        if (testResult.testType === 'speed') {
+            xpEarned = this.xpRewards.speedTest;
+        } else {
+            xpEarned = this.xpRewards.performanceTest;
+        }
+        
+        // Bonus XP for high accuracy
+        if (accuracy >= 95) {
+            xpEarned += 10;
+        }
+        if (accuracy >= 99) {
+            xpEarned += 15;
+        }
+        
+        // Perfect session bonus
+        if (accuracy === 100 && decisions >= 10) {
+            xpEarned += 25;
+        }
+        
+        // Award XP (this will save the data internally)
+        const xpResult = await this.addXp(xpEarned, 'Test completion');
+        
+        // Get fresh data after XP was added to check for achievements
+        data = await this.getGamificationData();
         
         // Check for new achievements
         const newAchievements = await this.checkAchievements(data, testResult);
@@ -474,7 +490,9 @@ class AchievementsService {
         return {
             xpEarned,
             newAchievements,
-            data
+            data,
+            leveledUp: xpResult.leveledUp,
+            newLevel: xpResult.newLevel
         };
     }
 
