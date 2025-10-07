@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get speed training settings from the form
     function getSpeedSettings() {
         return {
-            decks: parseInt(document.getElementById('speed-decks')?.value || 6),
+            decks: 6, // Fixed at 6 decks for speed training
             timeLimit: parseInt(document.getElementById('speed-time-limit')?.value || 5),
             hitSoft17: document.getElementById('speed-hit-soft-17')?.value === 'yes',
             doubleAfterSplit: document.getElementById('speed-double-after-split')?.value === 'yes',

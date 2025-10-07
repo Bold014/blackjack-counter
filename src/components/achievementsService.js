@@ -346,6 +346,8 @@ class AchievementsService {
     async addXp(amount, reason = '') {
         const data = await this.getGamificationData();
         
+        console.log(`[XP] Adding ${amount} XP for: ${reason}. Current total: ${data.totalXp}`);
+        
         data.xp += amount;
         data.totalXp += amount;
         
@@ -356,9 +358,11 @@ class AchievementsService {
         if (leveledUp) {
             data.level = newLevel;
             data.xp = data.totalXp - this.getXpForLevel(newLevel);
+            console.log(`[XP] 🎉 LEVEL UP! ${oldLevel} → ${newLevel}`);
         }
         
         await this.saveGamificationData(data);
+        console.log(`[XP] Saved. New total: ${data.totalXp}, Level: ${data.level}`);
         
         return {
             amount,
@@ -459,24 +463,33 @@ class AchievementsService {
         
         // Calculate XP to award
         let xpEarned = 0;
+        const xpBreakdown = [];
+        
         if (testResult.testType === 'speed') {
             xpEarned = this.xpRewards.speedTest;
+            xpBreakdown.push(`Speed Test: ${this.xpRewards.speedTest}`);
         } else {
             xpEarned = this.xpRewards.performanceTest;
+            xpBreakdown.push(`Performance Test: ${this.xpRewards.performanceTest}`);
         }
         
         // Bonus XP for high accuracy
         if (accuracy >= 95) {
             xpEarned += 10;
+            xpBreakdown.push('95%+ Accuracy: +10');
         }
         if (accuracy >= 99) {
             xpEarned += 15;
+            xpBreakdown.push('99%+ Accuracy: +15');
         }
         
         // Perfect session bonus
         if (accuracy === 100 && decisions >= 10) {
             xpEarned += 25;
+            xpBreakdown.push('Perfect Session: +25');
         }
+        
+        console.log(`[XP] Test complete! Total XP to award: ${xpEarned}`, xpBreakdown);
         
         // Award XP (this will save the data internally)
         const xpResult = await this.addXp(xpEarned, 'Test completion');
@@ -558,14 +571,17 @@ class AchievementsService {
             if (unlocked) {
                 gamificationData.unlockedAchievements.push(achievement.id);
                 newAchievements.push(achievement);
-                
-                // Award XP for badge unlock
-                await this.addXp(this.xpRewards.badgeUnlock, `Unlocked: ${achievement.name} ${achievement.tier}`);
             }
         }
         
+        // Save unlocked achievements FIRST
         if (newAchievements.length > 0) {
             await this.saveGamificationData(gamificationData);
+            
+            // Then award XP for each badge unlock (this saves internally for each one)
+            for (const achievement of newAchievements) {
+                await this.addXp(this.xpRewards.badgeUnlock, `Unlocked: ${achievement.name} ${achievement.tier}`);
+            }
         }
         
         return newAchievements;
