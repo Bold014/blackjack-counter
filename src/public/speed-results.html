@@ -481,18 +481,32 @@
         // Show XP notification function
         async function showXpNotification() {
             try {
+                console.log('[XP Display] showXpNotification called');
+                
                 // Get current results to calculate XP
                 const results = JSON.parse(localStorage.getItem('speedResults') || '{}');
+                console.log('[XP Display] Results from localStorage:', results);
+                
                 if (!results || !results.totalDecisions) {
-                    console.log('No results found for XP display');
+                    console.log('[XP Display] No results found for XP display');
                     return;
                 }
 
-                // Get gamification data to show XP earned
-                const gamificationData = await window.achievementsService.getGamificationData();
+                // Get gamification data to show XP earned (optional, for future use)
+                let gamificationData = null;
+                if (window.achievementsService) {
+                    try {
+                        gamificationData = await window.achievementsService.getGamificationData();
+                        console.log('[XP Display] Gamification data:', gamificationData);
+                    } catch (err) {
+                        console.warn('[XP Display] Could not get gamification data:', err);
+                    }
+                }
                 
                 // Calculate XP breakdown
                 const accuracy = results.finalAccuracy || results.finalScore || 0;
+                console.log('[XP Display] Accuracy for XP calculation:', accuracy);
+                
                 const xpBreakdown = [];
                 let totalXp = 15; // Base speed test XP
                 xpBreakdown.push('Speed Training: 15 XP');
@@ -510,16 +524,26 @@
                     xpBreakdown.push('Perfect Session: +25 XP');
                 }
 
+                console.log('[XP Display] Total XP:', totalXp, 'Breakdown:', xpBreakdown);
+
                 // Show the XP section
                 const xpSection = document.getElementById('xp-reward-section');
                 const xpEarned = document.getElementById('xp-earned');
                 const xpBreakdownEl = document.getElementById('xp-breakdown');
+                
+                console.log('[XP Display] DOM elements found:', {
+                    xpSection: !!xpSection,
+                    xpEarned: !!xpEarned,
+                    xpBreakdownEl: !!xpBreakdownEl
+                });
                 
                 if (xpSection && xpEarned) {
                     xpEarned.textContent = `+${totalXp} XP`;
                     if (xpBreakdownEl) {
                         xpBreakdownEl.innerHTML = xpBreakdown.join('<br>');
                     }
+                    
+                    console.log('[XP Display] Setting display styles...');
                     
                     // Animate the display
                     xpSection.style.display = 'block';
@@ -530,12 +554,15 @@
                     setTimeout(() => {
                         xpSection.style.opacity = '1';
                         xpSection.style.transform = 'scale(1)';
+                        console.log('[XP Display] XP section animated and visible');
                     }, 100);
+                } else {
+                    console.error('[XP Display] XP section or elements not found!');
                 }
 
-                console.log(`XP Display: +${totalXp} XP`, xpBreakdown);
+                console.log(`[XP Display] Final: +${totalXp} XP`, xpBreakdown);
             } catch (error) {
-                console.error('Error showing XP notification:', error);
+                console.error('[XP Display] Error showing XP notification:', error);
             }
         }
     </script>
@@ -592,33 +619,65 @@
             const results = JSON.parse(localStorage.getItem('speedResults') || '{}');
             
             if (!results || !clerk || !clerk.user || !results.totalDecisions) {
-                console.log('Cannot save speed results: missing data or user not authenticated');
+                console.log('[Speed Results] Cannot save speed results: missing data or user not authenticated');
+                console.log('[Speed Results] Check:', {
+                    hasResults: !!results,
+                    hasClerk: !!clerk,
+                    hasUser: !!clerk?.user,
+                    totalDecisions: results?.totalDecisions
+                });
                 return;
             }
 
             try {
+                console.log('[Speed Results] Initializing managers...');
+                
+                // Check if services are available
+                if (!window.highScoresManager) {
+                    console.error('[Speed Results] highScoresManager not found!');
+                    // Try to show XP notification anyway
+                    setTimeout(() => showXpNotification(), 500);
+                    return;
+                }
+                
+                if (!window.achievementsService) {
+                    console.error('[Speed Results] achievementsService not found!');
+                    // Try to show XP notification anyway
+                    setTimeout(() => showXpNotification(), 500);
+                    return;
+                }
+                
                 // Initialize high scores manager
                 await window.highScoresManager.initialize(clerk);
+                console.log('[Speed Results] High scores manager initialized');
                 
                 // Initialize achievements service
-                if (window.achievementsService) {
-                    await window.achievementsService.initialize(clerk);
-                }
+                await window.achievementsService.initialize(clerk);
+                console.log('[Speed Results] Achievement service initialized');
 
+                console.log('[Speed Results] Saving test result...', results);
+                
                 // Save the speed training result (this will automatically process achievements and XP)
                 const saved = await window.highScoresManager.saveTestResult(results);
 
                 if (saved) {
-                    console.log('Speed training results saved successfully');
+                    console.log('[Speed Results] ✅ Speed training results saved successfully');
                     
                     // Show XP notification after a brief delay
-                    setTimeout(showXpNotification, 500);
+                    setTimeout(() => {
+                        console.log('[Speed Results] Calling showXpNotification');
+                        showXpNotification();
+                    }, 1000); // Increased delay to ensure everything is processed
                 } else {
-                    console.error('Failed to save speed training results');
+                    console.error('[Speed Results] ❌ Failed to save speed training results');
+                    // Still try to show XP notification
+                    setTimeout(() => showXpNotification(), 500);
                 }
 
             } catch (error) {
-                console.error('Error saving speed training results:', error);
+                console.error('[Speed Results] ❌ Error saving speed training results:', error);
+                // Still try to show XP notification
+                setTimeout(() => showXpNotification(), 500);
             }
         }
 
