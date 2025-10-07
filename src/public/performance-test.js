@@ -1470,7 +1470,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Track decision for performance analysis
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
-                const isCorrect = correctAction.toLowerCase().includes('hit');
+                // Check if hit is correct - must not be a double/split/stand-only situation
+                const isCorrect = correctAction.toLowerCase().includes('hit') && 
+                                  !correctAction.toLowerCase().includes('double if allowed') &&
+                                  !correctAction.toLowerCase().includes('split');
                 trackDecision('hits', isCorrect);
             }
             
@@ -1507,7 +1510,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Track decision for performance analysis
             if (state.isTestMode) {
                 const correctAction = getBasicStrategyAdvice();
-                const isCorrect = correctAction.toLowerCase().includes('stand');
+                // Check if stand is correct - must not be a double/split-only situation
+                const isCorrect = correctAction.toLowerCase().includes('stand') &&
+                                  !correctAction.toLowerCase().includes('double if allowed');
                 trackDecision('stands', isCorrect);
             }
             
@@ -2552,6 +2557,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // If we've already hit beyond the initial 2 cards, apply more conservative adjustments
             if (currentHand.length > 2) {
                 // Limited set of deviations after hitting
+                // No doubling advice - you can't double after hitting
+                
                 // 16 vs 10
                 if (playerValue === 16 && dealerValue === 10 && !isSoft) {
                     if (trueCount >= 0) {
@@ -2566,7 +2573,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                return advice;
+                // 12 vs 3
+                if (playerValue === 12 && dealerValue === 3 && !isSoft) {
+                    if (trueCount >= 2) {
+                        return 'Stand (due to count)';
+                    }
+                }
+                
+                // 12 vs 2
+                if (playerValue === 12 && dealerValue === 2 && !isSoft) {
+                    if (trueCount >= 3) {
+                        return 'Stand (due to count)';
+                    }
+                }
+                
+                // 13 vs 2
+                if (playerValue === 13 && dealerValue === 2 && !isSoft) {
+                    if (trueCount >= -1) {
+                        return 'Stand (due to count)';
+                    }
+                }
+                
+                // 13 vs 3
+                if (playerValue === 13 && dealerValue === 3 && !isSoft) {
+                    if (trueCount >= -2) {
+                        return 'Stand (due to count)';
+                    }
+                }
+                
+                // Remove any "Double if allowed" text from advice after hitting
+                return advice.replace(/Double if allowed, otherwise /gi, '');
             }
             
             // ====== INSURANCE ======
