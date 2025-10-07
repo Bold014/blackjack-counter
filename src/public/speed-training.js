@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Save to high scores system if available
         if (window.highScoresManager && results.totalDecisions > 0) {
-            console.log('Saving to highScoresManager...');
+            console.log('[Speed Training] Saving to highScoresManager with testType: speed');
             const speedTestResult = {
                 testType: 'speed',
                 overallScore: results.finalAccuracy,
@@ -174,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Convert to format expected by speed-results.html
         return {
+            testType: 'speed', // IMPORTANT: Mark as speed test for correct XP calculation
             finalScore: trainerResults.finalAccuracy || 0, // results page expects finalScore
             finalAccuracy: trainerResults.finalAccuracy || 0,
             correctDecisions: trainerResults.correctDecisions || 0,
