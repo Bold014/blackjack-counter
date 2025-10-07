@@ -65,6 +65,28 @@ class HighScoresManager {
                 }
             });
 
+            // Process achievements and gamification (if available)
+            if (window.achievementsService?.initialized) {
+                try {
+                    const gamificationResult = await window.achievementsService.processTestResult(newScore);
+                    console.log('Gamification processed:', gamificationResult);
+                    
+                    // Show achievement toasts for newly unlocked achievements
+                    if (gamificationResult.newAchievements && gamificationResult.newAchievements.length > 0) {
+                        gamificationResult.newAchievements.forEach((achievement, index) => {
+                            setTimeout(() => {
+                                if (typeof window.showAchievementToast === 'function') {
+                                    window.showAchievementToast(achievement);
+                                }
+                            }, index * 500); // Stagger toasts
+                        });
+                    }
+                } catch (achievementError) {
+                    console.error('Error processing achievements:', achievementError);
+                    // Don't fail the save if achievements fail
+                }
+            }
+
             return true;
         } catch (error) {
             console.error('Error saving test result:', error);
