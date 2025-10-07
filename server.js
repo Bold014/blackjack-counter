@@ -39,6 +39,12 @@ app.use(express.json());
 // Serve static files from src/public as root
 app.use(express.static(path.join(__dirname, 'src', 'public')));
 
+// Serve root-level JS files (like card-counter-trainer.js)
+app.use(express.static(path.join(__dirname), {
+    index: false, // Don't serve index.html from root
+    extensions: ['js'] // Only serve JS files from root
+}));
+
 // Serve assets, components, and styles from src directory
 app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
 app.use('/components', express.static(path.join(__dirname, 'src', 'components')));
