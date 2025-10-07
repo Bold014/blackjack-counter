@@ -1205,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (chips) {
                 chips.forEach(chip => {
                     chip.addEventListener('click', () => {
-                        if (!state.bettingEnabled || state.gamePhase !== 'betting' && state.gamePhase !== 'gameOver') {
+                        if (!state.bettingEnabled || (state.gamePhase !== 'betting' && state.gamePhase !== 'gameOver')) {
                             return;
                         }
                         
