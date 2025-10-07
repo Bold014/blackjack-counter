@@ -565,11 +565,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 feedbackOverlay.classList.add('show');
             }, 10);
-            
-            // Pause the decision timer while showing feedback
-            if (state.isSpeedMode && state.decisionTimerInterval) {
-                clearInterval(state.decisionTimerInterval);
-            }
         }
         
         // Generate decision explanation
@@ -797,7 +792,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         setTimeout(() => {
                             feedbackOverlay.style.display = 'none';
                             
-                            // Resume the decision timer if in speed mode
+                            // Only restart timer if we're still in player turn phase
+                            // (this means the player hit and can make another decision)
                             if (state.isSpeedMode && state.gamePhase === 'playerTurn') {
                                 startDecisionTimer();
                             }
@@ -810,6 +806,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Make a decision and track it for speed mode
         function makeDecision(action) {
             if (state.gamePhase !== 'playerTurn') return;
+            
+            // Stop the timer immediately when any decision is made
+            stopDecisionTimer();
             
             // Check if this is the correct decision for speed mode
             if (state.isSpeedMode) {
@@ -832,7 +831,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 recordDecision(action, isCorrect);
-                stopDecisionTimer();
             }
             
             // Execute the action
@@ -976,7 +974,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if player busts
             if (handValue > 21) {
                 state.gamePhase = 'evaluating';
-                stopDecisionTimer();
                 
                 // Reveal dealer's hole card
                 revealDealerCards();
@@ -985,12 +982,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     evaluateHands();
                 }, 500);
-            } else {
-                // Continue with decision timer if in speed mode
-                if (state.isSpeedMode) {
-                    startDecisionTimer();
-                }
             }
+            // Don't restart timer here - it will be restarted by the feedback continue button
+            // if the player is still in playerTurn phase
             
             updateGameDisplay();
             updateControls();
@@ -1001,7 +995,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.gamePhase !== 'playerTurn') return;
             
             state.gamePhase = 'dealerTurn';
-            stopDecisionTimer();
             
             setTimeout(dealerTurn, 500);
             
@@ -1018,8 +1011,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentHand.length > 2) {
                 return; // Can't double after hitting
             }
-            
-            stopDecisionTimer();
             
             // Deal one card and end turn for this hand
             currentHand.push(dealCard(false, false));
@@ -1042,8 +1033,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return; // Can only split a pair
             }
             
-            stopDecisionTimer();
-            
             // Create new hand
             const newHand = [currentHand.pop()];
             
@@ -1054,10 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add the new hand to player hands
             state.playerHands.splice(state.currentHandIndex + 1, 0, newHand);
             
-            // Continue with current hand (restart timer)
-            if (state.isSpeedMode) {
-                startDecisionTimer();
-            }
+            // Timer will be restarted by feedback continue button if still in playerTurn phase
             
             updateGameDisplay();
             updateControls();
