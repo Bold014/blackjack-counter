@@ -238,6 +238,17 @@
             </div>
         </div>
 
+        <!-- XP Reward Section -->
+        <div id="xp-reward-section" style="margin: 30px auto; max-width: 600px; background: linear-gradient(135deg, rgba(254, 183, 80, 0.1), rgba(255, 215, 138, 0.1)); border: 2px solid rgba(254, 183, 80, 0.3); border-radius: 16px; padding: 30px; text-align: center; display: none;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⭐</div>
+            <h3 style="color: #feb750; font-size: 1.8rem; margin-bottom: 15px;">Experience Earned!</h3>
+            <div id="xp-earned" style="font-size: 3.5rem; font-weight: bold; background: radial-gradient(circle at 30% 30%, #ffd78a 0%, #feb750 60%, #f5a423 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">+0 XP</div>
+            <div id="xp-breakdown" style="color: rgba(255, 255, 255, 0.8); font-size: 0.95rem; margin-top: 15px;"></div>
+            <div id="level-up-message" style="display: none; margin-top: 20px; padding: 15px; background: rgba(254, 183, 80, 0.2); border-radius: 8px; color: #ffd78a; font-weight: 600; font-size: 1.1rem;">
+                🎉 LEVEL UP! You are now Level <span id="new-level">1</span>!
+            </div>
+        </div>
+
         <div class="decision-breakdown" id="decision-breakdown" style="display: none;">
             <h3 style="color: white; margin-bottom: 20px;">Decision Breakdown</h3>
             <div class="breakdown-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
@@ -466,6 +477,69 @@
         });
     </script>
     
+    <script>
+        // Show XP notification function
+        async function showXpNotification() {
+            try {
+                // Get current results to calculate XP
+                const results = JSON.parse(localStorage.getItem('speedResults') || '{}');
+                if (!results || !results.totalDecisions) {
+                    console.log('No results found for XP display');
+                    return;
+                }
+
+                // Get gamification data to show XP earned
+                const gamificationData = await window.achievementsService.getGamificationData();
+                
+                // Calculate XP breakdown
+                const accuracy = results.finalAccuracy || results.finalScore || 0;
+                const xpBreakdown = [];
+                let totalXp = 15; // Base speed test XP
+                xpBreakdown.push('Speed Training: 15 XP');
+                
+                if (accuracy >= 95) {
+                    totalXp += 10;
+                    xpBreakdown.push('95%+ Accuracy: +10 XP');
+                }
+                if (accuracy >= 99) {
+                    totalXp += 15;
+                    xpBreakdown.push('99%+ Accuracy: +15 XP');
+                }
+                if (accuracy === 100 && results.totalDecisions >= 10) {
+                    totalXp += 25;
+                    xpBreakdown.push('Perfect Session: +25 XP');
+                }
+
+                // Show the XP section
+                const xpSection = document.getElementById('xp-reward-section');
+                const xpEarned = document.getElementById('xp-earned');
+                const xpBreakdownEl = document.getElementById('xp-breakdown');
+                
+                if (xpSection && xpEarned) {
+                    xpEarned.textContent = `+${totalXp} XP`;
+                    if (xpBreakdownEl) {
+                        xpBreakdownEl.innerHTML = xpBreakdown.join('<br>');
+                    }
+                    
+                    // Animate the display
+                    xpSection.style.display = 'block';
+                    xpSection.style.opacity = '0';
+                    xpSection.style.transform = 'scale(0.9)';
+                    xpSection.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        xpSection.style.opacity = '1';
+                        xpSection.style.transform = 'scale(1)';
+                    }, 100);
+                }
+
+                console.log(`XP Display: +${totalXp} XP`, xpBreakdown);
+            } catch (error) {
+                console.error('Error showing XP notification:', error);
+            }
+        }
+    </script>
+    
     <!-- Clerk Integration -->
     <script 
         async
@@ -491,6 +565,8 @@
 
                 if (clerk.user) {
                     showUserButton();
+                    // Save speed training results and award XP
+                    await saveSpeedResults();
                 } else {
                     console.warn('User not authenticated, but allowing results display');
                     // Don't redirect immediately - let user see results
@@ -511,6 +587,40 @@
                 }, 5000);
             }
         });
+
+        async function saveSpeedResults() {
+            const results = JSON.parse(localStorage.getItem('speedResults') || '{}');
+            
+            if (!results || !clerk || !clerk.user || !results.totalDecisions) {
+                console.log('Cannot save speed results: missing data or user not authenticated');
+                return;
+            }
+
+            try {
+                // Initialize high scores manager
+                await window.highScoresManager.initialize(clerk);
+                
+                // Initialize achievements service
+                if (window.achievementsService) {
+                    await window.achievementsService.initialize(clerk);
+                }
+
+                // Save the speed training result (this will automatically process achievements and XP)
+                const saved = await window.highScoresManager.saveTestResult(results);
+
+                if (saved) {
+                    console.log('Speed training results saved successfully');
+                    
+                    // Show XP notification after a brief delay
+                    setTimeout(showXpNotification, 500);
+                } else {
+                    console.error('Failed to save speed training results');
+                }
+
+            } catch (error) {
+                console.error('Error saving speed training results:', error);
+            }
+        }
 
         function showUserButton() {
             const userButton = document.getElementById('user-button');

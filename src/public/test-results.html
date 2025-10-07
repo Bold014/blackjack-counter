@@ -149,6 +149,17 @@
                     </button>
                 </div>
 
+                <!-- XP Reward Section -->
+                <div id="xp-reward-section" style="margin: 30px auto; max-width: 600px; background: linear-gradient(135deg, rgba(254, 183, 80, 0.1), rgba(255, 215, 138, 0.1)); border: 2px solid rgba(254, 183, 80, 0.3); border-radius: 16px; padding: 30px; text-align: center; display: none;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⭐</div>
+                    <h3 style="color: #feb750; font-size: 1.8rem; margin-bottom: 15px;">Experience Earned!</h3>
+                    <div id="xp-earned" style="font-size: 3.5rem; font-weight: bold; background: radial-gradient(circle at 30% 30%, #ffd78a 0%, #feb750 60%, #f5a423 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">+0 XP</div>
+                    <div id="xp-breakdown" style="color: rgba(255, 255, 255, 0.8); font-size: 0.95rem; margin-top: 15px;"></div>
+                    <div id="level-up-message" style="display: none; margin-top: 20px; padding: 15px; background: rgba(254, 183, 80, 0.2); border-radius: 8px; color: #ffd78a; font-weight: 600; font-size: 1.1rem;">
+                        🎉 LEVEL UP! You are now Level <span id="new-level">1</span>!
+                    </div>
+                </div>
+
                 <!-- Personal Best Alert -->
                 <div id="personal-best-alert" class="personal-best-alert" style="display: none;">
                     <div class="alert-content">
@@ -320,6 +331,9 @@
                 if (saved) {
                     console.log('High score saved successfully');
                     
+                    // Show XP notification after saving
+                    setTimeout(showXpNotification, 500);
+                    
                     // Show personal best alert if applicable
                     if (personalBestCheck.isNewBest) {
                         showPersonalBestAlert(personalBestCheck.improvements);
@@ -333,6 +347,65 @@
             }
         }
         
+        // Show XP notification function
+        async function showXpNotification() {
+            try {
+                if (!currentResults) {
+                    console.log('No results found for XP display');
+                    return;
+                }
+
+                // Get gamification data to show XP earned
+                const gamificationData = await window.achievementsService.getGamificationData();
+                
+                // Calculate XP breakdown
+                const accuracy = currentResults.strategyAccuracy || 0;
+                const xpBreakdown = [];
+                let totalXp = 20; // Base performance test XP
+                xpBreakdown.push('Performance Test: 20 XP');
+                
+                if (accuracy >= 95) {
+                    totalXp += 10;
+                    xpBreakdown.push('95%+ Accuracy: +10 XP');
+                }
+                if (accuracy >= 99) {
+                    totalXp += 15;
+                    xpBreakdown.push('99%+ Accuracy: +15 XP');
+                }
+                if (accuracy === 100 && currentResults.totalHands >= 10) {
+                    totalXp += 25;
+                    xpBreakdown.push('Perfect Session: +25 XP');
+                }
+
+                // Show the XP section
+                const xpSection = document.getElementById('xp-reward-section');
+                const xpEarned = document.getElementById('xp-earned');
+                const xpBreakdownEl = document.getElementById('xp-breakdown');
+                
+                if (xpSection && xpEarned) {
+                    xpEarned.textContent = `+${totalXp} XP`;
+                    if (xpBreakdownEl) {
+                        xpBreakdownEl.innerHTML = xpBreakdown.join('<br>');
+                    }
+                    
+                    // Animate the display
+                    xpSection.style.display = 'block';
+                    xpSection.style.opacity = '0';
+                    xpSection.style.transform = 'scale(0.9)';
+                    xpSection.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        xpSection.style.opacity = '1';
+                        xpSection.style.transform = 'scale(1)';
+                    }, 100);
+                }
+
+                console.log(`XP Display: +${totalXp} XP`, xpBreakdown);
+            } catch (error) {
+                console.error('Error showing XP notification:', error);
+            }
+        }
+
         // Show achievement unlock toast (make it globally available)
         window.showAchievementToast = function(achievement) {
             const container = document.getElementById('achievement-toast-container');
